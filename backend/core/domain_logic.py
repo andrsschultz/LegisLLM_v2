@@ -38,6 +38,8 @@ async def identify_relevant_norms(task_description: str) -> List:
         }}
 
         "jurabk" ist die Abkürzung für das betreffende Gesetzes, "enbez" der Paraph und "P" der jeweilige Absatz.
+
+        Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
 
     print("Querying LLM to identify relevant norms...")
@@ -110,6 +112,8 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
         }}
 
         Hinweis: "jurabk" ist die Abkürzung für das betreffende Gesetz, "enbez" der Paragraph und "P" der jeweilige Absatz.
+
+        Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
 
     print("Querying LLM to develop amendment proposals...")
@@ -130,7 +134,7 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
 
 async def evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposals: List[ProposalEntry]) -> List:
     
-    """Evaluate the amendment proposals against juridical, technical, and dogmatic criteria."""
+    """Evaluate the amendment proposals."""
     print("\n==== EVALUATE PROPOSALS ====")
     print(f"Task description length: {len(task_description)} characters")
     print(f"Number of amendment proposals: {len(amendment_proposals)}")
@@ -140,9 +144,10 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
     
     # Convert amendment_proposals to readable text format
     amendment_proposals_text = "\n".join([
-        f"- {proposal.proposalTitle}: {proposal.description}" 
+        f"- {proposal.proposalTitle}: {proposal.description}\n  Affected Norms: {', '.join([f'{norm.jurabk} {norm.enbez} Abs. {norm.P}' for norm in proposal.affectedNorms])}" 
         for proposal in amendment_proposals
     ])
+
 
     prompt = f"""
         Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
@@ -158,6 +163,96 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
         was aus juristischer, rechtstechnischer und dogmatischer Sicht für und was gegen die jeweilige Änderung spricht. 
         Politische Erwägungen sind dabei zu vernachlässigen.
         Sortiere die Änderungsvorschläge nach dem Grad deren Eignung im Sinne der vorgenannten Abwägung.
+
+        Gib als Antwort ausschließlich eine JSON-Liste zurück, welches wie folgt formatiert ist:
+
+        {{
+        "entries": [
+            {{
+            "proposalTitle": "Kurze, prägnante Bezeichnung der Alternative",
+            "affectedNorms": [
+                {{
+                "jurabk": "EStG",
+                "enbez": "§ 21",
+                "P": "2"
+                }}
+            ],
+            "pro": ["Pro-Argument 1", "Pro-Argument 2"],
+            "contra": ["Contra-Argument 1", "Contra-Argument 2"]
+            }}
+        ]
+        }}
+
+        Hinweis: "jurabk" ist die Abkürzung für das betreffende Gesetz, "enbez" der Paragraph und "P" der jeweilige Absatz.
+
+        Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
+    """
+
+    print("Querying LLM to evaluate proposals...")
+    raw_response = await query_openai(prompt)
+
+    print(f"Response received. Length: {len(raw_response)} characters")
+    
+    try:
+        parsed_response = json.loads(raw_response)
+        entries = parsed_response.get("entries", [])
+        print(f"Successfully parsed evaluation entries")
+        return entries
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON response: {e}")
+        print(f"Raw response: {raw_response}")
+        return []
+
+    
+
+async def deep_evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposal: ProposalEntry) -> List:
+    
+    """Deep Evaluate the amendment proposals against juridical, technical, and dogmatic criteria."""
+    print("\n==== DEEP EVALUATE PROPOSALS ====")
+    print(f"Task description length: {len(task_description)} characters")
+
+    # Convert relevant_norms to readable text format
+    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}" for norm in relevant_norms])
+    
+    # Convert amendment_proposal to readable text format
+    amendment_proposals_text = f"- {amendment_proposal.proposalTitle}: {amendment_proposal.description}\n  Affected Norms: {', '.join([f'{norm.jurabk} {norm.enbez} Abs. {norm.P}' for norm in amendment_proposal.affectedNorms])}"
+
+    prompt = f"""
+        Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
+
+        Maßnahme: {task_description}
+
+        Du hast bereits eine bestimmte Regelungsalternative ausgewählt:
+
+        Regelungsalternative: {amendment_proposals_text}
+
+        Regelungskontext: {relevant_norms_text}
+
+        Bitte unterziehe diesen Änderungsvorschlag einer vertieften Abwägung und nutze dabei insbesondere 
+        juristische, rechtstechnische und dogmatische Gesichtspunkte. Politische Erwägungen bleiben außen vor. 
+        Berücksichtige zusätzlich mögliche Folgen in Bezug auf:
+
+        - Verwaltungsaufwand (für Behörden)
+        - Fiskalische Auswirkungen (z.B. Steuerausfälle oder Mehreinnahmen)
+        - Praktikabilität für Bürgerinnen und Bürger bzw. Unternehmen
+
+        Strukturiere deine Evaluation folgendermaßen:
+
+        1. Juristische Beurteilung
+        - Beziehe dich auf relevante verfassungsrechtliche Anforderungen, EU-Rechtskonformität, 
+        Auslegungsfragen (systematisch, teleologisch etc.) und mögliche Querverweise. 
+        2. Rechtstechnische Beurteilung
+        - Prüfe Klarheit der Regelung, Anschlussfähigkeit an bestehende Gesetzesstrukturen, 
+        Widersprüche oder Dopplungen, ggf. Formulierungsvorschläge. 
+        3. Dogmatische Beurteilung 
+        - Ordne die Änderung in die Grundsätze des Steuerrechts (oder des betroffenen Rechtsgebiets) ein. 
+        - Prüfe, ob zentrale Rechtsprinzipien tangiert werden oder ob es dogmatische Unstimmigkeiten gibt. 
+        4. Folgenabschätzung
+        - Erläutere absehbaren Verwaltungsaufwand, fiskalische Effekte und Praktikabilität/Umsetzbarkeit. 
+        - Gehe auch auf mögliche Übergangs- oder Durchführungsregelungen ein. 
+
+        Fasse die Vor- und Nachteile (Pro/Contra) kompakt zusammen und benenne offene Fragen oder 
+        Nachbesserungsbedarf. 
 
         Gib als Antwort ausschließlich eine JSON-Liste zurück, welches wie folgt formatiert ist:
 
@@ -208,6 +303,8 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
         }}
 
         Hinweis: "jurabk" ist die Abkürzung für das betreffende Gesetz, "enbez" der Paragraph und "P" der jeweilige Absatz.
+
+        Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
 
     print("Querying LLM to evaluate proposals...")

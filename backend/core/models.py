@@ -40,6 +40,23 @@ class EvaluateRequest(BaseModel):
     amendment_proposals: List[ProposalEntry]
 
 class EvaluateEntry(BaseModel):
+    proposalTitle: str
+    affectedNorms: List[NormReference]
+    pro: List[str]
+    contra: List[str]
+
+class EvaluateResponse(BaseModel):
+    entries: List[EvaluateEntry]
+
+
+
+
+class DeepEvaluateRequest(BaseModel):
+    task_description: str
+    relevant_norms: List[NormEntry]
+    amendment_proposal: ProposalEntry
+
+class DeepEvaluateEntry(BaseModel):
     class JuristischeBeurteilung(BaseModel):
         Bewertung: str
         PotentielleProbleme: str
@@ -73,5 +90,5 @@ class EvaluateEntry(BaseModel):
     folgenabschätzung: Folgenabschätzung
     fazitProContra: FazitProContra
 
-class EvaluateResponse(BaseModel):
-    entries: List[EvaluateEntry]
+class DeepEvaluateResponse(BaseModel):
+    entries: List[DeepEvaluateEntry]
