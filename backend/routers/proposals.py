@@ -1,6 +1,4 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
-from typing import List
 from ..core.domain_logic import develop_amendment_proposals
 from ..core.models import ProposalRequest, ProposalEntry, ProposalResponse
 

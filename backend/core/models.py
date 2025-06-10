@@ -32,3 +32,46 @@ class ProposalEntry(BaseModel):
 
 class ProposalResponse(BaseModel):
     entries: List[ProposalEntry]
+
+
+class EvaluateRequest(BaseModel):
+    task_description: str
+    relevant_norms: List[NormEntry]
+    amendment_proposals: List[ProposalEntry]
+
+class EvaluateEntry(BaseModel):
+    class JuristischeBeurteilung(BaseModel):
+        Bewertung: str
+        PotentielleProbleme: str
+        Querverweise: List[NormReference]
+
+    class RechtstechnischeBeurteilung(BaseModel):
+        Klarheit: str
+        Formulierungsvorschlag: str
+        Risikopunkte: List[str]
+
+    class DogmatischeBeurteilung(BaseModel):
+        Systematik: str
+        Prinzipien: str
+
+    class Folgenabschätzung(BaseModel):
+        Verwaltungsaufwand: str
+        FiskalischeAuswirkungen: str
+        Praktikabilität: str
+        Übergangsregelungen: str
+
+    class FazitProContra(BaseModel):
+        Pro: List[str]
+        Contra: List[str]
+        OffeneFragen: List[str]
+
+    proposalTitle: str
+    affectedNorms: List[NormReference]
+    juristischeBeurteilung: JuristischeBeurteilung
+    rechtstechnischeBeurteilung: RechtstechnischeBeurteilung
+    dogmatischeBeurteilung: DogmatischeBeurteilung
+    folgenabschätzung: Folgenabschätzung
+    fazitProContra: FazitProContra
+
+class EvaluateResponse(BaseModel):
+    entries: List[EvaluateEntry]

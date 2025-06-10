@@ -2,12 +2,12 @@ import json
 import os
 from typing import List
 from .llm_service import query_openai, query_deepinfra
-from .models import NormEntry
+from .models import NormEntry, ProposalEntry
 
 
 #TBD: Functions always use OpenAI, but should use DeepInfra if specified
 
-async def identify_relevant_norms(task_description: str) -> list:
+async def identify_relevant_norms(task_description: str) -> List:
     
     """Identify the relevant legal norms for the given task."""
     print("\n==== IDENTIFY RELEVANT NORMS ====")
@@ -121,6 +121,104 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
         parsed_response = json.loads(raw_response)
         entries = parsed_response.get("entries", [])
         print(f"Successfully parsed {len(entries)} amendment proposals")
+        return entries
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON response: {e}")
+        print(f"Raw response: {raw_response}")
+        return []
+    
+
+async def evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposals: List[ProposalEntry]) -> List:
+    
+    """Evaluate the amendment proposals against juridical, technical, and dogmatic criteria."""
+    print("\n==== EVALUATE PROPOSALS ====")
+    print(f"Task description length: {len(task_description)} characters")
+    print(f"Number of amendment proposals: {len(amendment_proposals)}")
+
+    # Convert relevant_norms to readable text format
+    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}" for norm in relevant_norms])
+    
+    # Convert amendment_proposals to readable text format
+    amendment_proposals_text = "\n".join([
+        f"- {proposal.proposalTitle}: {proposal.description}" 
+        for proposal in amendment_proposals
+    ])
+
+    prompt = f"""
+        Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
+
+        Maßnahme: {task_description}
+
+        Die Maßnahme soll durch folgende mögliche Änderungen umgesetzt werden: 
+        {amendment_proposals_text}
+
+        Regelungskontext: {relevant_norms_text}
+
+        Füge jeder von dir Änderungsmaßnahmen im nächsten Schritt eine Abwägung hinzu, in deren Rahmen du evaluierst,
+        was aus juristischer, rechtstechnischer und dogmatischer Sicht für und was gegen die jeweilige Änderung spricht. 
+        Politische Erwägungen sind dabei zu vernachlässigen.
+        Sortiere die Änderungsvorschläge nach dem Grad deren Eignung im Sinne der vorgenannten Abwägung.
+
+        Gib als Antwort ausschließlich eine JSON-Liste zurück, welches wie folgt formatiert ist:
+
+        {{
+        "entries": [
+            {{
+            "proposalTitle": "Kurze, prägnante Bezeichnung der Alternative",
+            "affectedNorms": [
+                {{
+                "jurabk": "EStG",
+                "enbez": "§ 21",
+                "P": "2"
+                }}
+            ],
+            "juristischeBeurteilung": {{
+                "Bewertung": "Detaillierte juristische Bewertung",
+                "PotentielleProbleme": "Beschreibung möglicher rechtlicher Probleme",
+                "Querverweise": [
+                    {{
+                    "jurabk": "EStG",
+                    "enbez": "§ 21",
+                    "P": "2"
+                    }}
+                ]
+            }},
+            "rechtstechnischeBeurteilung": {{
+                "Klarheit": "Bewertung der Klarheit der Regelung",
+                "Formulierungsvorschlag": "Konkreter Formulierungsvorschlag",
+                "Risikopunkte": ["Risikopunkt 1", "Risikopunkt 2"]
+            }},
+            "dogmatischeBeurteilung": {{
+                "Systematik": "Bewertung der systematischen Einordnung",
+                "Prinzipien": "Bewertung der Vereinbarkeit mit Rechtsprinzipien"
+            }},
+            "folgenabschätzung": {{
+                "Verwaltungsaufwand": "Bewertung des Verwaltungsaufwands",
+                "FiskalischeAuswirkungen": "Bewertung der fiskalischen Auswirkungen",
+                "Praktikabilität": "Bewertung der praktischen Umsetzbarkeit",
+                "Übergangsregelungen": "Notwendige Übergangsregelungen"
+            }},
+            "fazitProContra": {{
+                "Pro": ["Pro-Argument 1", "Pro-Argument 2"],
+                "Contra": ["Contra-Argument 1", "Contra-Argument 2"],
+                "OffeneFragen": ["Offene Frage 1", "Offene Frage 2"]
+            }}
+            }}
+        ]
+        }}
+
+        Hinweis: "jurabk" ist die Abkürzung für das betreffende Gesetz, "enbez" der Paragraph und "P" der jeweilige Absatz.
+    """
+
+    print("Querying LLM to evaluate proposals...")
+    raw_response = await query_openai(prompt)
+
+    print(f"Response received. Length: {len(raw_response)} characters")
+    
+    try:
+        parsed_response = json.loads(raw_response)
+        entries = parsed_response.get("entries", [])
+        print(f"Successfully parsed evaluation entries")
         return entries
     except json.JSONDecodeError as e:
         print(f"Error parsing JSON response: {e}")

@@ -1,6 +1,4 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
-from typing import List
 import os
 from ..core.domain_logic import identify_relevant_norms
 from ..core.xml_parser import extract_section_from_law
