@@ -2,7 +2,7 @@ from .config import settings
 import openai
 import httpx
 
-async def query_openai(prompt: str, model: str = settings.model) -> str:
+async def query_openai(prompt: str, model: str = "gpt-3.5-turbo") -> str:
     client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
     response = await client.chat.completions.create(
         model=model,

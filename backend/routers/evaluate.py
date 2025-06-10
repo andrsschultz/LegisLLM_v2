@@ -1,17 +1,24 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
+from typing import Optional
 from ..core.domain_logic import evaluate_proposals, deep_evaluate_proposals
 from ..core.models import EvaluateRequest, EvaluateEntry, EvaluateResponse, DeepEvaluateRequest, DeepEvaluateEntry, DeepEvaluateResponse
+from ..core.config import ModelEnum, get_model
 
 router = APIRouter()
 
 
 
 @router.post("/evaluate_proposals", response_model=EvaluateResponse)
-async def evaluate_proposals_endpoint(request: EvaluateRequest):
+async def evaluate_proposals_endpoint(
+    request: EvaluateRequest,
+    model: Optional[ModelEnum] = Query(None, description="LLM model to use for evaluation")
+):
+    selected_model = get_model(model)
     raw_entries = await evaluate_proposals(
         task_description=request.task_description, 
         relevant_norms=request.relevant_norms,
-        amendment_proposals=request.amendment_proposals
+        amendment_proposals=request.amendment_proposals,
+        model=selected_model
     )
     
     entries = [
@@ -28,11 +35,16 @@ async def evaluate_proposals_endpoint(request: EvaluateRequest):
 
 
 @router.post("/deep_evaluate_proposals", response_model=DeepEvaluateResponse)
-async def deep_evaluate_proposals_endpoint(request: DeepEvaluateRequest):
+async def deep_evaluate_proposals_endpoint(
+    request: DeepEvaluateRequest,
+    model: Optional[ModelEnum] = Query(None, description="LLM model to use for evaluation")
+):
+    selected_model = get_model(model)
     raw_entries = await deep_evaluate_proposals(
         task_description=request.task_description, 
         relevant_norms=request.relevant_norms,
-        amendment_proposal=request.amendment_proposal
+        amendment_proposal=request.amendment_proposal,
+        model=selected_model
     )
     
     entries = [

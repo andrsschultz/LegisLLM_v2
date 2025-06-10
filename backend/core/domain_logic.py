@@ -1,13 +1,13 @@
 import json
 import os
-from typing import List
+from typing import List, Optional
 from .llm_service import query_openai, query_deepinfra
 from .models import NormEntry, ProposalEntry
 
 
 #TBD: Functions always use OpenAI, but should use DeepInfra if specified
 
-async def identify_relevant_norms(task_description: str) -> List:
+async def identify_relevant_norms(task_description: str, model: Optional[str] = None) -> List:
     
     """Identify the relevant legal norms for the given task."""
     print("\n==== IDENTIFY RELEVANT NORMS ====")
@@ -43,7 +43,7 @@ async def identify_relevant_norms(task_description: str) -> List:
     """
 
     print("Querying LLM to identify relevant norms...")
-    raw_response = await query_openai(prompt)
+    raw_response = await query_openai(prompt, model or "gpt-3.5-turbo")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -59,7 +59,7 @@ async def identify_relevant_norms(task_description: str) -> List:
     
 
 
-async def develop_amendment_proposals(task_description: str, relevant_norms: List[NormEntry]) -> List:
+async def develop_amendment_proposals(task_description: str, relevant_norms: List[NormEntry], model: Optional[str] = None) -> List:
     
     """Develop amendment proposals for the relevant legal norms."""
     print("\n==== DEVELOP AMENDMENT PROPOSALS ====")
@@ -117,7 +117,7 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
     """
 
     print("Querying LLM to develop amendment proposals...")
-    raw_response = await query_openai(prompt)
+    raw_response = await query_openai(prompt, model or "gpt-3.5-turbo")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -132,7 +132,7 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
         return []
     
 
-async def evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposals: List[ProposalEntry]) -> List:
+async def evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposals: List[ProposalEntry], model: Optional[str] = None) -> List:
     
     """Evaluate the amendment proposals."""
     print("\n==== EVALUATE PROPOSALS ====")
@@ -189,7 +189,7 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
     """
 
     print("Querying LLM to evaluate proposals...")
-    raw_response = await query_openai(prompt)
+    raw_response = await query_openai(prompt, model or "gpt-3.5-turbo")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -205,7 +205,7 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
 
     
 
-async def deep_evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposal: ProposalEntry) -> List:
+async def deep_evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposal: ProposalEntry, model: Optional[str] = None) -> List:
     
     """Deep Evaluate the amendment proposals against juridical, technical, and dogmatic criteria."""
     print("\n==== DEEP EVALUATE PROPOSALS ====")
@@ -308,7 +308,7 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
     """
 
     print("Querying LLM to evaluate proposals...")
-    raw_response = await query_openai(prompt)
+    raw_response = await query_openai(prompt, model or "gpt-3.5-turbo")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -325,7 +325,7 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
 
 
 
-async def generate_final_amendment(task_description: str, amendment_proposal: ProposalEntry, relevant_norms: List[NormEntry], custom_instructions: str | None = None) -> List:
+async def generate_final_amendment(task_description: str, amendment_proposal: ProposalEntry, relevant_norms: List[NormEntry], custom_instructions: str | None = None, model: Optional[str] = None) -> List:
 
 
     """Deep Evaluate the amendment proposals against juridical, technical, and dogmatic criteria."""
@@ -359,7 +359,7 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
     """
 
     print("Querying LLM to evaluate proposals...")
-    raw_response = await query_openai(prompt)
+    raw_response = await query_openai(prompt, model or "gpt-3.5-turbo")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
