@@ -2,8 +2,19 @@ from .config import settings
 import openai
 import httpx
 
-async def query_openai(prompt: str, model: str = "gpt-3.5-turbo") -> str:
-    client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
+async def query_openai(prompt: str, api_key: str, model: str = "gpt-3.5-turbo") -> str:
+    """
+    Query OpenAI API with user-provided API key.
+    
+    Args:
+        prompt: The user prompt
+        api_key: User's OpenAI API key
+        model: The OpenAI model to use
+        
+    Returns:
+        The generated response content
+    """
+    client = openai.AsyncOpenAI(api_key=api_key)
     response = await client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
@@ -11,9 +22,20 @@ async def query_openai(prompt: str, model: str = "gpt-3.5-turbo") -> str:
     # Return empty string if no content is None
     return response.choices[0].message.content or ""
 
-async def query_deepinfra(prompt: str, model: str) -> str:
+async def query_deepinfra(prompt: str, api_key: str, model: str) -> str:
+    """
+    Query DeepInfra API with user-provided API key.
+    
+    Args:
+        prompt: The user prompt
+        api_key: User's DeepInfra API key
+        model: The DeepInfra model to use
+        
+    Returns:
+        The generated response content
+    """
     headers = {
-        "Authorization": f"Bearer {settings.deepinfra_api_key}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
     payload = {

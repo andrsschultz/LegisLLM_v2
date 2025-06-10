@@ -1,21 +1,24 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
 from typing import Optional
 import os
 from ..core.domain_logic import identify_relevant_norms
 from ..core.xml_parser import extract_section_from_law
 from ..core.models import NormRequest, NormEntry, NormResponse
 from ..core.config import ModelEnum, get_model
+from ..core.auth import verify_api_key
 
 router = APIRouter()
 
 @router.post("/identify", response_model=NormResponse)
 async def identify_norms(
     request: NormRequest,
+    api_key: str = Depends(verify_api_key),
     model: Optional[ModelEnum] = Query(None, description="LLM model to use for norm identification")
 ):
     selected_model = get_model(model)
     raw_entries = await identify_relevant_norms(
         task_description=request.task_description,
+        api_key=api_key,
         model=selected_model
     )
 
