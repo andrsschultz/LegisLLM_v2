@@ -15,7 +15,15 @@ class NormReference(BaseModel):
 
 class NormRequest(BaseModel):
     task_description: str 
-
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "task_description": "Einführung einer Freigrenze für Einnahmen aus Vermietung und Verpachtung"
+                }
+            ]
+        }
+    }
 
 class NormResponse(BaseModel):
     entries: List[NormEntry]
@@ -24,6 +32,25 @@ class NormResponse(BaseModel):
 class ProposalRequest(BaseModel):
     task_description: str
     relevant_norms: List[NormEntry]
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "task_description": "Einführung einer Freigrenze für Einnahmen aus Vermietung und Verpachtung",
+                    "relevant_norms": [
+                        {
+                        "jurabk": "EStG",
+                        "enbez": "§ 21",
+                        "P": "1",
+                        "wording": "Natürliche Personen, die im Inland [...]"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+
 
 class ProposalEntry(BaseModel):
     proposalTitle: str
