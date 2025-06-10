@@ -1,29 +1,17 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List
 import os
 from ..core.domain_logic import identify_relevant_norms
-from ..core import domain_logic
 from ..core.xml_parser import extract_section_from_law
+from ..core.models import NormRequest, NormEntry, NormResponse
 
 router = APIRouter()
-
-class NormRequest(BaseModel):
-    task_description: str 
-
-class NormEntry(BaseModel):
-    jurabk: str
-    enbez: str
-    P: str
-    wording: str
-
-class NormResponse(BaseModel):
-    entries: List[NormEntry]
 
 @router.post("/identify", response_model=NormResponse)
 async def identify_norms(request: NormRequest):
 
-    raw_entries = await identify_relevant_norms(request.task_description)
+    raw_entries = await identify_relevant_norms(task_description=request.task_description)
 
     # Convert raw entries to NormEntry objects with wording
     norm_entries = []
