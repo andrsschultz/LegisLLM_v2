@@ -13,7 +13,7 @@ router = APIRouter()
 async def evaluate_proposals_endpoint(
     request: EvaluateRequest,
     api_key: str = Depends(verify_api_key),
-    model: Optional[ModelEnum] = Query(str, description="LLM model to use for evaluation")
+    model: ModelEnum = Query(..., description="LLM model to use for evaluation")
 ):
     selected_model = get_model(model)
     raw_entries = await evaluate_proposals(
@@ -41,7 +41,7 @@ async def evaluate_proposals_endpoint(
 async def deep_evaluate_proposals_endpoint(
     request: DeepEvaluateRequest,
     api_key: str = Depends(verify_api_key),
-    model: Optional[ModelEnum] = Query(str, description="LLM model to use for evaluation")
+    model: ModelEnum = Query(..., description="LLM model to use for evaluation")
 ):
     selected_model = get_model(model)
     raw_entries = await deep_evaluate_proposals(

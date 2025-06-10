@@ -13,7 +13,7 @@ router = APIRouter()
 async def amend_law(
     request: AmendRequest,
     api_key: str = Depends(verify_api_key),
-    model: Optional[ModelEnum] = Query(None, description="LLM model to use for amendment generation")
+    model: ModelEnum = Query(..., description="LLM model to use for amendment generation")
 ):
     selected_model = get_model(model)
     raw_entries = await generate_final_amendment(
