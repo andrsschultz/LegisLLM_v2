@@ -321,3 +321,56 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
         print(f"Error parsing JSON response: {e}")
         print(f"Raw response: {raw_response}")
         return []
+
+
+
+
+async def generate_final_amendment(task_description: str, amendment_proposal: ProposalEntry, relevant_norms: List[NormEntry], custom_instructions: str | None = None) -> List:
+
+
+    """Deep Evaluate the amendment proposals against juridical, technical, and dogmatic criteria."""
+    print("\n==== DEEP EVALUATE PROPOSALS ====")
+    print(f"Task description length: {len(task_description)} characters")
+
+    # Convert relevant_norms to readable text format
+    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}" for norm in relevant_norms])
+    
+    # Convert amendment_proposal to readable text format
+    amendment_proposals_text = f"- {amendment_proposal.proposalTitle}: {amendment_proposal.description}\n  Affected Norms: {', '.join([f'{norm.jurabk} {norm.enbez} Abs. {norm.P}' for norm in amendment_proposal.affectedNorms])}"
+
+    prompt = f"""
+        Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
+
+        Maßnahme: {task_description}
+
+        Du hast bereits eine bestimmte Regelungsalternative ausgewählt:
+
+        Regelungsalternative: {amendment_proposals_text}
+
+        {'Zusätzliche Anpassungswünsche: ' + custom_instructions if custom_instructions else ''}
+
+        Regelungskontext: {relevant_norms_text}
+
+        Mache einen Änderungsvorschlag. Gebe die ausschließlich die Norm in der geänderten Fassung zurück. Hebe Änderungen mit [ ] hervor.
+    
+        Verwende dabei juristisch präzise Formulierungen und berücksichtige die gängigen Prinzipien der Legistik.
+
+        Gebe ausschließlich die Norm in der geänderten Fassung zurück und verwende keine zusätzlichen Außentexte oder Einleitungen.
+    """
+
+    print("Querying LLM to evaluate proposals...")
+    raw_response = await query_openai(prompt)
+
+    print(f"Response received. Length: {len(raw_response)} characters")
+    
+    try:
+        parsed_response = json.loads(raw_response)
+        entries = parsed_response.get("entries", [])
+        print(f"Successfully parsed evaluation entries")
+        return entries
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON response: {e}")
+        print(f"Raw response: {raw_response}")
+        return []
+
+    

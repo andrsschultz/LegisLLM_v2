@@ -92,3 +92,17 @@ class DeepEvaluateEntry(BaseModel):
 
 class DeepEvaluateResponse(BaseModel):
     entries: List[DeepEvaluateEntry]
+
+
+class AmendRequest(BaseModel):
+    task_description: str
+    custom_instructions: str | None = None
+    relevant_norms: List[NormEntry]
+    amendment_proposal: ProposalEntry
+
+class AmendEntry(BaseModel):
+    amendedNorm: str
+
+class AmendResponse(BaseModel):
+    entries: List[AmendEntry]
+
