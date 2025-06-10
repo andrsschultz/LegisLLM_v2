@@ -19,3 +19,16 @@ class NormRequest(BaseModel):
 
 class NormResponse(BaseModel):
     entries: List[NormEntry]
+
+
+class ProposalRequest(BaseModel):
+    task_description: str
+    relevant_norms: List[NormEntry]
+
+class ProposalEntry(BaseModel):
+    proposalTitle: str
+    description: str
+    affectedNorms: List[NormReference]
+
+class ProposalResponse(BaseModel):
+    entries: List[ProposalEntry]

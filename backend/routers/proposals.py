@@ -2,21 +2,9 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List
 from ..core.domain_logic import develop_amendment_proposals
-from ..core.models import NormEntry, NormReference
+from ..core.models import ProposalRequest, ProposalEntry, ProposalResponse
 
 router = APIRouter()
-
-class ProposalRequest(BaseModel):
-    task_description: str
-    relevant_norms: List[NormEntry]
-
-class ProposalEntry(BaseModel):
-    proposalTitle: str
-    description: str
-    affectedNorms: List[NormReference]
-
-class ProposalResponse(BaseModel):
-    entries: List[ProposalEntry]
 
 @router.post("/generate_proposals", response_model=ProposalResponse)
 async def generate_proposals(request: ProposalRequest):
