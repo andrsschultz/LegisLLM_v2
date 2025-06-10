@@ -13,7 +13,7 @@ router = APIRouter()
 async def identify_norms(
     request: NormRequest,
     api_key: str = Depends(verify_api_key),
-    model: Optional[ModelEnum] = Query(None, description="LLM model to use for norm identification")
+    model: Optional[ModelEnum] = Query(str, description="LLM model to use for norm identification")
 ):
     selected_model = get_model(model)
     raw_entries = await identify_relevant_norms(

@@ -7,7 +7,7 @@ from .models import NormEntry, ProposalEntry
 
 #TBD: Functions always use OpenAI, but should use DeepInfra if specified
 
-async def identify_relevant_norms(task_description: str, api_key: str, model: Optional[str] = None) -> List:
+async def identify_relevant_norms(task_description: str, api_key: str, model: str) -> List:
     
     """Identify the relevant legal norms for the given task."""
     print("\n==== IDENTIFY RELEVANT NORMS ====")
@@ -59,7 +59,7 @@ async def identify_relevant_norms(task_description: str, api_key: str, model: Op
     
 
 
-async def develop_amendment_proposals(task_description: str, relevant_norms: List[NormEntry], api_key: str, model: Optional[str] = None) -> List:
+async def develop_amendment_proposals(task_description: str, relevant_norms: List[NormEntry], api_key: str, model: str) -> List:
     
     """Develop amendment proposals for the relevant legal norms."""
     print("\n==== DEVELOP AMENDMENT PROPOSALS ====")
@@ -132,7 +132,7 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
         return []
     
 
-async def evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposals: List[ProposalEntry], api_key: str, model: Optional[str] = None) -> List:
+async def evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposals: List[ProposalEntry], api_key: str, model: str) -> List:
     
     """Evaluate the amendment proposals."""
     print("\n==== EVALUATE PROPOSALS ====")
@@ -205,7 +205,7 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
 
     
 
-async def deep_evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposal: ProposalEntry, api_key: str, model: Optional[str] = None) -> List:
+async def deep_evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposal: ProposalEntry, api_key: str, model: str) -> List:
     
     """Deep Evaluate the amendment proposals against juridical, technical, and dogmatic criteria."""
     print("\n==== DEEP EVALUATE PROPOSALS ====")
@@ -325,7 +325,7 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
 
 
 
-async def generate_final_amendment(task_description: str, amendment_proposal: ProposalEntry, relevant_norms: List[NormEntry], api_key: str, custom_instructions: str | None = None, model: Optional[str] = None) -> List:
+async def generate_final_amendment(task_description: str, amendment_proposal: ProposalEntry, relevant_norms: List[NormEntry], api_key: str,  model: str, custom_instructions: str | None = None) -> List:
 
 
     """Deep Evaluate the amendment proposals against juridical, technical, and dogmatic criteria."""

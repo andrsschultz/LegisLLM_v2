@@ -2,7 +2,7 @@ from .config import settings
 import openai
 import httpx
 
-async def query_openai(prompt: str, api_key: str, model: str = "gpt-3.5-turbo") -> str:
+async def query_openai(prompt: str, api_key: str, model: str) -> str:
     """
     Query OpenAI API with user-provided API key.
     

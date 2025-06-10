@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Optional
 
 class ModelEnum(str, Enum):
-    GPT_3_5_TURBO = "gpt-3.5-turbo"
+    GPT_3_5 = "gpt-3.5"
     GPT_4 = "gpt-4"
     GPT_4_TURBO = "gpt-4-turbo"
 
@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     deepinfra_api_key: str = ""
     
     # Default model
-    default_model: ModelEnum = ModelEnum.GPT_3_5_TURBO
+    default_model: ModelEnum = ModelEnum.GPT_3_5
 
     class Config:
         env_file = ".env"

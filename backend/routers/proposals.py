@@ -11,7 +11,7 @@ router = APIRouter()
 async def generate_proposals(
     request: ProposalRequest,
     api_key: str = Depends(verify_api_key),
-    model: Optional[ModelEnum] = Query(None, description="LLM model to use for proposal generation")
+    model: Optional[ModelEnum] = Query(str, description="LLM model to use for proposal generation")
 ):
     selected_model = get_model(model)
     raw_entries = await develop_amendment_proposals(
