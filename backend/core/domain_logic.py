@@ -326,14 +326,12 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
 
 
 async def generate_final_amendment(task_description: str, amendment_proposal: ProposalEntry, relevant_norms: List[NormEntry], api_key: str,  model: str, custom_instructions: str | None = None) -> List:
-
-
-    """Deep Evaluate the amendment proposals against juridical, technical, and dogmatic criteria."""
-    print("\n==== DEEP EVALUATE PROPOSALS ====")
+    """Generate the final amendment text based on the selected proposal and any custom adjustments."""
+    print("\n==== GENERATE FINAL AMENDMENT ====")
     print(f"Task description length: {len(task_description)} characters")
 
     # Convert relevant_norms to readable text format
-    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}" for norm in relevant_norms])
+    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}: {norm.wording}" for norm in relevant_norms])
     
     # Convert amendment_proposal to readable text format
     amendment_proposals_text = f"- {amendment_proposal.proposalTitle}: {amendment_proposal.description}\n  Affected Norms: {', '.join([f'{norm.jurabk} {norm.enbez} Abs. {norm.P}' for norm in amendment_proposal.affectedNorms])}"
@@ -358,19 +356,13 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
         Gebe ausschließlich die Norm in der geänderten Fassung zurück und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
 
-    print("Querying LLM to evaluate proposals...")
+    print("Querying LLM to generate final amendment...")
     raw_response = await query_openai(prompt, api_key, model or "gpt-3.5-turbo")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
-    try:
-        parsed_response = json.loads(raw_response)
-        entries = parsed_response.get("entries", [])
-        print(f"Successfully parsed evaluation entries")
-        return entries
-    except json.JSONDecodeError as e:
-        print(f"Error parsing JSON response: {e}")
-        print(f"Raw response: {raw_response}")
-        return []
+    # Since we're asking for direct text output (not JSON), return the text directly
+    # The response should be the amended norm text
+    return [{"amendedNorm": raw_response.strip()}]
 
     
