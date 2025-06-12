@@ -1,0 +1,32 @@
+services:
+  # Backend API Service
+  - type: web
+    name: legisllm-backend
+    runtime: python3
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: DEEPINFRA_API_KEY
+        sync: false
+    healthCheckPath: /health
+
+  # Frontend Streamlit Service  
+  - type: web
+    name: legisllm-frontend
+    runtime: python3
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run frontend/app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
+    envVars:
+      - key: BACKEND_URL
+        fromService:
+          type: web
+          name: legisllm-backend
+          property: host
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: DEEPINFRA_API_KEY
+        sync: false

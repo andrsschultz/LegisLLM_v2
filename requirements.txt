@@ -1,6 +1,8 @@
 fastapi
-uvicorn
+uvicorn[standard]
 pydantic-settings
 openai
 requests
 httpx
+streamlit
+python-dotenv
