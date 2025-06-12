@@ -1,7 +1,7 @@
 import json
 import os
 from typing import List, Optional
-from .llm_service import query_openai, query_deepinfra
+from .llm_service import query_llm
 from .models import NormEntry, ProposalEntry
 
 
@@ -37,7 +37,7 @@ async def identify_relevant_norms(task_description: str, api_key: str, model: st
     
 
     print("Querying LLM to identify relevant norms...")
-    raw_response = await query_openai(prompt, api_key, model or "gpt-3.5-turbo")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-3.5-turbo")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -111,7 +111,7 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
     """
 
     print("Querying LLM to develop amendment proposals...")
-    raw_response = await query_openai(prompt, api_key, model or "gpt-3.5-turbo")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-3.5-turbo")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -183,7 +183,7 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
     """
 
     print("Querying LLM to evaluate proposals...")
-    raw_response = await query_openai(prompt, api_key, model or "gpt-3.5-turbo")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-3.5-turbo")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -302,7 +302,7 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
     """
 
     print("Querying LLM to evaluate proposals...")
-    raw_response = await query_openai(prompt, api_key, model or "gpt-3.5-turbo")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-3.5-turbo")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -350,7 +350,7 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
     """
 
     print("Querying LLM to generate final amendment...")
-    raw_response = await query_openai(prompt, api_key, model or "gpt-3.5-turbo")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-3.5-turbo")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
