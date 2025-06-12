@@ -20,27 +20,21 @@ async def identify_relevant_norms(task_description: str, api_key: str, model: st
 
         Die Maßnahme soll durch Änderung eines oder mehrerer bereits bestehender Stammgesetze umgesetzt werde. Bestimme in einem ersten Schritt sämtliche für eine Änderung in Betracht kommende Rechtsnormen. Achte darauf, sämtliche von der Änderungsmaßnahme möglicherweise betroffenen Rechtsnormen einzubeziehen. Nehme noch keine Änderung vor.
 
-        Gib als Antwort ausschließlich eine JSON-Liste zurück, welches wie folgt formatiert ist:
+        Gib als Antwort ausschließlich eine JSON-Liste zurück, welche wie folgt formatiert ist:
 
         {{
-        "entries": [
-            {{
-            "jurabk": "EStG",
-            "enbez": "§ 21",
-            "P": "2"
-            }},
-            {{
-            "jurabk": "EStG",
-            "enbez": "§ 3",
-            "P": "2a"
-            }}
-        ]
+            "entries": [
+                {{
+                "jurabk": "<Abkürzung des Gesetzes>",   // z. B. "EStG"
+                "enbez": "<§‑Angabe>",                  // z. B. "§ 21"
+                "P": "<Absatz>"               // z. B. "2a"
+                }}
+            ]
         }}
-
-        "jurabk" ist die Abkürzung für das betreffende Gesetzes, "enbez" der Paraph und "P" der jeweilige Absatz.
 
         Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
+    
 
     print("Querying LLM to identify relevant norms...")
     raw_response = await query_openai(prompt, api_key, model or "gpt-3.5-turbo")
@@ -86,14 +80,14 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
             "description": "Detaillierte Beschreibung der Alternative mit Begründung.",
             "affectedNorms": [
                 {{
-                "jurabk": "EStG",
-                "enbez": "§ 21",
-                "P": "2"
+                "jurabk": "<Abkürzung des Gesetzes>", 
+                "enbez": "<§‑Angabe>",             
+                "P": "<Absatz>"             
                 }},
                 {{
-                "jurabk": "EStG", 
-                "enbez": "§ 3",
-                "P": "2a"
+                "jurabk": "<Abkürzung des Gesetzes>", 
+                "enbez": "<§‑Angabe>",                
+                "P": "<Absatz>"             
                 }}
             ]
             }},
@@ -102,16 +96,16 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
             "description": "Detaillierte Beschreibung der Alternative mit Begründung",
             "affectedNorms": [
                 {{
-                "jurabk": "EStG",
-                "enbez": "§ 21", 
-                "P": "1"
+                "jurabk": "<Abkürzung des Gesetzes>",   
+                "enbez": "<§‑Angabe>",                  
+                "P": "<Absatz>"          
                 }}
             ]
             }}
         ]
         }}
 
-        Hinweis: "jurabk" ist die Abkürzung für das betreffende Gesetz, "enbez" der Paragraph und "P" der jeweilige Absatz.
+        Die JSON Liste soll sämtliche Regelungsalternativen enthalten, die für die Maßnahme in Betracht kommen. Es können auch mehr als zwei Regelungsalternativen in Betracht kommen.
 
         Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
@@ -169,12 +163,12 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
         {{
         "entries": [
             {{
-            "proposalTitle": "Kurze, prägnante Bezeichnung der Alternative",
+            "proposalTitle": "Kurze, prägnante Bezeichnung der Alternative mit Nennung der zu ändernden Norm",
             "affectedNorms": [
                 {{
-                "jurabk": "EStG",
-                "enbez": "§ 21",
-                "P": "2"
+                "jurabk": "<Abkürzung des Gesetzes>",  
+                "enbez": "<§‑Angabe>",                
+                "P": "<Absatz>"               
                 }}
             ],
             "pro": ["Pro-Argument 1", "Pro-Argument 2"],
@@ -183,7 +177,7 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
         ]
         }}
 
-        Hinweis: "jurabk" ist die Abkürzung für das betreffende Gesetz, "enbez" der Paragraph und "P" der jeweilige Absatz.
+        Die JSON Liste soll alle für die jeweilige Regelungsalternative in Betracht kommenden Argumente enthalten. Es können auch mehr auch jeweils mehr als zwei Argumente in Betracht kommen.
 
         Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
@@ -259,12 +253,12 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
         {{
         "entries": [
             {{
-            "proposalTitle": "Kurze, prägnante Bezeichnung der Alternative",
+            "proposalTitle": "Kurze, prägnante Bezeichnung der Alternative mit Nennung der zu ändernden Norm",
             "affectedNorms": [
                 {{
-                "jurabk": "EStG",
-                "enbez": "§ 21",
-                "P": "2"
+                "jurabk": "<Abkürzung des Gesetzes>",  
+                "enbez": "<§‑Angabe>",                  
+                "P": "<Absatz>"               
                 }}
             ],
             "juristischeBeurteilung": {{
@@ -272,9 +266,9 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
                 "PotentielleProbleme": "Beschreibung möglicher rechtlicher Probleme",
                 "Querverweise": [
                     {{
-                    "jurabk": "EStG",
-                    "enbez": "§ 21",
-                    "P": "2"
+                    "jurabk": "<Abkürzung des Gesetzes>",   
+                    "enbez": "<§‑Angabe>",              
+                    "P": "<Absatz>"               
                     }}
                 ]
             }},
@@ -302,7 +296,7 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
         ]
         }}
 
-        Hinweis: "jurabk" ist die Abkürzung für das betreffende Gesetz, "enbez" der Paragraph und "P" der jeweilige Absatz.
+        Die JSON Liste soll alle für die Regelungsalternative in Betracht kommenden Argumente enthalten. Es können auch mehr auch jeweils mehr als zwei Argumente in Betracht kommen.
 
         Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
@@ -321,7 +315,6 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
         print(f"Error parsing JSON response: {e}")
         print(f"Raw response: {raw_response}")
         return []
-
 
 
 
@@ -365,4 +358,3 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
     # The response should be the amended norm text
     return [{"amendedNorm": raw_response.strip()}]
 
-    

@@ -5,7 +5,10 @@ from typing import Optional
 class ModelEnum(str, Enum):
 
     GPT_O1 = "o1"
+    GPT_03 = "o3"
+    GPT_O1_MINI = "o1-mini"
     GPT_O3_MINI = "o3-mini"
+    GPT_O4_MINI = "o4-mini"
     GPT_3_5_TURBO = "gpt-3.5-turbo"
     GPT_4 = "gpt-4"
     GPT_4_TURBO = "gpt-4-turbo"

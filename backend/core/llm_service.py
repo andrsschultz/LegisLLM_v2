@@ -14,11 +14,17 @@ async def query_openai(prompt: str, api_key: str, model: str) -> str:
     Returns:
         The generated response content
     """
+
+    print("Full prompt:", prompt)
+    
     client = openai.AsyncOpenAI(api_key=api_key)
     response = await client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
     )
+
+    print("Response from OpenAI:", response)
+
     # Return empty string if no content is None
     return response.choices[0].message.content or ""
 
