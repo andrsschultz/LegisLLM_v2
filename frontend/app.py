@@ -54,26 +54,45 @@ if not deepinfra_api_key:
 else:
     st.sidebar.success("DeepInfra API Key loaded from .env file")
 
-# Add model selection dropdown
+# Fetch available models from backend
+@st.cache_data(show_spinner=False)
+def fetch_available_models():
+    """Fetch available models and default from backend API."""
+    try:
+        url = f"{BACKEND_URL}/models"
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        models = data.get("models", [])
+        default = data.get("default", None)
+        if not models:
+            st.error("Keine Modelle vom Backend erhalten.")
+        return models, default
+    except Exception as e:
+        st.error(f"Fehler beim Laden der Modell-Liste vom Backend: {str(e)}")
+        return [], None
+
+# Get models from backend (no fallback)
+models_data, default_model = fetch_available_models()
+
+if not models_data:
+    st.sidebar.warning("Keine Modelle verfügbar. Bitte Backend prüfen.")
+    st.stop()
+
+model_options = [model["id"] for model in models_data]
+model_names = {model["id"]: model.get("name", model["id"]) for model in models_data}
+
+# Set default model in session state if not set
 if 'selected_model' not in st.session_state:
-    st.session_state.selected_model = "gpt-3.5-turbo"  # Default model
+    st.session_state.selected_model = default_model or model_options[0]
 
 st.sidebar.subheader("Modell-Auswahl")
 
-# Available models (matching backend ModelEnum)
-model_options = [
-    "o1",
-    "o3-mini", 
-    "gpt-3.5-turbo",
-    "gpt-4",
-    "gpt-4-turbo"
-]
-
-# Select model from the dropdown
 selected_model = st.sidebar.selectbox(
     "Wählen Sie ein Modell:",
     options=model_options,
     index=model_options.index(st.session_state.selected_model) if st.session_state.selected_model in model_options else 0,
+    format_func=lambda x: model_names.get(x, x),
     help="Wählen Sie das zu verwendende Sprachmodell. Leistungsfähigere Modelle bieten bessere Ergebnisse, erfordern jedoch mehr Zeit."
 )
 
@@ -474,21 +493,40 @@ if 'current_tab' not in st.session_state:
     st.session_state.current_tab = 0
 
 # Create tab navigation
-tabs = st.tabs([
+tab_names = [
     "1️⃣ Aufgabenstellung",
     "2️⃣ Regelungskontext",
     "3️⃣ Regelungsalternativen", 
     "4️⃣ Evaluierung",
     "5️⃣ Finalisierung"
-])
+]
+
+# Initialize task_description in session_state if it doesn't exist
+if 'task_description' not in st.session_state:
+    st.session_state.task_description = ""
+
+# Get current task description for use across tabs
+task_description = st.session_state.task_description
+
+# Create tab selector that respects session state
+selected_tab = st.selectbox(
+    "Wählen Sie einen Schritt:",
+    options=range(len(tab_names)),
+    index=st.session_state.current_tab,
+    format_func=lambda x: tab_names[x],
+    key="tab_selector"
+)
+
+# Update session state when tab is changed via selectbox
+if selected_tab != st.session_state.current_tab:
+    st.session_state.current_tab = selected_tab
+    st.rerun()
+
+st.write("---")
 
 # Tab 1: Task Description
-with tabs[0]:
+if st.session_state.current_tab == 0:
     st.header("1. Legistische Aufgabenstellung")
-    
-    # Initialize task_description in session_state if it doesn't exist
-    if 'task_description' not in st.session_state:
-        st.session_state.task_description = ""
     
     # Use the session_state value for the text area
     task_description = st.text_area(
@@ -533,7 +571,7 @@ with tabs[0]:
             st.rerun()
 
 # Tab 2: Identify relevant norms
-with tabs[1]:
+elif st.session_state.current_tab == 1:
     st.header("2. Ermittlung des maßgeblichen Regelungskontexts")
     
     # Show task description for reference
@@ -580,7 +618,7 @@ with tabs[1]:
         st.text_area("Volltext der relevanten Rechtsnormen", st.session_state.relevant_norms_text, height=200)
 
 # Tab 3: Develop amendment proposals
-with tabs[2]:
+elif st.session_state.current_tab == 2:
     st.header("3. Entwicklung abstrakter Regelungsalternativen")
     
     # Show task description and norms for reference
@@ -626,7 +664,7 @@ with tabs[2]:
                 st.write(proposal.get("Betroffene Rechtsnormen", ""))
 
 # Tab 4: Evaluate proposals
-with tabs[3]:
+elif st.session_state.current_tab == 3:
     st.header("4. Juristische und rechtstechnische Abwägung")
     
     # Show previous steps for reference
@@ -784,7 +822,7 @@ with tabs[3]:
                                 st.write(offene_fragen)
 
 # Tab 5: Select and finalize proposal
-with tabs[4]:
+elif st.session_state.current_tab == 4:
     st.header("5. Entscheidung und Finalisierung")
     
     # Navigation buttons with consistent alignment

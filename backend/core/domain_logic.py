@@ -65,7 +65,7 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
     print("\n==== DEVELOP AMENDMENT PROPOSALS ====")
     
     # Convert relevant_norms to readable text format
-    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}" for norm in relevant_norms])
+    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}: {norm.wording}" for norm in relevant_norms])
     
     prompt = f"""
         Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
@@ -140,7 +140,7 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
     print(f"Number of amendment proposals: {len(amendment_proposals)}")
 
     # Convert relevant_norms to readable text format
-    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}" for norm in relevant_norms])
+    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}: {norm.wording}" for norm in relevant_norms])
     
     # Convert amendment_proposals to readable text format
     amendment_proposals_text = "\n".join([
@@ -212,7 +212,7 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
     print(f"Task description length: {len(task_description)} characters")
 
     # Convert relevant_norms to readable text format
-    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}" for norm in relevant_norms])
+    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}: {norm.wording}" for norm in relevant_norms])
     
     # Convert amendment_proposal to readable text format
     amendment_proposals_text = f"- {amendment_proposal.proposalTitle}: {amendment_proposal.description}\n  Affected Norms: {', '.join([f'{norm.jurabk} {norm.enbez} Abs. {norm.P}' for norm in amendment_proposal.affectedNorms])}"
