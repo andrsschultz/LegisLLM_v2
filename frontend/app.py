@@ -51,6 +51,7 @@ else:
 
 if not deepinfra_api_key:
     st.sidebar.warning("DeepInfra API Key not found in .env file.")
+    deepinfra_api_key = st.sidebar.text_input("DeepInfra API Key", type="password")
 else:
     st.sidebar.success("DeepInfra API Key loaded from .env file")
 
@@ -958,17 +959,6 @@ with st.sidebar:
     """)
     
     st.write("---")
-    
-    # Show backend connection status
-    st.subheader("Backend-Status")
-    try:
-        response = requests.get(f"{BACKEND_URL}/", timeout=5)
-        if response.status_code == 200:
-            st.success(f"✅ Backend erreichbar ({BACKEND_URL})")
-        else:
-            st.error(f"❌ Backend Fehler: {response.status_code}")
-    except Exception as e:
-        st.error(f"❌ Backend nicht erreichbar: {str(e)}")
 
 # Add log viewer at the bottom of the main interface
 st.write("---")
