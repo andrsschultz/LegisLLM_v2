@@ -68,6 +68,15 @@ def fetch_available_models():
         default = data.get("default", None)
         if not models:
             st.error("Keine Modelle vom Backend erhalten.")
+        # Ensure each model stores its provider along with id and name
+        models = [
+            {
+                "id": model.get("id"),
+                "name": model.get("name", model.get("id")),
+                "provider": model.get("provider", "Unknown")
+            }
+            for model in models
+        ]
         return models, default
     except Exception as e:
         st.error(f"Fehler beim Laden der Modell-Liste vom Backend: {str(e)}")
@@ -101,14 +110,18 @@ st.session_state.selected_model = selected_model
 
 # API helper functions
 def get_api_headers():
-    """Get headers for API requests with appropriate API key"""
-    # For now, use OpenAI API key as the primary API key
-    # This could be extended to support different providers
-    api_key = openai_api_key
+    """Get headers for API requests with appropriate API key based on provider"""
+    # Determine provider for the selected model
+    selected_model_id = st.session_state.selected_model
+    provider = next(
+        (m.get("provider", "").lower() for m in models_data if m.get("id") == selected_model_id),
+        None
+    )
+    # Choose API key based on provider
+    api_key = deepinfra_api_key if provider == "deepinfra" else openai_api_key
     if not api_key:
-        st.error("API Key erforderlich")
+        st.error("API Key erforderlich. Bitte geben Sie Ihren API Key in der Seitenleiste ein.")
         return None
-    
     return {
         "Content-Type": "application/json",
         "X-API-Key": api_key

@@ -8,15 +8,15 @@ async def query_llm(prompt: str, api_key: str, model: str) -> str:
     
     Args:
         prompt: The user prompt
-        api_key: User's API key (used for OpenAI models)
+        api_key: User's API key (used for both OpenAI and DeepInfra models)
         model: The model to use
         
     Returns:
         The generated response content
     """
     if is_deepinfra_model(model):
-        # Use DeepInfra API key from environment for DeepInfra models
-        return await query_deepinfra(prompt, settings.deepinfra_api_key, model)
+        # Use user-provided API key for DeepInfra models
+        return await query_deepinfra(prompt, api_key, model)
     else:
         # Use user-provided API key for OpenAI models
         return await query_openai(prompt, api_key, model)
