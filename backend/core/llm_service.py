@@ -93,28 +93,36 @@ async def query_deepinfra(prompt: str, api_key: str, model: str) -> str:
                 if "choices" in result and len(result["choices"]) > 0:
                     generated_text = result["choices"][0]["message"]["content"]
                     
-                    # Handle DeepSeek reasoning format - extract JSON after <think> tags
-                    if generated_text and "<think>" in generated_text:
-                        # Find the last occurrence of </think> and get everything after it
-                        think_end = generated_text.rfind("</think>")
-                        if think_end != -1:
-                            # Extract content after </think> and strip whitespace
-                            json_content = generated_text[think_end + 8:].strip()
-                            print(f"Extracted JSON content after think tags: {json_content}")
-                            generated_text = json_content
-                    
-                    # Handle markdown code block formatting (```json ... ```)
-                    if generated_text and "```json" in generated_text:
-                        # Find the start of JSON content after ```json
-                        json_start = generated_text.find("```json") + 7
-                        # Find the end of JSON content before closing ```
-                        json_end = generated_text.find("```", json_start)
-                        if json_end != -1:
-                            json_content = generated_text[json_start:json_end].strip()
-                            print(f"Extracted JSON content from markdown code block: {json_content}")
-                            return json_content or ""
-                    
+                    """
+                     Ensure the generated text is in valid JSON format by sending it to OpenAI for formatting (if openai_api_key is set) or trying to extract JSON manually.
+                    """
+                    if settings.openai_api_key:
+                        formattingPrompt = "Bitte konvertiere die folgende Eingabe nur in ein gültiges JSON-Format. Gib nichts als JSON zurück - keine Erklärungen, keine Markdown-Formatierung, keine Code-Blöcke, kein zusätzlicher Text. Nur das reine JSON:"
+                        generated_text = await query_openai(formattingPrompt + "\n\n" + generated_text, settings.openai_api_key, model="gpt-4-turbo")
+                    else: 
+                        # Handle DeepSeek reasoning format - extract JSON after <think> tags
+                        if generated_text and "<think>" in generated_text:
+                            # Find the last occurrence of </think> and get everything after it
+                            think_end = generated_text.rfind("</think>")
+                            if think_end != -1:
+                                # Extract content after </think> and strip whitespace
+                                json_content = generated_text[think_end + 8:].strip()
+                                print(f"Extracted JSON content after think tags: {json_content}")
+                                generated_text = json_content
+                        
+                        # Handle markdown code block formatting (```json ... ```)
+                        if generated_text and "```json" in generated_text:
+                            # Find the start of JSON content after ```json
+                            json_start = generated_text.find("```json") + 7
+                            # Find the end of JSON content before closing ```
+                            json_end = generated_text.find("```", json_start)
+                            if json_end != -1:
+                                json_content = generated_text[json_start:json_end].strip()
+                                print(f"Extracted JSON content from markdown code block: {json_content}")
+                                return json_content or ""
+                        
                     return generated_text or ""
+
                 else:
                     print("ERROR: Unexpected DeepInfra response format")
                     return ""
@@ -127,4 +135,6 @@ async def query_deepinfra(prompt: str, api_key: str, model: str) -> str:
     except Exception as e:
         print(f"ERROR in DeepInfra query: {str(e)}")
         raise
+
+
 
