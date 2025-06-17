@@ -135,7 +135,7 @@ def log_api_call(endpoint: str, status_code: int, response_length: int = 0):
     print(f"Response length: {response_length} characters")
 
 # Function to identify relevant legal norms via API
-def identify_relevant_norms(task_description: str) -> List[Dict[str, Any]]:
+def identify_relevant_norms(task_description: str, multistep_reasoning: bool) -> List[Dict[str, Any]]:
     """Identify the relevant legal norms for the given task via API."""
     print("\n==== IDENTIFY RELEVANT NORMS VIA API ====")
     print(f"Task description length: {len(task_description)} characters")
@@ -145,7 +145,10 @@ def identify_relevant_norms(task_description: str) -> List[Dict[str, Any]]:
         return []
     
     try:
-        url = f"{BACKEND_URL}/identify"
+        if multistep_reasoning:
+            url = f"{BACKEND_URL}/identify"
+        else:
+            url = f"{BACKEND_URL}/identify_multistep"
         payload = {
             "task_description": task_description
         }
@@ -176,7 +179,7 @@ def identify_relevant_norms(task_description: str) -> List[Dict[str, Any]]:
             return relevant_norms
         else:
             print(f"API Error: {response.status_code} - {response.text}")
-            st.error(f"API-Fehler beim Identifizieren der Normen: {response.status_code}")
+            st.error(f"API-Fehler beim Identifizieren der Normen: {response.status_code} - {response.text}")
             return []
             
     except Exception as e:
@@ -597,7 +600,7 @@ elif st.session_state.current_tab == 1:
         with st.spinner("Ermittle maßgeblichen Regelungskontext..."):
             if not st.session_state.relevant_norms:
                 print("\n==== STEP 2: IDENTIFY RELEVANT NORMS ====")
-                st.session_state.relevant_norms = identify_relevant_norms(task_description)
+                st.session_state.relevant_norms = identify_relevant_norms(task_description, multistep_reasoning=st.session_state.get('multistep_reasoning', False))
                 
                 # Create combined text from the norms for display
                 if st.session_state.relevant_norms:
@@ -608,6 +611,10 @@ elif st.session_state.current_tab == 1:
                         norms_text += f"{norm_name}:\n{wording}\n\n"
                     
                     st.session_state.relevant_norms_text = norms_text
+
+    multistep_reasoning = st.checkbox("Multistep reasoning aktivieren")
+    if multistep_reasoning:
+        st.caption("⚠️ **Experimentelles Feature:** Diese Funktion befindet sich in der Testphase. Bei der Auswahl von Reasoning-Modellen kann diese Funktion zu sehr langen Antwortzeiten (> 10 min) führen.")  
     
     # Navigation buttons with consistent alignment
     col1, col2 = st.columns([3, 1])

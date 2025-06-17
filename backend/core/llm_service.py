@@ -34,7 +34,7 @@ async def query_openai(prompt: str, api_key: str, model: str) -> str:
         The generated response content
     """
 
-    print("Full prompt:", prompt)
+    #print("Prompt:", prompt[:500] + "..." if len(prompt) > 50 else prompt)
     
     client = openai.AsyncOpenAI(api_key=api_key)
     response = await client.chat.completions.create(
@@ -60,7 +60,7 @@ async def query_deepinfra(prompt: str, api_key: str, model: str) -> str:
         The generated response content
     """
     
-    print("Full prompt:", prompt)
+    #print("Prompt:", prompt[:50] + "..." if len(prompt) > 50 else prompt)
     
     headers = {
         "Authorization": f"Bearer {api_key}",

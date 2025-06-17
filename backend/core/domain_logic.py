@@ -3,6 +3,8 @@ import os
 from typing import List, Optional
 from .llm_service import query_llm
 from .models import NormEntry, ProposalEntry
+from .xml_parser import extract_table_of_contents, extract_section_from_law
+from .utils import clean_json_string
 
 
 #TBD: Functions always use OpenAI, but should use DeepInfra if specified
@@ -42,7 +44,9 @@ async def identify_relevant_norms(task_description: str, api_key: str, model: st
     print(f"Response received. Length: {len(raw_response)} characters")
     
     try:
-        parsed_response = json.loads(raw_response)
+        # Clean the response using the new helper function
+        cleaned_response = clean_json_string(raw_response)
+        parsed_response = json.loads(cleaned_response)
         entries = parsed_response.get("entries", [])
         print(f"Successfully parsed {len(entries)} legal norms")
         return entries
@@ -116,7 +120,9 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
     print(f"Response received. Length: {len(raw_response)} characters")
     
     try:
-        parsed_response = json.loads(raw_response)
+        # Clean the response using the new helper function
+        cleaned_response = clean_json_string(raw_response)
+        parsed_response = json.loads(cleaned_response)
         entries = parsed_response.get("entries", [])
         print(f"Successfully parsed {len(entries)} amendment proposals")
         return entries
@@ -188,7 +194,9 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
     print(f"Response received. Length: {len(raw_response)} characters")
     
     try:
-        parsed_response = json.loads(raw_response)
+        # Clean the response using the new helper function
+        cleaned_response = clean_json_string(raw_response)
+        parsed_response = json.loads(cleaned_response)
         entries = parsed_response.get("entries", [])
         print(f"Successfully parsed evaluation entries")
         return entries
@@ -257,7 +265,7 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
             "affectedNorms": [
                 {{
                 "jurabk": "<Abkürzung des Gesetzes>",  
-                "enbez": "<§‑Angabe>",                  
+                "enbez": "<§‑Angabe>",                
                 "P": "<Absatz>"               
                 }}
             ],
@@ -307,7 +315,9 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
     print(f"Response received. Length: {len(raw_response)} characters")
     
     try:
-        parsed_response = json.loads(raw_response)
+        # Clean the response using the new helper function
+        cleaned_response = clean_json_string(raw_response)
+        parsed_response = json.loads(cleaned_response)
         entries = parsed_response.get("entries", [])
         print(f"Successfully parsed evaluation entries")
         return entries
@@ -357,4 +367,312 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
     # Since we're asking for direct text output (not JSON), return the text directly
     # The response should be the amended norm text
     return [{"amendedNorm": raw_response.strip()}]
+
+
+
+
+
+
+async def identify_relevant_norms_multistep(task_description: str, api_key: str, model: str) -> List[NormEntry]:
+    
+    """Identify the relevant legal norms for the given task."""
+    print("\n==== IDENTIFY RELEVANT NORMS ====")
+    print(f"Task description length: {len(task_description)} characters")
+
+    norm_entries: List[NormEntry] = []
+
+    print("Content of norm_entries:", norm_entries)
+	
+    # Step 1: Identify potentially affected laws
+    print("Step 1: Querying LLM to identify potentially affected laws...")
+
+    prompt_step_1 = f"""
+        Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
+
+        Maßnahme:  {task_description}
+
+        Die Maßnahme soll durch Änderung eines oder mehrerer bereits bestehender Stammgesetze umgesetzt werde. Bestimme in einem ersten Schritt sämtliche für eine Änderung in Betracht kommende Rechtsnormen. Achte darauf, sämtliche von der Änderungsmaßnahme möglicherweise betroffenen Rechtsnormen einzubeziehen. Nehme noch keine Änderung vor.
+
+        Gebe mir im ersten Schritt NUR den Namen möglicherweise betroffenener Gesetze wieder (z.B. BGB, EStG, StGB, EStDV)
+
+        Gib als Antwort ausschließlich eine JSON-Liste zurück, welche wie folgt formatiert ist:
+
+        {{
+            "entries": [
+                {{
+                "jurabk": "<Abkürzung des Gesetzes>",   // z. B. "EStG"
+                }}
+            ]
+        }}
+
+        Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
+
+    """
+
+    raw_response_step1 = await query_llm(prompt_step_1, api_key, model or "gpt-3.5-turbo")
+	
+    print(f"Step 1 response received. Length: {len(raw_response_step1)} characters")
+    
+    try:
+        # Clean the response to remove markdown code blocks if present
+        cleaned_response = clean_json_string(raw_response_step1)
+        parsed_response_step1 = json.loads(cleaned_response)
+        raw_entries = parsed_response_step1.get("entries", [])
+        
+        # Convert dictionaries to NormEntry objects
+        norm_entries = [NormEntry(**entry) for entry in raw_entries]
+        print(f"Step 1: Successfully identified {len(norm_entries)} potentially affected laws")
+    except json.JSONDecodeError as e:
+        print(f"Step 1: Error parsing JSON response: {e}")
+        print(f"Step 1: Raw response: {raw_response_step1}")
+        print(f"Step 1: Cleaned response: {clean_json_string(raw_response_step1)}")
+        return []
+    except Exception as e:
+        print(f"Step 1: Error creating NormEntry objects: {e}")
+        return []
+    
+    if not norm_entries:
+        print("Step 1: No laws identified, returning empty list")
+        return []
+    
+    print("Content of norm_entries:", norm_entries)
+
+    temp_norm_entries = []
+
+    for entry in norm_entries:
+
+        xml_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", f"{entry.jurabk}.xml")
+        law_toc = extract_table_of_contents(xml_file=xml_file_path)
+
+        # Step 2: For each law, identify relevant paragraphs
+
+        prompt_step_2 = f"""
+        Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
+
+        Maßnahme:  {task_description}
+
+        Die Maßnahme soll durch Änderung eines oder mehrerer bereits bestehender Stammgesetze umgesetzt werde. Bestimme in einem ersten Schritt sämtliche für eine Änderung in Betracht kommende Rechtsnormen. Achte darauf, sämtliche von der Änderungsmaßnahme möglicherweise betroffenen Rechtsnormen einzubeziehen. Nehme noch keine Änderung vor.
+
+        Du hast bereits die Abkürzung des möglicherweise betroffenen Gesetzes identifiziert. Es handelt sich um das Gesetz mit der Abkürzung {entry.jurabk}.
+
+        Hier das Inhaltsverzeichnis des {entry.jurabk}: {law_toc}
+
+        Gebe mir im nächsten Schritt NUR die Paragraphen möglicherweise betroffener Rechtsnormen wieder.
+
+        Gib als Antwort ausschließlich eine JSON-Liste zurück, welche wie folgt formatiert ist:
+
+        {{
+            "entries": [
+                {{
+                "jurabk": "<Abkürzung des Gesetzes>",   // z. B. "EStG"
+                "enbez": "<§‑Angabe>",                  // z. B. "§ 21"
+                }}
+            ]
+        }}
+
+        Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen
+
+        """
+
+        raw_response_step2 = await query_llm(prompt_step_2, api_key, model or "gpt-3.5-turbo")
+        
+        print(f"Step 2 response received. Length: {len(raw_response_step2)} characters")
+        
+        try:
+            # Clean the response to remove markdown code blocks if present
+            cleaned_response = clean_json_string(raw_response_step2)
+            parsed_response_step2 = json.loads(cleaned_response)
+            raw_entries = parsed_response_step2.get("entries", [])
+            
+            # Convert dictionaries to NormEntry objects
+            step2_entries = [NormEntry(**entry) for entry in raw_entries]
+        except json.JSONDecodeError as e:
+            print(f"Step 2: Error parsing JSON response: {e}")
+            print(f"Step 2: Raw response: {raw_response_step2}")
+            print(f"Step 2: Cleaned response: {clean_json_string(raw_response_step2)}")
+            return []
+        except Exception as e:
+            print(f"Step 2: Error creating NormEntry objects: {e}")
+            return []
+        
+        if not step2_entries:
+            print("Step 2: No laws identified, continuing with next law")
+            continue
+            
+        # Add the entries from this law to the final result
+        temp_norm_entries.extend(step2_entries)
+
+    print(f"Step 2: Successfully identified {len(temp_norm_entries)} laws with paragraphs")
+
+    norm_entries = temp_norm_entries
+
+    print("Content of norm_entries:", norm_entries)
+
+    print("Step 3: Add wordings for each norm entry")
+
+    # Define data directory path
+    data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+    
+    for i, entry in enumerate(norm_entries):
+        jurabk = entry.jurabk
+        enbez = entry.enbez
+
+        xml_file = os.path.join(data_dir, f"{jurabk}.xml")
+        section_num = enbez.replace("§", "").strip() if enbez else ""
+
+        wording = ""
+        try:
+            # Extract the entire section
+            wording = extract_section_from_law(xml_file, section_num)
+        except Exception as e:
+            print(f"Error extracting wording for {jurabk} {enbez}: {e}")
+            wording = f"Fehler beim Laden des Wortlauts für {jurabk} {enbez}"
+        
+        # Create new NormEntry object with wording and replace the existing entry
+        norm_entries[i] = NormEntry(
+            jurabk=jurabk,
+            enbez=enbez,
+            P=None,
+            wording=wording
+        )
+
+
+    print("Content of norm_entries:", norm_entries)
+
+    temp_norm_entries = []
+
+    for entry in norm_entries:
+
+        # Step 4: Identify relevant paragraphs in the wording
+        prompt_step_4 = f"""
+            Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
+
+            Maßnahme:  {task_description}
+
+            Die Maßnahme soll durch Änderung eines oder mehrerer bereits bestehender Stammgesetze umgesetzt werde. Bestimme in einem ersten Schritt sämtliche für eine Änderung in Betracht kommende Rechtsnormen. Achte darauf, sämtliche von der Änderungsmaßnahme möglicherweise betroffenen Rechtsnormen einzubeziehen. Nehme noch keine Änderung vor.
+
+            Du hast bereits das möglicherweise betroffene Gesetz identifiziert. Dieses ist {entry.enbez} {entry.jurabk}.
+
+            Bestimme im nächsten Schritt den maßgeblichen Paragraphen von {entry.enbez} {entry.jurabk}.
+            
+            Hier der Wortlaut von {entry.enbez} {entry.jurabk}.: {entry.wording}
+
+            Gib als Antwort ausschließlich eine JSON-Liste zurück, welche wie folgt formatiert ist:
+
+            {{
+                "entries": [
+                    {{
+                    "jurabk": "<Abkürzung des Gesetzes>",   // z. B. "EStG"
+                    "enbez": "<§‑Angabe>",                  // z. B. "§ 21"
+                    "P": "<Absatz>"               // z. B. "2a"
+                    }}
+                ]
+            }}
+
+            Wenn der Paragraph keinen Absatz hat, lasse das Feld "P" aus. Es können auch mehrere Paragraphen betroffen sein. In diesem Fall erstelle mehrere Einträge in der Liste.
+
+            Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
+        """
+
+        print(prompt_step_4)
+
+        raw_response_step4 = await query_llm(prompt_step_4, api_key, model or "gpt-3.5-turbo")
+        
+        print(f"Step 4 response received. Length: {len(raw_response_step4)} characters")
+        
+        try:
+            # Clean the response to remove markdown code blocks if present
+            cleaned_response = clean_json_string(raw_response_step4)
+            parsed_response_step4 = json.loads(cleaned_response)
+            raw_entries = parsed_response_step4.get("entries", [])
+            
+            # Convert dictionaries to NormEntry objects
+            step4_entries = [NormEntry(**entry) for entry in raw_entries]
+        except json.JSONDecodeError as e:
+            print(f"Step 4: Error parsing JSON response: {e}")
+            print(f"Step 4: Raw response: {raw_response_step4}")
+            print(f"Step 4: Cleaned response: {clean_json_string(raw_response_step4)}")
+            return []
+        except Exception as e:
+            print(f"Step 4: Error creating NormEntry objects: {e}")
+            return []
+        
+        if not step4_entries:
+            print("Step 4: No laws identified, continuing with next law")
+            continue
+            
+        # Add the entries from this law to the final result
+        temp_norm_entries.extend(step4_entries)
+    
+    norm_entries = temp_norm_entries
+
+    print("Content of norm_entries:", norm_entries)
+
+    print(f"Step 4: Successfully identified {len(norm_entries)} laws with paragraphs and wordings")
+
+
+    # Step 5: Reattach wording for each norm entry, manual reattachment to save api costs, reaattach wording of whole section each time to keep context
+    temp_norm_entries = []
+
+    for entry in norm_entries:
+        jurabk = entry.jurabk
+        enbez = entry.enbez
+        P = entry.P
+        
+        # Construct XML file path
+        xml_file = os.path.join(data_dir, f"{jurabk}.xml")
+        
+        # Extract section number from enbez (e.g., "§ 21" -> "21")
+        section_num = enbez.replace("§", "").strip() if enbez else ""
+        
+        # Get the wording from XML
+        wording = ""
+        try:
+            # Extract the entire section
+            wording = extract_section_from_law(xml_file, section_num)
+        except Exception as e:
+            print(f"Error extracting wording for {jurabk} {enbez} P{P}: {e}")
+            wording = f"Fehler beim Laden des Wortlauts für {jurabk} {enbez}"
+        
+        # Create NormEntry object
+        norm_entry = NormEntry(
+            jurabk=jurabk,
+            enbez=enbez,
+            P=P,
+            wording=wording
+        )
+        temp_norm_entries.append(norm_entry)
+
+    print("Content of norm_entries:", norm_entries)
+
+    norm_entries = temp_norm_entries
+
+
+
+
+    
+
+    return norm_entries
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

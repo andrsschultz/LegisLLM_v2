@@ -3,10 +3,10 @@ from typing import List
 
 
 class NormEntry(BaseModel):
-    jurabk: str
-    enbez: str
-    P: str
-    wording: str
+    jurabk: str 
+    enbez: str | None = None
+    P: str | None = None
+    wording: str | None = None
 
 class NormReference(BaseModel):
     jurabk: str
