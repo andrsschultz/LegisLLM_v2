@@ -44,13 +44,13 @@ deepinfra_api_key = os.getenv("DEEPINFRA_API_KEY")
 
 # Show API key status
 if not openai_api_key:
-    st.sidebar.warning("OpenAI API Key not found in .env file. You can enter it manually below:")
+    st.sidebar.warning("Enter OpenAI API key:")
     openai_api_key = st.sidebar.text_input("OpenAI API Key", type="password")
 else:
     st.sidebar.success("OpenAI API Key loaded from .env file")
 
 if not deepinfra_api_key:
-    st.sidebar.warning("DeepInfra API Key not found in .env file.")
+    st.sidebar.warning("Enter DeepInfra API key:")
     deepinfra_api_key = st.sidebar.text_input("DeepInfra API Key", type="password")
 else:
     st.sidebar.success("DeepInfra API Key loaded from .env file")
