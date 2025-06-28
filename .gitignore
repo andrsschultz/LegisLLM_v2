@@ -1,3 +1,61 @@
+# Python
 .venv
 .env
 __pycache__/
+
+# Next.js
+frontend-nextjs/.next/
+frontend-nextjs/out/
+frontend-nextjs/build/
+frontend-nextjs/dist/
+
+# Dependencies
+frontend-nextjs/node_modules/
+node_modules/
+
+# Environment variables
+frontend-nextjs/.env
+frontend-nextjs/.env.local
+frontend-nextjs/.env.development.local
+frontend-nextjs/.env.test.local
+frontend-nextjs/.env.production.local
+
+# Logs
+frontend-nextjs/npm-debug.log*
+frontend-nextjs/yarn-debug.log*
+frontend-nextjs/yarn-error.log*
+frontend-nextjs/.pnpm-debug.log*
+
+# Runtime data
+frontend-nextjs/pids
+frontend-nextjs/*.pid
+frontend-nextjs/*.seed
+frontend-nextjs/*.pid.lock
+
+# Coverage directory used by tools like istanbul
+frontend-nextjs/coverage/
+frontend-nextjs/*.lcov
+
+# TypeScript
+frontend-nextjs/*.tsbuildinfo
+frontend-nextjs/next-env.d.ts
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+
+
+CLAUDE.md
