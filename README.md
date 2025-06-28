@@ -9,13 +9,6 @@ LegisLLM provides AI driven assistance for drafting legislative amendments.
 
 ## How to Run
 
-### Quick Start
-```bash
-./run.sh
-```
-
-### Manual Setup
-
 1. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
