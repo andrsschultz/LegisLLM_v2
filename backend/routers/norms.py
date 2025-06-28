@@ -27,9 +27,9 @@ async def identify_norms(
     data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
     
     for entry in raw_entries:
-        jurabk = entry.jurabk
-        enbez = entry.enbez
-        P = entry.P
+        jurabk = entry["jurabk"]
+        enbez = entry["enbez"]
+        P = entry.get("P")
         
         # Construct XML file path
         xml_file = os.path.join(data_dir, f"{jurabk}.xml")
