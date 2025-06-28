@@ -12,7 +12,7 @@ LegisLLM provides AI driven assistance for drafting legislative amendments.
 1. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
-   cd frontend && npm install
+   cd frontend && npm install && cd ..
    ```
 
 2. **Set environment variables**:
