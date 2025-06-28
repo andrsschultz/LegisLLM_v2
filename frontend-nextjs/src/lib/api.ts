@@ -1,0 +1,224 @@
+import { NormEntry, ProposalEntry, EvaluatedProposal, DeepEvaluation, Model, ApiResponse } from '@/types';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+
+class ApiClient {
+  private getHeaders(apiKey: string): Record<string, string> {
+    return {
+      'Content-Type': 'application/json',
+      'X-API-Key': apiKey,
+    };
+  }
+
+  private async logApiCall(endpoint: string, statusCode: number, responseLength: number = 0) {
+    console.log(`\n==== API CALL ====`);
+    console.log(`Endpoint: ${endpoint}`);
+    console.log(`Status: ${statusCode}`);
+    console.log(`Response length: ${responseLength} characters`);
+  }
+
+  async fetchModels(): Promise<{ models: Model[]; default: string | null }> {
+    try {
+      const response = await fetch(`${BACKEND_URL}/models`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return {
+        models: data.models || [],
+        default: data.default || null,
+      };
+    } catch (error) {
+      console.error('Error fetching models:', error);
+      return { models: [], default: null };
+    }
+  }
+
+  async identifyRelevantNorms(
+    taskDescription: string,
+    apiKey: string,
+    model: string,
+    multistepReasoning: boolean = false
+  ): Promise<NormEntry[]> {
+    const endpoint = multistepReasoning 
+      ? `${BACKEND_URL}/identify_multistep` 
+      : `${BACKEND_URL}/identify`;
+    
+    try {
+      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
+        method: 'POST',
+        headers: this.getHeaders(apiKey),
+        body: JSON.stringify({ task_description: taskDescription }),
+      });
+
+      await this.logApiCall(endpoint, response.status, 0);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: ApiResponse<NormEntry> = await response.json();
+      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
+      
+      return data.entries || [];
+    } catch (error) {
+      console.error('Error identifying relevant norms:', error);
+      return [];
+    }
+  }
+
+  async generateProposals(
+    taskDescription: string,
+    relevantNorms: NormEntry[],
+    apiKey: string,
+    model: string
+  ): Promise<ProposalEntry[]> {
+    const endpoint = `${BACKEND_URL}/generate_proposals`;
+    
+    try {
+      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
+        method: 'POST',
+        headers: this.getHeaders(apiKey),
+        body: JSON.stringify({
+          task_description: taskDescription,
+          relevant_norms: relevantNorms,
+        }),
+      });
+
+      await this.logApiCall(endpoint, response.status, 0);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: ApiResponse<ProposalEntry> = await response.json();
+      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
+      
+      return data.entries || [];
+    } catch (error) {
+      console.error('Error generating proposals:', error);
+      return [];
+    }
+  }
+
+  async evaluateProposals(
+    taskDescription: string,
+    relevantNorms: NormEntry[],
+    amendmentProposals: ProposalEntry[],
+    apiKey: string,
+    model: string
+  ): Promise<EvaluatedProposal[]> {
+    const endpoint = `${BACKEND_URL}/evaluate_proposals`;
+    
+    try {
+      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
+        method: 'POST',
+        headers: this.getHeaders(apiKey),
+        body: JSON.stringify({
+          task_description: taskDescription,
+          relevant_norms: relevantNorms,
+          amendment_proposals: amendmentProposals,
+        }),
+      });
+
+      await this.logApiCall(endpoint, response.status, 0);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: ApiResponse<EvaluatedProposal> = await response.json();
+      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
+      
+      return data.entries || [];
+    } catch (error) {
+      console.error('Error evaluating proposals:', error);
+      return [];
+    }
+  }
+
+  async deepEvaluateProposal(
+    taskDescription: string,
+    relevantNorms: NormEntry[],
+    amendmentProposal: ProposalEntry,
+    apiKey: string,
+    model: string
+  ): Promise<DeepEvaluation | null> {
+    const endpoint = `${BACKEND_URL}/deep_evaluate_proposals`;
+    
+    try {
+      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
+        method: 'POST',
+        headers: this.getHeaders(apiKey),
+        body: JSON.stringify({
+          task_description: taskDescription,
+          relevant_norms: relevantNorms,
+          amendment_proposal: amendmentProposal,
+        }),
+      });
+
+      await this.logApiCall(endpoint, response.status, 0);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: ApiResponse<DeepEvaluation> = await response.json();
+      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
+      
+      return data.entries && data.entries.length > 0 ? data.entries[0] : null;
+    } catch (error) {
+      console.error('Error performing deep evaluation:', error);
+      return null;
+    }
+  }
+
+  async generateFinalAmendment(
+    taskDescription: string,
+    selectedProposal: ProposalEntry | EvaluatedProposal,
+    relevantNorms: NormEntry[],
+    apiKey: string,
+    model: string,
+    customAdjustments?: string
+  ): Promise<string> {
+    const endpoint = `${BACKEND_URL}/amend`;
+    
+    // Convert proposal to the expected format
+    const proposalEntry = {
+      proposalTitle: selectedProposal.proposalTitle,
+      description: 'description' in selectedProposal ? selectedProposal.description : '',
+      affectedNorms: selectedProposal.affectedNorms,
+    };
+    
+    try {
+      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
+        method: 'POST',
+        headers: this.getHeaders(apiKey),
+        body: JSON.stringify({
+          task_description: taskDescription,
+          custom_instructions: customAdjustments,
+          relevant_norms: relevantNorms,
+          amendment_proposal: proposalEntry,
+        }),
+      });
+
+      await this.logApiCall(endpoint, response.status, 0);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: ApiResponse<{ amendedNorm: string }> = await response.json();
+      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
+      
+      return data.entries && data.entries.length > 0 
+        ? data.entries[0].amendedNorm 
+        : 'Keine Änderung generiert.';
+    } catch (error) {
+      console.error('Error generating final amendment:', error);
+      return '';
+    }
+  }
+}
+
+export const apiClient = new ApiClient();
