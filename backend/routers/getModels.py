@@ -15,5 +15,5 @@ def get_available_models():
             }
             for model in ModelEnum
         ],
-        "default": ModelEnum.GPT_3_5_TURBO.value,
+        "default": ModelEnum.GPT_4.value,
     }

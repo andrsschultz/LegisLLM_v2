@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     deepinfra_api_key: str = ""
     
     # Default model
-    default_model: ModelEnum = ModelEnum.GPT_3_5_TURBO
+    default_model: ModelEnum = ModelEnum.GPT_4
 
     class Config:
         env_file = ".env"

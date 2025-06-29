@@ -39,7 +39,7 @@ async def identify_relevant_norms(task_description: str, api_key: str, model: st
     
 
     print("Querying LLM to identify relevant norms...")
-    raw_response = await query_llm(prompt, api_key, model or "gpt-3.5-turbo")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-4")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -115,7 +115,7 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
     """
 
     print("Querying LLM to develop amendment proposals...")
-    raw_response = await query_llm(prompt, api_key, model or "gpt-3.5-turbo")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-4")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -189,7 +189,7 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
     """
 
     print("Querying LLM to evaluate proposals...")
-    raw_response = await query_llm(prompt, api_key, model or "gpt-3.5-turbo")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-4")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -310,7 +310,7 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
     """
 
     print("Querying LLM to evaluate proposals...")
-    raw_response = await query_llm(prompt, api_key, model or "gpt-3.5-turbo")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-4")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -360,7 +360,7 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
     """
 
     print("Querying LLM to generate final amendment...")
-    raw_response = await query_llm(prompt, api_key, model or "gpt-3.5-turbo")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-4")
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -409,7 +409,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
 
     """
 
-    raw_response_step1 = await query_llm(prompt_step_1, api_key, model or "gpt-3.5-turbo")
+    raw_response_step1 = await query_llm(prompt_step_1, api_key, model or "gpt-4")
 	
     print(f"Step 1 response received. Length: {len(raw_response_step1)} characters")
     
@@ -474,7 +474,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
 
         """
 
-        raw_response_step2 = await query_llm(prompt_step_2, api_key, model or "gpt-3.5-turbo")
+        raw_response_step2 = await query_llm(prompt_step_2, api_key, model or "gpt-4")
         
         print(f"Step 2 response received. Length: {len(raw_response_step2)} characters")
         
@@ -576,7 +576,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
 
         print(prompt_step_4)
 
-        raw_response_step4 = await query_llm(prompt_step_4, api_key, model or "gpt-3.5-turbo")
+        raw_response_step4 = await query_llm(prompt_step_4, api_key, model or "gpt-4")
         
         print(f"Step 4 response received. Length: {len(raw_response_step4)} characters")
         
