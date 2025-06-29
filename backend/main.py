@@ -8,9 +8,13 @@ app = FastAPI()
 # Add CORS middleware to allow frontend to communicate with backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend domain
+    allow_origins=[
+        "http://localhost:3000",  # Local development
+        "https://legisllm.onrender.com",  # Frontend domain
+        "https://legisllm-frontend.onrender.com",  # Alternative frontend domain
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

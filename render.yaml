@@ -1,0 +1,22 @@
+services:
+  # Backend - Docker deployment
+  - type: web
+    name: legisllm-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: DEEPINFRA_API_KEY
+        sync: false
+    healthCheckPath: /docs
+
+  # Frontend - Static site deployment
+  - type: web
+    name: legisllm-frontend
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/out
+    envVars:
+      - key: NEXT_PUBLIC_BACKEND_URL
+        value: https://legisllm-backend.onrender.com
