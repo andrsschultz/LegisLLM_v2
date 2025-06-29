@@ -136,10 +136,18 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
               </div>
             </div>
             {/* Footer */}
-            <div className="pt-6 pb-4 text-center">
+            <div className="pt-6 pb-4 text-center space-y-2">
               <p className="text-xs text-slate-400">
                 LegisLLM - KI-gestützte Legistik
               </p>
+              <div className="flex justify-center space-x-4">
+                <a 
+                  href="/impressum" 
+                  className="text-xs text-slate-500 hover:text-slate-700 transition-colors duration-150"
+                >
+                  Impressum
+                </a>
+              </div>
             </div>
           </div>
         </div>

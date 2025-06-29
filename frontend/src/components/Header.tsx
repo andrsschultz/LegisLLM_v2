@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -29,7 +30,7 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
             </button>
 
             {/* Logo and Title */}
-            <div className="flex items-center space-x-4">
+            <Link href="/" className="flex items-center space-x-4 hover:opacity-80 transition-opacity duration-200">
               <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-white to-slate-50 rounded-xl shadow-lg border border-slate-200/20">
                 <span className="text-2xl filter drop-shadow-sm">⚖️</span>
               </div>
@@ -41,7 +42,7 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
                   KI-gestützte Legistik
                 </p>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </div>
