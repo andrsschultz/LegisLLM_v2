@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ModelSelector from './ModelSelector';
 
 interface SidebarProps {
@@ -13,68 +13,138 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
   
   // Use external state if provided, otherwise use internal state
   const collapsed = isCollapsed !== undefined ? isCollapsed : internalCollapsed;
-  const toggle = onToggle || (() => setInternalCollapsed(!internalCollapsed));
+  const toggle = useMemo(() => onToggle || (() => setInternalCollapsed(!internalCollapsed)), [onToggle]);
+
+  // Close sidebar on escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !collapsed) {
+        toggle();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [collapsed, toggle]);
 
   return (
     <>
+      {/* Backdrop */}
+      {!collapsed && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300"
+          onClick={toggle}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Sidebar */}
-      <div className={`
-        fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white/95 backdrop-blur-md border-r border-slate-200/60 shadow-xl z-40 transition-all duration-300 ease-in-out
-        ${collapsed ? 'w-12' : 'w-80'}
+      <aside className={`
+        fixed left-0 top-0 h-screen bg-white/95 
+        backdrop-blur-md border-r border-slate-200/60 shadow-2xl z-50 
+        transition-all duration-300 ease-in-out
+        w-80 sm:w-96 lg:w-80
+        
+        /* Show sidebar only when clicked open */
+        ${collapsed 
+          ? '-translate-x-full' 
+          : 'translate-x-0'
+        }
       `}>
-        {/* Collapse Button */}
+        
+        {/* Close Button - different positioning for mobile vs desktop */}
+        {/* Desktop: positioned to match hamburger menu height */}
+        <div className="absolute top-0 right-0 h-16 items-center pr-4 hidden lg:flex">
+          <button
+            onClick={toggle}
+            className="p-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 
+                       transition-all duration-200 flex items-center justify-center
+                       text-white shadow-lg border border-slate-600/30"
+            aria-label="Sidebar schließen"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Mobile: original top-right position */}
         <button
           onClick={toggle}
-          className="absolute top-4 right-3 p-2 rounded-xl bg-slate-100/80 hover:bg-slate-200/80 transition-all duration-200 z-50 backdrop-blur-sm border border-slate-200/40"
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className="absolute top-4 right-4 p-2 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 
+                     transition-all duration-200 z-10 lg:hidden flex items-center justify-center
+                     text-white shadow-lg"
+          aria-label="Sidebar schließen"
         >
           <svg
-            className={`w-4 h-4 text-slate-600 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}
+            className="w-5 h-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
         {/* Sidebar Content */}
-        <div className={`h-full overflow-y-auto transition-opacity duration-300 ${collapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-          <div className="p-6 pt-16 space-y-6">
+        <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
+          <div className="p-4 sm:p-6 pt-20 space-y-6">
+            {/* Spacer for close button - desktop only */}
+            <div className="h-4 hidden lg:block"></div>
             {/* Model Selector */}
-            <ModelSelector />
+            <div className="space-y-4">
+              <ModelSelector />
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-slate-200/60"></div>
 
             {/* App Information */}
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100/70 border border-slate-200/60 rounded-xl p-6 shadow-sm">
-              <div className="flex items-center mb-4">
-                <span className="text-lg mr-3">ℹ️</span>
-                <h2 className="text-lg font-semibold text-slate-800">
-                  Über diese Anwendung
-                </h2>
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100/70 border border-slate-200/60 
+                           rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="flex items-start mb-4">
+                <span className="text-lg mr-3 mt-0.5 flex-shrink-0">ℹ️</span>
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-lg font-semibold text-slate-800 mb-2">
+                    Über diese Anwendung
+                  </h2>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    Die Anwendung befindet sich in einer sehr frühen Entwicklungsphase und 
+                    dient der Demonstration. Getestet wurde die Anwendung bisher nur auf 
+                    Änderungen von Regelungen aus dem Einkommensteuergesetz.
+                  </p>
+                </div>
               </div>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                Die Anwendung befindet sich in einer sehr frühen Entwicklungsphase und 
-                dient der Demonstration. Getestet wurde die Anwendung bisher nur auf 
-                Änderungen von Regelungen aus dem Einkommensteuergesetz.
-              </p>
+              
+              {/* Status Indicator */}
               <div className="mt-4 pt-4 border-t border-slate-200/60">
-                <div className="flex items-center text-xs text-slate-500">
-                  <span className="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse"></span>
-                  System bereit
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center text-xs text-slate-500">
+                    <span className="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse"></span>
+                    System bereit
+                  </div>
+                  <div className="text-xs text-slate-400 font-mono">
+                    v2.0
+                  </div>
                 </div>
               </div>
             </div>
+            {/* Footer */}
+            <div className="pt-6 pb-4 text-center">
+              <p className="text-xs text-slate-400">
+                LegisLLM - KI-gestützte Legistik
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Sidebar Backdrop for Mobile */}
-      {!collapsed && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-25 z-30 lg:hidden"
-          onClick={toggle}
-        />
-      )}
+      </aside>
     </>
   );
 }

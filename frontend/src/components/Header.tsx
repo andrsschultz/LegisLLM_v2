@@ -15,11 +15,13 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
         <div className="flex justify-between items-center h-16">
           {/* Left Section - Logo and Title */}
           <div className="flex items-center space-x-4">
-            {/* Sidebar Toggle Button */}
+            {/* Sidebar Toggle Button - Now visible on all screen sizes */}
             <button
               onClick={onSidebarToggle}
-              className="p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-700/60 transition-all duration-200 lg:hidden backdrop-blur-sm border border-slate-600/30"
-              aria-label="Toggle sidebar"
+              className="p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-700/60 active:bg-slate-600/70 
+                         transition-all duration-200 backdrop-blur-sm border border-slate-600/30
+                         focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-opacity-50"
+              aria-label="Menü öffnen"
             >
               <svg className="w-5 h-5 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />

@@ -10,7 +10,7 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true); // Start collapsed on mobile
 
   const handleSidebarToggle = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
@@ -24,13 +24,13 @@ export default function Layout({ children }: LayoutProps) {
       {/* Sidebar */}
       <Sidebar isCollapsed={isSidebarCollapsed} onToggle={handleSidebarToggle} />
 
-      {/* Main Content Area */}
-      <div className={`transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-12' : 'lg:ml-80'}`}>
+      {/* Main Content Area - No margins, sidebar always overlays */}
+      <div className="w-full">
         {/* Tab Bar */}
         <TabBar />
 
         {/* Page Content */}
-        <main className="px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>
