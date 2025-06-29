@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import TabBar from './TabBar';
@@ -15,6 +15,22 @@ export default function Layout({ children }: LayoutProps) {
   const handleSidebarToggle = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
+
+  // Check for API keys and auto-open sidebar if none found
+  useEffect(() => {
+    const checkApiKeys = () => {
+      const openaiKey = localStorage.getItem('openai_api_key');
+      const deepinfraKey = localStorage.getItem('deepinfra_api_key');
+      
+      // If no API keys are found, auto-open the sidebar
+      if (!openaiKey && !deepinfraKey) {
+        setIsSidebarCollapsed(false);
+      }
+    };
+
+    // Only run on client side and after initial mount
+    checkApiKeys();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
