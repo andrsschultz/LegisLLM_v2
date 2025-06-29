@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { AppState, NormEntry, ProposalEntry, EvaluatedProposal } from '@/types';
+import { AppState, NormEntry, ProposalEntry, EvaluatedProposal, Model } from '@/types';
 
 interface AppAction {
   type: string;
@@ -11,6 +11,7 @@ interface AppAction {
 const initialState: AppState = {
   taskDescription: '',
   selectedModel: '',
+  availableModels: [],
   relevantNorms: null,
   amendmentProposals: null,
   evaluatedProposals: null,
@@ -26,6 +27,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, taskDescription: action.payload };
     case 'SET_SELECTED_MODEL':
       return { ...state, selectedModel: action.payload };
+    case 'SET_AVAILABLE_MODELS':
+      return { ...state, availableModels: action.payload };
     case 'SET_RELEVANT_NORMS':
       return { ...state, relevantNorms: action.payload };
     case 'SET_AMENDMENT_PROPOSALS':
@@ -56,6 +59,7 @@ interface AppContextType {
   state: AppState;
   setTaskDescription: (description: string) => void;
   setSelectedModel: (model: string) => void;
+  setAvailableModels: (models: Model[]) => void;
   setRelevantNorms: (norms: NormEntry[]) => void;
   setAmendmentProposals: (proposals: ProposalEntry[]) => void;
   setEvaluatedProposals: (proposals: EvaluatedProposal[]) => void;
@@ -78,6 +82,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_TASK_DESCRIPTION', payload: description }),
     setSelectedModel: (model: string) => 
       dispatch({ type: 'SET_SELECTED_MODEL', payload: model }),
+    setAvailableModels: (models: Model[]) => 
+      dispatch({ type: 'SET_AVAILABLE_MODELS', payload: models }),
     setRelevantNorms: (norms: NormEntry[]) => 
       dispatch({ type: 'SET_RELEVANT_NORMS', payload: norms }),
     setAmendmentProposals: (proposals: ProposalEntry[]) => 

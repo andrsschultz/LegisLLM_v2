@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { apiClient } from '@/lib/api';
+import { getApiKeyForModel } from '@/lib/apiKeyUtils';
 
 export default function ContextIdentificationTab() {
   const { 
@@ -16,8 +17,7 @@ export default function ContextIdentificationTab() {
   const [loading, setLoading] = useState(false);
 
   const getApiKey = (): string => {
-    // In a real app, this would come from your model selector component
-    return localStorage.getItem('openai_api_key') || localStorage.getItem('deepinfra_api_key') || '';
+    return getApiKeyForModel(state.selectedModel, state.availableModels);
   };
 
   const handleIdentifyContext = async () => {

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { apiClient } from '@/lib/api';
 import { ProposalEntry, EvaluatedProposal } from '@/types';
+import { getApiKeyForModel } from '@/lib/apiKeyUtils';
 
 export default function FinalizationTab() {
   const { 
@@ -20,7 +21,7 @@ export default function FinalizationTab() {
   const [manualProposal, setManualProposal] = useState('');
 
   const getApiKey = (): string => {
-    return localStorage.getItem('openai_api_key') || localStorage.getItem('deepinfra_api_key') || '';
+    return getApiKeyForModel(state.selectedModel, state.availableModels);
   };
 
   const handleGenerateFinalAmendment = async (selectedProposal: ProposalEntry | EvaluatedProposal) => {

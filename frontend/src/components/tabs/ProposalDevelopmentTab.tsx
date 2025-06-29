@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { apiClient } from '@/lib/api';
+import { getApiKeyForModel } from '@/lib/apiKeyUtils';
 
 export default function ProposalDevelopmentTab() {
   const { 
@@ -15,7 +16,7 @@ export default function ProposalDevelopmentTab() {
   const [loading, setLoading] = useState(false);
 
   const getApiKey = (): string => {
-    return localStorage.getItem('openai_api_key') || localStorage.getItem('deepinfra_api_key') || '';
+    return getApiKeyForModel(state.selectedModel, state.availableModels);
   };
 
   const handleDevelopAlternatives = async () => {

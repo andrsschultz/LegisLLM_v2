@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { apiClient } from '@/lib/api';
 import { DeepEvaluation, ProposalEntry } from '@/types';
+import { getApiKeyForModel } from '@/lib/apiKeyUtils';
 
 export default function EvaluationTab() {
   const { 
@@ -19,7 +20,7 @@ export default function EvaluationTab() {
   const [deepEvaluation, setDeepEvaluation] = useState<DeepEvaluation | null>(null);
 
   const getApiKey = (): string => {
-    return localStorage.getItem('openai_api_key') || localStorage.getItem('deepinfra_api_key') || '';
+    return getApiKeyForModel(state.selectedModel, state.availableModels);
   };
 
   const handleEvaluateProposals = async () => {

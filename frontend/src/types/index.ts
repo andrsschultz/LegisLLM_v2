@@ -59,6 +59,7 @@ export interface ApiResponse<T> {
 export interface AppState {
   taskDescription: string;
   selectedModel: string;
+  availableModels: Model[];
   relevantNorms: NormEntry[] | null;
   amendmentProposals: ProposalEntry[] | null;
   evaluatedProposals: EvaluatedProposal[] | null;

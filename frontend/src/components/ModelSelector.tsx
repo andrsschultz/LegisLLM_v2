@@ -6,8 +6,7 @@ import { apiClient } from '@/lib/api';
 import { Model } from '@/types';
 
 export default function ModelSelector() {
-  const { state, setSelectedModel } = useApp();
-  const [models, setModels] = useState<Model[]>([]);
+  const { state, setSelectedModel, setAvailableModels } = useApp();
   const [loading, setLoading] = useState(true);
   const [openaiApiKey, setOpenaiApiKey] = useState('');
   const [deepinfraApiKey, setDeepinfraApiKey] = useState('');
@@ -22,7 +21,7 @@ export default function ModelSelector() {
   const loadModels = async () => {
     try {
       const { models: fetchedModels, default: defaultModel } = await apiClient.fetchModels();
-      setModels(fetchedModels);
+      setAvailableModels(fetchedModels);
       
       if (defaultModel && !state.selectedModel) {
         setSelectedModel(defaultModel);
@@ -47,7 +46,7 @@ export default function ModelSelector() {
   };
 
   const getApiKey = (): string => {
-    const selectedModelData = models.find(m => m.id === state.selectedModel);
+    const selectedModelData = state.availableModels.find(m => m.id === state.selectedModel);
     const provider = selectedModelData?.provider?.toLowerCase();
     
     if (provider === 'deepinfra') {
@@ -121,7 +120,7 @@ export default function ModelSelector() {
       </div>
 
       {/* Model Selection */}
-      {models.length > 0 ? (
+      {state.availableModels.length > 0 ? (
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
             Wählen Sie ein Modell:
@@ -131,7 +130,7 @@ export default function ModelSelector() {
             onChange={(e) => setSelectedModel(e.target.value)}
             className="block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 text-sm"
           >
-            {models.map((model) => (
+            {state.availableModels.map((model) => (
               <option key={model.id} value={model.id}>
                 {model.name}
               </option>
@@ -152,7 +151,7 @@ export default function ModelSelector() {
       {state.selectedModel && (
         <div className="mt-4 p-3 bg-white/60 border border-green-200 rounded-md">
           <p className="text-sm text-gray-700 mb-1">
-            <strong>Aktuelles Modell:</strong> {models.find(m => m.id === state.selectedModel)?.name}
+            <strong>Aktuelles Modell:</strong> {state.availableModels.find(m => m.id === state.selectedModel)?.name}
           </p>
           <div className="flex items-center">
             <span className="text-sm text-gray-700 mr-2"><strong>API Key Status:</strong></span>
