@@ -121,19 +121,6 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                   </p>
                 </div>
               </div>
-              
-              {/* Status Indicator */}
-              <div className="mt-4 pt-4 border-t border-slate-200/60">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center text-xs text-slate-500">
-                    <span className="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse"></span>
-                    System bereit
-                  </div>
-                  <div className="text-xs text-slate-400 font-mono">
-                    v2.0
-                  </div>
-                </div>
-              </div>
             </div>
             {/* Footer */}
             <div className="pt-6 pb-4 text-center space-y-2">
