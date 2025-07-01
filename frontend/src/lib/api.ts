@@ -34,6 +34,23 @@ class ApiClient {
     }
   }
 
+  async fetchOrganizedModels(): Promise<{ organized: any; default: string | null }> {
+    try {
+      const response = await fetch(`${BACKEND_URL}/models/organized`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return {
+        organized: data.organized || {},
+        default: data.default || null,
+      };
+    } catch (error) {
+      console.error('Error fetching organized models:', error);
+      return { organized: {}, default: null };
+    }
+  }
+
   async identifyRelevantNorms(
     taskDescription: string,
     apiKey: string,

@@ -5,11 +5,23 @@ import { useApp } from '@/contexts/AppContext';
 import { apiClient } from '@/lib/api';
 import { Model } from '@/types';
 
+interface OrganizedModels {
+  openai: {
+    recommended: Model[];
+    additional: Model[];
+  };
+  deepinfra: {
+    recommended: Model[];
+    additional: Model[];
+  };
+}
+
 export default function ModelSelector() {
   const { state, setSelectedModel, setAvailableModels } = useApp();
   const [loading, setLoading] = useState(true);
   const [openaiApiKey, setOpenaiApiKey] = useState('');
   const [deepinfraApiKey, setDeepinfraApiKey] = useState('');
+  const [organizedModels, setOrganizedModels] = useState<OrganizedModels | null>(null);
 
   useEffect(() => {
     loadModels();
@@ -20,13 +32,18 @@ export default function ModelSelector() {
 
   const loadModels = async () => {
     try {
-      const { models: fetchedModels, default: defaultModel } = await apiClient.fetchModels();
-      setAvailableModels(fetchedModels);
+      // Load organized models
+      const { organized, default: defaultModel } = await apiClient.fetchOrganizedModels();
+      setOrganizedModels(organized);
+      
+      // Also load all models for the context (needed by other components)
+      const { models: allModels } = await apiClient.fetchModels();
+      setAvailableModels(allModels);
       
       if (defaultModel && !state.selectedModel) {
         setSelectedModel(defaultModel);
-      } else if (fetchedModels.length > 0 && !state.selectedModel) {
-        setSelectedModel(fetchedModels[0].id);
+      } else if (allModels.length > 0 && !state.selectedModel) {
+        setSelectedModel(allModels[0].id);
       }
     } catch (error) {
       console.error('Error loading models:', error);
@@ -120,25 +137,53 @@ export default function ModelSelector() {
       </div>
 
       {/* Model Selection */}
-      {state.availableModels.length > 0 ? (
+      {organizedModels ? (
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
             Wählen Sie ein Modell:
           </label>
+          
           <select
             value={state.selectedModel}
             onChange={(e) => setSelectedModel(e.target.value)}
             className="block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 text-sm"
           >
-            {state.availableModels.map((model) => (
-              <option key={model.id} value={model.id}>
-                {model.name}
-              </option>
-            ))}
+            {/* Recommended Models */}
+            <optgroup label="Empfohlen">
+              {organizedModels.openai.recommended.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.name} (OpenAI)
+                </option>
+              ))}
+              {organizedModels.deepinfra.recommended.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.name} (DeepInfra)
+                </option>
+              ))}
+            </optgroup>
+            
+            {/* All OpenAI Models */}
+            <optgroup label="Alle Modelle - OpenAI (experimentell)">
+              {organizedModels.openai.additional.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.name}
+                </option>
+              ))}
+            </optgroup>
+            
+            {/* All DeepInfra Models */}
+            <optgroup label="Alle Modelle - DeepInfra (experimentell)">
+              {organizedModels.deepinfra.additional.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.name}
+                </option>
+              ))}
+            </optgroup>
           </select>
+          
           <p className="mt-2 text-sm text-slate-500">
-            Wählen Sie das zu verwendende Sprachmodell. Leistungsfähigere Modelle bieten 
-            bessere Ergebnisse, erfordern jedoch mehr Zeit.
+            Empfohlene Modelle bieten die beste Balance aus Leistung und Geschwindigkeit. 
+            Alle verfügbaren Modelle sind nach Anbieter gruppiert.
           </p>
         </div>
       ) : (

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Query, Depends
 from typing import Optional
 from ..core.models import AmendRequest, AmendEntry, AmendResponse
 from ..core.domain_logic import generate_final_amendment
-from ..core.config import ModelEnum, get_model
+from ..core.config import ModelEnum
 from ..core.auth import verify_api_key
 
 router = APIRouter()
@@ -13,9 +13,9 @@ router = APIRouter()
 async def amend_law(
     request: AmendRequest,
     api_key: str = Depends(verify_api_key),
-    model: ModelEnum = Query(..., description="LLM model to use for amendment generation")
+    model: str = Query(..., description="LLM model to use for amendment generation")
 ):
-    selected_model = get_model(model)
+    selected_model = model
     raw_entries = await generate_final_amendment(
         task_description=request.task_description, 
         relevant_norms=request.relevant_norms,

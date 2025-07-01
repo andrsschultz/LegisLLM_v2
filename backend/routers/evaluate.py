@@ -2,7 +2,7 @@ from fastapi import APIRouter, Query, Depends
 from typing import Optional
 from ..core.domain_logic import evaluate_proposals, deep_evaluate_proposals
 from ..core.models import EvaluateRequest, EvaluateEntry, EvaluateResponse, DeepEvaluateRequest, DeepEvaluateEntry, DeepEvaluateResponse
-from ..core.config import ModelEnum, get_model
+from ..core.config import ModelEnum
 from ..core.auth import verify_api_key
 
 router = APIRouter()
@@ -13,9 +13,9 @@ router = APIRouter()
 async def evaluate_proposals_endpoint(
     request: EvaluateRequest,
     api_key: str = Depends(verify_api_key),
-    model: ModelEnum = Query(..., description="LLM model to use for evaluation")
+    model: str = Query(..., description="LLM model to use for evaluation")
 ):
-    selected_model = get_model(model)
+    selected_model = model
     raw_entries = await evaluate_proposals(
         task_description=request.task_description, 
         relevant_norms=request.relevant_norms,
@@ -41,9 +41,9 @@ async def evaluate_proposals_endpoint(
 async def deep_evaluate_proposals_endpoint(
     request: DeepEvaluateRequest,
     api_key: str = Depends(verify_api_key),
-    model: ModelEnum = Query(..., description="LLM model to use for evaluation")
+    model: str = Query(..., description="LLM model to use for evaluation")
 ):
-    selected_model = get_model(model)
+    selected_model = model
     raw_entries = await deep_evaluate_proposals(
         task_description=request.task_description, 
         relevant_norms=request.relevant_norms,

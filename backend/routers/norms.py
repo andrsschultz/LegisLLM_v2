@@ -4,7 +4,7 @@ import os
 from ..core.domain_logic import identify_relevant_norms, identify_relevant_norms_multistep
 from ..core.xml_parser import extract_section_from_law
 from ..core.models import NormRequest, NormEntry, NormResponse
-from ..core.config import ModelEnum, get_model
+from ..core.config import ModelEnum
 from ..core.auth import verify_api_key
 
 router = APIRouter()
@@ -13,9 +13,9 @@ router = APIRouter()
 async def identify_norms(
     request: NormRequest,
     api_key: str = Depends(verify_api_key),
-    model: ModelEnum = Query(..., description="LLM model to use for norm identification")
+    model: str = Query(..., description="LLM model to use for norm identification")
 ):
-    selected_model = get_model(model)
+    selected_model = model
     raw_entries = await identify_relevant_norms(
         task_description=request.task_description,
         api_key=api_key,
@@ -61,9 +61,9 @@ async def identify_norms(
 async def identify_norms_multistep(
     request: NormRequest,
     api_key: str = Depends(verify_api_key),
-    model: ModelEnum = Query(..., description="LLM model to use for norm identification. Breaks down identifcation taks into multiple sub-tasks to improve accuracy.")
+    model: str = Query(..., description="LLM model to use for norm identification. Breaks down identifcation taks into multiple sub-tasks to improve accuracy.")
 ):
-    selected_model = get_model(model)
+    selected_model = model
     norm_entries = await identify_relevant_norms_multistep(
         task_description=request.task_description,
         api_key=api_key,
