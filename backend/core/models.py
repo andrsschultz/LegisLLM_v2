@@ -133,3 +133,57 @@ class AmendEntry(BaseModel):
 class AmendResponse(BaseModel):
     entries: List[AmendEntry]
 
+
+class ErfAufRequest(BaseModel):
+    task_description: str
+    relevant_norms: List[NormEntry]
+    amendment_proposal: ProposalEntry
+    amended_norms: List[AmendEntry]
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "task_description": "Abschaffung der Staffelung der Pendlerpauschale",
+                    "relevant_norms": [
+                        {
+                            "jurabk": "EStG",
+                            "enbez": "§ 9",
+                            "P": "1",
+                            "wording": "Aufwendungen des Arbeitnehmers für die Wege zwischen Wohnung und erster Tätigkeitsstätte..."
+                        }
+                    ],
+                    "amendment_proposal": {
+                        "proposalTitle": "Vereinheitlichung der Pendlerpauschale",
+                        "description": "Einheitlicher Satz von 0,38 Euro ab erstem Kilometer",
+                        "affectedNorms": [
+                            {
+                                "jurabk": "EStG",
+                                "enbez": "§ 9",
+                                "P": "1"
+                            }
+                        ]
+                    },
+                    "amended_norms": [
+                        {
+                            "amendedNorm": "§ 9 Absatz 1 Satz 8a: Ab dem Veranlagungszeitraum 2026 wird eine Entfernungspauschale von 0,38 Euro je vollem Kilometer angesetzt..."
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+
+class ErfAufEntry(BaseModel):
+    title: str
+    description: str
+    cost_category: str  # "high" or "low"
+    citizens_cost_eur: float
+    business_cost_eur: float
+    administration_cost_eur: float
+    total_cost_eur: float
+
+
+class ErfAufResponse(BaseModel):
+    entries: List[ErfAufEntry]
+
