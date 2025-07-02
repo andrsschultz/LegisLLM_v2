@@ -401,6 +401,17 @@ export default function FinalizationTab() {
                 
                 <p className="text-gray-700 mb-4">{entry.description}</p>
                 
+                <details className="mb-4">
+                  <summary className="cursor-pointer text-blue-600 hover:text-blue-800 font-medium text-sm">
+                    Vollständige Analyse anzeigen
+                  </summary>
+                  <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <pre className="whitespace-pre-wrap text-sm text-gray-700 font-mono">
+                      {entry.full_text}
+                    </pre>
+                  </div>
+                </details>
+                
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <div className="text-sm font-medium text-blue-900">Bürgerinnen und Bürger</div>

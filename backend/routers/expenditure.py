@@ -31,7 +31,8 @@ async def identify_expenditure(
             citizens_cost_eur=float(entry.get("citizens_cost_eur", 0.0)),
             business_cost_eur=float(entry.get("business_cost_eur", 0.0)),
             administration_cost_eur=float(entry.get("administration_cost_eur", 0.0)),
-            total_cost_eur=float(entry.get("total_cost_eur", 0.0))
+            total_cost_eur=float(entry.get("total_cost_eur", 0.0)),
+            full_text=entry.get("full_text", "")
         )
         for entry in raw_entries
     ]

@@ -64,6 +64,7 @@ export interface ExpenditureEntry {
   business_cost_eur: number;
   administration_cost_eur: number;
   total_cost_eur: number;
+  full_text: string;
 }
 
 export interface AppState {

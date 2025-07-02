@@ -182,6 +182,7 @@ class ErfAufEntry(BaseModel):
     business_cost_eur: float
     administration_cost_eur: float
     total_cost_eur: float
+    full_text: str
 
 
 class ErfAufResponse(BaseModel):

@@ -722,22 +722,6 @@ async def identify_erfüllungsaufwand(task_description: str, relevant_norms: Lis
         **Finale Änderungstexte:**
         {amended_norms_text}
 
-        **AUSGABE:** Gib deine Antwort als JSON-Array mit folgendem Schema zurück:
-
-        {{
-        "entries": [
-            {{
-            "title": "string",
-            "description": "string", 
-            "cost_category": "high|low",
-            "citizens_cost_eur": "float",
-            "business_cost_eur": "float",
-            "administration_cost_eur": "float",
-            "total_cost_eur": "float"
-            }}
-        ]
-        }}
-
         **VORGEHEN:**
         1. Identifiziere alle Einzelregelungen, die Erfüllungsaufwand auslösen
         2. Schätze für jede Vorgabe und Adressatengruppe: Zeitaufwand, Fallzahlen, Lohnsätze
@@ -788,6 +772,25 @@ async def identify_erfüllungsaufwand(task_description: str, relevant_norms: Lis
 
         - Die Einzelbeträge aller Vorgaben werden addiert und als **Gesamterfüllungsaufwand der Norm pro Jahr** ausgewiesen.
         - Die Aufsplittung nach Adressatengruppen bleibt erhalten, um die Belastungsverteilung sichtbar zu machen.
+
+        **AUSGABE:** Gib deine Antwort als JSON-Array mit folgendem Schema zurück:
+
+        {{
+        "entries": [
+            {{
+            "title": "string",
+            "description": "string", 
+            "cost_category": "high|low",
+            "citizens_cost_eur": "float",
+            "business_cost_eur": "float",
+            "administration_cost_eur": "float",
+            "total_cost_eur": "float"
+            "full_text": "string"
+            }}
+        ]
+        }}
+
+        Gebe als full_text den vollständigen Berechnungweg des Erfüllungsaufwands zurück, inklusive aller Annahmen, Schätzungen und Berechnungen an. Sei dabei genau und ausführlich, damit die Berechnung nachvollziehbar ist.
 
         Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
