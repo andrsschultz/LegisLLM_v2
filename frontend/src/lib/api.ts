@@ -1,4 +1,4 @@
-import { NormEntry, ProposalEntry, EvaluatedProposal, DeepEvaluation, Model, ApiResponse } from '@/types';
+import { NormEntry, ProposalEntry, EvaluatedProposal, DeepEvaluation, ExpenditureEntry, Model, ApiResponse } from '@/types';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
@@ -234,6 +234,51 @@ class ApiClient {
     } catch (error) {
       console.error('Error generating final amendment:', error);
       return '';
+    }
+  }
+
+  async calculateExpenditure(
+    taskDescription: string,
+    relevantNorms: NormEntry[],
+    amendmentProposal: ProposalEntry | EvaluatedProposal,
+    finalAmendment: string,
+    apiKey: string,
+    model: string
+  ): Promise<ExpenditureEntry[]> {
+    const endpoint = `${BACKEND_URL}/expenditure`;
+    
+    // Convert proposal to the expected format
+    const proposalEntry = {
+      proposalTitle: amendmentProposal.proposalTitle,
+      description: 'description' in amendmentProposal ? amendmentProposal.description : '',
+      affectedNorms: amendmentProposal.affectedNorms,
+    };
+    
+    try {
+      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
+        method: 'POST',
+        headers: this.getHeaders(apiKey),
+        body: JSON.stringify({
+          task_description: taskDescription,
+          relevant_norms: relevantNorms,
+          amendment_proposal: proposalEntry,
+          amended_norms: [{ amendedNorm: finalAmendment }],
+        }),
+      });
+
+      await this.logApiCall(endpoint, response.status, 0);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: ApiResponse<ExpenditureEntry> = await response.json();
+      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
+      
+      return data.entries || [];
+    } catch (error) {
+      console.error('Error calculating expenditure:', error);
+      return [];
     }
   }
 }

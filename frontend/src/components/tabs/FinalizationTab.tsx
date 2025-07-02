@@ -10,11 +10,13 @@ export default function FinalizationTab() {
   const { 
     state, 
     setFinalAmendment,
+    setExpenditure,
     setCurrentTab,
     addLog 
   } = useApp();
   
   const [loading, setLoading] = useState(false);
+  const [expenditureLoading, setExpenditureLoading] = useState(false);
   const [selectedProposalIndex, setSelectedProposalIndex] = useState(0);
   const [customAdjustments, setCustomAdjustments] = useState('');
   const [manualNorm, setManualNorm] = useState('');
@@ -77,6 +79,56 @@ export default function FinalizationTab() {
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+  };
+
+  const handleCalculateExpenditure = async () => {
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      alert('Bitte geben Sie einen API Key ein. Nutzen Sie hierfür die Seitenleiste.');
+      return;
+    }
+
+    if (!state.finalAmendment || !state.relevantNorms) {
+      alert('Finaler Entwurf und relevante Normen sind erforderlich für die Erfüllungsaufwand-Berechnung.');
+      return;
+    }
+
+    // Determine which proposal to use
+    let selectedProposal: ProposalEntry | EvaluatedProposal;
+    if (hasEvaluatedProposals) {
+      selectedProposal = state.evaluatedProposals![selectedProposalIndex];
+    } else if (hasAmendmentProposals) {
+      selectedProposal = state.amendmentProposals![selectedProposalIndex];
+    } else {
+      // Manual proposal
+      selectedProposal = {
+        proposalTitle: manualNorm,
+        description: manualProposal,
+        affectedNorms: []
+      };
+    }
+
+    setExpenditureLoading(true);
+    addLog('==== CALCULATE ERFÜLLUNGSAUFWAND ====');
+    
+    try {
+      const expenditureEntries = await apiClient.calculateExpenditure(
+        state.taskDescription,
+        state.relevantNorms,
+        selectedProposal,
+        state.finalAmendment,
+        apiKey,
+        state.selectedModel
+      );
+      
+      setExpenditure(expenditureEntries);
+      addLog(`Erfüllungsaufwand calculated. Found ${expenditureEntries.length} cost entries.`);
+    } catch (error) {
+      console.error('Error calculating expenditure:', error);
+      addLog(`Error calculating expenditure: ${error}`);
+    } finally {
+      setExpenditureLoading(false);
+    }
   };
 
   const handleBack = () => {
@@ -299,12 +351,119 @@ export default function FinalizationTab() {
             </pre>
           </div>
 
-          <button
-            onClick={() => downloadText(state.finalAmendment!, 'aenderungsentwurf.txt')}
-            className="px-8 py-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-xl hover:from-slate-700 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all duration-200 font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Als Textdatei speichern
-          </button>
+          <div className="flex flex-wrap gap-4">
+            <button
+              onClick={() => downloadText(state.finalAmendment!, 'aenderungsentwurf.txt')}
+              className="px-8 py-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-xl hover:from-slate-700 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all duration-200 font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Als Textdatei speichern
+            </button>
+            
+            <button
+              onClick={handleCalculateExpenditure}
+              disabled={expenditureLoading}
+              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {expenditureLoading ? (
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <span>Berechne Erfüllungsaufwand...</span>
+                </div>
+              ) : (
+                'Erfüllungsaufwand berechnen'
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Expenditure Results */}
+      {state.expenditure && state.expenditure.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900">Erfüllungsaufwand (Compliance Costs)</h3>
+          <p className="text-sm text-gray-600">
+            Berechnung der jährlichen Kosten durch die Änderung für verschiedene Adressatengruppen.
+          </p>
+          
+          <div className="space-y-4">
+            {state.expenditure.map((entry, index) => (
+              <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <div className="flex items-start justify-between mb-4">
+                  <h4 className="text-md font-semibold text-gray-900">{entry.title}</h4>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    entry.cost_category === 'high' 
+                      ? 'bg-red-100 text-red-800' 
+                      : 'bg-green-100 text-green-800'
+                  }`}>
+                    {entry.cost_category === 'high' ? 'Hoch (>100.000 €/Jahr)' : 'Niedrig (≤100.000 €/Jahr)'}
+                  </span>
+                </div>
+                
+                <p className="text-gray-700 mb-4">{entry.description}</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <div className="text-sm font-medium text-blue-900">Bürgerinnen und Bürger</div>
+                    <div className="text-lg font-bold text-blue-700">
+                      {entry.citizens_cost_eur.toLocaleString('de-DE', {
+                        style: 'currency',
+                        currency: 'EUR',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                      })}
+                    </div>
+                    <div className="text-xs text-blue-600">pro Jahr</div>
+                  </div>
+                  
+                  <div className="bg-green-50 p-3 rounded-lg">
+                    <div className="text-sm font-medium text-green-900">Wirtschaft</div>
+                    <div className="text-lg font-bold text-green-700">
+                      {entry.business_cost_eur.toLocaleString('de-DE', {
+                        style: 'currency',
+                        currency: 'EUR',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                      })}
+                    </div>
+                    <div className="text-xs text-green-600">pro Jahr</div>
+                  </div>
+                  
+                  <div className="bg-orange-50 p-3 rounded-lg">
+                    <div className="text-sm font-medium text-orange-900">Verwaltung</div>
+                    <div className="text-lg font-bold text-orange-700">
+                      {entry.administration_cost_eur.toLocaleString('de-DE', {
+                        style: 'currency',
+                        currency: 'EUR',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                      })}
+                    </div>
+                    <div className="text-xs text-orange-600">pro Jahr</div>
+                  </div>
+                  
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <div className="text-sm font-medium text-gray-900">Gesamtkosten</div>
+                    <div className="text-lg font-bold text-gray-700">
+                      {entry.total_cost_eur.toLocaleString('de-DE', {
+                        style: 'currency',
+                        currency: 'EUR',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                      })}
+                    </div>
+                    <div className="text-xs text-gray-600">pro Jahr</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-blue-800 text-sm">
+              <strong>Hinweis:</strong> Die Erfüllungsaufwand-Berechnung basiert auf geschätzten Werten und sollte 
+              vor der finalen Entscheidung durch weitere Datenquellen validiert werden.
+            </p>
+          </div>
         </div>
       )}
 

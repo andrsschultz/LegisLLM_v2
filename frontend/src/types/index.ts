@@ -56,6 +56,16 @@ export interface ApiResponse<T> {
   entries: T[];
 }
 
+export interface ExpenditureEntry {
+  title: string;
+  description: string;
+  cost_category: 'high' | 'low';
+  citizens_cost_eur: number;
+  business_cost_eur: number;
+  administration_cost_eur: number;
+  total_cost_eur: number;
+}
+
 export interface AppState {
   taskDescription: string;
   selectedModel: string;
@@ -64,6 +74,7 @@ export interface AppState {
   amendmentProposals: ProposalEntry[] | null;
   evaluatedProposals: EvaluatedProposal[] | null;
   finalAmendment: string | null;
+  expenditure: ExpenditureEntry[] | null;
   currentTab: number;
   multistepReasoning: boolean;
   logs: string[];
