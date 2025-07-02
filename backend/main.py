@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import amend, evaluate, getModels, norms, proposals
+from .routers import amend, evaluate, expenditure, getModels, norms, proposals
 
 app = FastAPI()
 
@@ -23,6 +23,7 @@ app.include_router(amend.router)
 app.include_router(norms.router)
 app.include_router(proposals.router)
 app.include_router(evaluate.router)
+app.include_router(expenditure.router)
 app.include_router(getModels.router)
 
 
