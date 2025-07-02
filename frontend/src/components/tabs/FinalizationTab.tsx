@@ -409,6 +409,14 @@ export default function FinalizationTab() {
                     <pre className="whitespace-pre-wrap text-sm text-gray-700 font-mono">
                       {entry.full_text}
                     </pre>
+                    <div className="mt-3 pt-3 border-t border-gray-300">
+                      <button
+                        onClick={() => downloadText(entry.full_text, `erfuellungsaufwand_${entry.title.replace(/[^a-zA-Z0-9]/g, '_')}.txt`)}
+                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-sm"
+                      >
+                        Vollständige Analyse als Datei speichern
+                      </button>
+                    </div>
                   </div>
                 </details>
                 
@@ -468,6 +476,8 @@ export default function FinalizationTab() {
               </div>
             ))}
           </div>
+          
+        
           
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-blue-800 text-sm">
