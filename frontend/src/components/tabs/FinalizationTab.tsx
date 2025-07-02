@@ -26,6 +26,31 @@ export default function FinalizationTab() {
     return getApiKeyForModel(state.selectedModel, state.availableModels);
   };
 
+  const getCostBoxColor = (cost: number) => {
+    if (cost === 0) {
+      return {
+        bg: 'bg-green-50',
+        textMedium: 'text-green-900',
+        textBold: 'text-green-700',
+        textSmall: 'text-green-600'
+      };
+    } else if (cost >= 100000) {
+      return {
+        bg: 'bg-red-50',
+        textMedium: 'text-red-900',
+        textBold: 'text-red-700',
+        textSmall: 'text-red-600'
+      };
+    } else {
+      return {
+        bg: 'bg-blue-50',
+        textMedium: 'text-blue-900',
+        textBold: 'text-blue-700',
+        textSmall: 'text-blue-600'
+      };
+    }
+  };
+
   const handleGenerateFinalAmendment = async (selectedProposal: ProposalEntry | EvaluatedProposal) => {
     const apiKey = getApiKey();
     if (!apiKey) {
@@ -421,9 +446,9 @@ export default function FinalizationTab() {
                 </details>
                 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <div className="text-sm font-medium text-blue-900">Bürgerinnen und Bürger</div>
-                    <div className="text-lg font-bold text-blue-700">
+                  <div className={`p-3 rounded-lg ${getCostBoxColor(entry.citizens_cost_eur).bg}`}>
+                    <div className={`text-sm font-medium ${getCostBoxColor(entry.citizens_cost_eur).textMedium}`}>Bürgerinnen und Bürger</div>
+                    <div className={`text-lg font-bold ${getCostBoxColor(entry.citizens_cost_eur).textBold}`}>
                       {entry.citizens_cost_eur.toLocaleString('de-DE', {
                         style: 'currency',
                         currency: 'EUR',
@@ -431,12 +456,12 @@ export default function FinalizationTab() {
                         maximumFractionDigits: 0
                       })}
                     </div>
-                    <div className="text-xs text-blue-600">pro Jahr</div>
+                    <div className={`text-xs ${getCostBoxColor(entry.citizens_cost_eur).textSmall}`}>pro Jahr</div>
                   </div>
                   
-                  <div className="bg-green-50 p-3 rounded-lg">
-                    <div className="text-sm font-medium text-green-900">Wirtschaft</div>
-                    <div className="text-lg font-bold text-green-700">
+                  <div className={`p-3 rounded-lg ${getCostBoxColor(entry.business_cost_eur).bg}`}>
+                    <div className={`text-sm font-medium ${getCostBoxColor(entry.business_cost_eur).textMedium}`}>Wirtschaft</div>
+                    <div className={`text-lg font-bold ${getCostBoxColor(entry.business_cost_eur).textBold}`}>
                       {entry.business_cost_eur.toLocaleString('de-DE', {
                         style: 'currency',
                         currency: 'EUR',
@@ -444,12 +469,12 @@ export default function FinalizationTab() {
                         maximumFractionDigits: 0
                       })}
                     </div>
-                    <div className="text-xs text-green-600">pro Jahr</div>
+                    <div className={`text-xs ${getCostBoxColor(entry.business_cost_eur).textSmall}`}>pro Jahr</div>
                   </div>
                   
-                  <div className="bg-orange-50 p-3 rounded-lg">
-                    <div className="text-sm font-medium text-orange-900">Verwaltung</div>
-                    <div className="text-lg font-bold text-orange-700">
+                  <div className={`p-3 rounded-lg ${getCostBoxColor(entry.administration_cost_eur).bg}`}>
+                    <div className={`text-sm font-medium ${getCostBoxColor(entry.administration_cost_eur).textMedium}`}>Verwaltung</div>
+                    <div className={`text-lg font-bold ${getCostBoxColor(entry.administration_cost_eur).textBold}`}>
                       {entry.administration_cost_eur.toLocaleString('de-DE', {
                         style: 'currency',
                         currency: 'EUR',
@@ -457,7 +482,7 @@ export default function FinalizationTab() {
                         maximumFractionDigits: 0
                       })}
                     </div>
-                    <div className="text-xs text-orange-600">pro Jahr</div>
+                    <div className={`text-xs ${getCostBoxColor(entry.administration_cost_eur).textSmall}`}>pro Jahr</div>
                   </div>
                   
                   <div className="bg-gray-50 p-3 rounded-lg">
