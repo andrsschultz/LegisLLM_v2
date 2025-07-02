@@ -28,7 +28,7 @@ app.include_router(getModels.router)
 
 @app.get("/")
 async def root():
-    return {"message": "Hello Bigger Applications!"}
+    return {"message": "This is the LegisLLM backend API. Use the endpoints to interact with the service. Documentation: https://legisllm-full-stack.onrender.com/docs ;  Frontend: https://legisllm.onrender.com"}
 
 @app.get("/health")
 async def health_check():
