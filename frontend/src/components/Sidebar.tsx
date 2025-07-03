@@ -13,7 +13,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
   
   // Use external state if provided, otherwise use internal state
   const collapsed = isCollapsed !== undefined ? isCollapsed : internalCollapsed;
-  const toggle = useMemo(() => onToggle || (() => setInternalCollapsed(!internalCollapsed)), [onToggle]);
+  const toggle = useMemo(() => onToggle || (() => setInternalCollapsed(!internalCollapsed)), [onToggle, internalCollapsed]);
 
   // Close sidebar on escape key
   useEffect(() => {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { apiClient } from '@/lib/api';
 import { Model } from '@/types';
@@ -30,7 +30,7 @@ export default function ModelSelector() {
     setDeepinfraApiKey(localStorage.getItem('deepinfra_api_key') || '');
   }, []);
 
-  const loadModels = async () => {
+  const loadModels = useCallback(async () => {
     try {
       // Load organized models
       const { organized, default: defaultModel } = await apiClient.fetchOrganizedModels();
@@ -50,7 +50,7 @@ export default function ModelSelector() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setAvailableModels, setSelectedModel, state.selectedModel]);
 
   const handleApiKeyChange = (key: string, value: string, type: 'openai' | 'deepinfra') => {
     if (type === 'openai') {
@@ -62,15 +62,6 @@ export default function ModelSelector() {
     }
   };
 
-  const getApiKey = (): string => {
-    const selectedModelData = state.availableModels.find(m => m.id === state.selectedModel);
-    const provider = selectedModelData?.provider?.toLowerCase();
-    
-    if (provider === 'deepinfra') {
-      return deepinfraApiKey;
-    }
-    return openaiApiKey;
-  };
 
   if (loading) {
     return (
@@ -150,34 +141,34 @@ export default function ModelSelector() {
           >
             {/* Recommended Models */}
             <optgroup label="Empfohlen">
-              {organizedModels.openai.recommended.map((model) => (
+              {organizedModels?.openai?.recommended?.map((model) => (
                 <option key={model.id} value={model.id}>
                   {model.name} (OpenAI)
                 </option>
-              ))}
-              {organizedModels.deepinfra.recommended.map((model) => (
+              )) || []}
+              {organizedModels?.deepinfra?.recommended?.map((model) => (
                 <option key={model.id} value={model.id}>
                   {model.name} (DeepInfra)
                 </option>
-              ))}
+              )) || []}
             </optgroup>
             
             {/* All OpenAI Models */}
             <optgroup label="Alle Modelle - OpenAI (experimentell)">
-              {organizedModels.openai.additional.map((model) => (
+              {organizedModels?.openai?.additional?.map((model) => (
                 <option key={model.id} value={model.id}>
                   {model.name}
                 </option>
-              ))}
+              )) || []}
             </optgroup>
             
             {/* All DeepInfra Models */}
             <optgroup label="Alle Modelle - DeepInfra (experimentell)">
-              {organizedModels.deepinfra.additional.map((model) => (
+              {organizedModels?.deepinfra?.additional?.map((model) => (
                 <option key={model.id} value={model.id}>
                   {model.name}
                 </option>
-              ))}
+              )) || []}
             </optgroup>
           </select>
           
