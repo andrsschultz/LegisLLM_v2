@@ -12,6 +12,7 @@ app.add_middleware(
         "http://localhost:3000",  # Local development
         "https://legisllm.onrender.com",  # Frontend domain
         "https://legisllm-frontend.onrender.com",  # Alternative frontend domain
+        "https://www.legisllm.de/"
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
