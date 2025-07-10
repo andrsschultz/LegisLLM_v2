@@ -12,8 +12,8 @@ app.add_middleware(
         "http://localhost:3000",  # Local development
         "https://legisllm.onrender.com",  # Frontend domain
         "https://legisllm-frontend.onrender.com",  # Alternative frontend domain
-        "https://www.legisllm.de/"
-        "https://legisllm.de/"
+        "https://www.legisllm.de",  # Main domain
+        "https://legisllm.de"  # Domain without www
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -30,7 +30,7 @@ app.include_router(getModels.router)
 
 @app.get("/")
 async def root():
-    return {"message": "This is the LegisLLM backend API. Use the endpoints to interact with the service. Documentation: https://legisllm-full-stack.onrender.com/docs ;  Frontend: https://legisllm.onrender.com"}
+    return {"message": "This is the LegisLLM backend API. Use the endpoints to interact with the service. Documentation: https://api.legisllm.de/docs ;  Frontend: https://www.legisllm.de"}
 
 @app.get("/health")
 async def health_check():
