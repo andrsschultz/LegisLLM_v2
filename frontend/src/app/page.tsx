@@ -8,7 +8,6 @@ import ContextIdentificationTab from '@/components/tabs/ContextIdentificationTab
 import ProposalDevelopmentTab from '@/components/tabs/ProposalDevelopmentTab';
 import EvaluationTab from '@/components/tabs/EvaluationTab';
 import FinalizationTab from '@/components/tabs/FinalizationTab';
-import LogViewer from '@/components/LogViewer';
 
 export default function HomePage() {
   const { state } = useApp();
@@ -37,12 +36,6 @@ export default function HomePage() {
         <div className="min-h-[600px]">
           {renderCurrentTab()}
         </div>
-
-        {/* Log Viewer 
-        <div className="border-t border-slate-200/60 pt-8">
-          <LogViewer />
-        </div>
-        */}
       </div>
     </Layout>
   );
