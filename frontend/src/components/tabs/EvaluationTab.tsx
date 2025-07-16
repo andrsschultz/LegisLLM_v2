@@ -18,6 +18,8 @@ export default function EvaluationTab() {
   const [deepEvalLoading, setDeepEvalLoading] = useState(false);
   const [selectedProposalIndex, setSelectedProposalIndex] = useState(0);
   const [deepEvaluation, setDeepEvaluation] = useState<DeepEvaluation | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [deepEvalError, setDeepEvalError] = useState<string | null>(null);
 
   const getApiKey = (): string => {
     return getApiKeyForModel(state.selectedModel, state.availableModels);
@@ -36,6 +38,7 @@ export default function EvaluationTab() {
     }
 
     setLoading(true);
+    setError(null);
     addLog('==== STEP 4: EVALUATE PROPOSALS ====');
     
     try {
@@ -51,7 +54,16 @@ export default function EvaluationTab() {
       addLog(`Successfully evaluated ${evaluatedProposals.length} proposals`);
     } catch (error) {
       console.error('Error evaluating proposals:', error);
-      addLog(`Error evaluating proposals: ${error}`);
+      
+      if (error instanceof Error && error.message === 'SERVER_ERROR') {
+        const errorMessage = 'Serverfehler: Es ist ein interner Serverfehler aufgetreten. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support.';
+        setError(errorMessage);
+        addLog(`Error evaluating proposals: ${errorMessage}`);
+      } else {
+        const errorMessage = `Fehler beim Evaluieren der Vorschläge: ${error}`;
+        setError(errorMessage);
+        addLog(`Error evaluating proposals: ${errorMessage}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -67,6 +79,7 @@ export default function EvaluationTab() {
     if (!selectedProposal) return;
 
     setDeepEvalLoading(true);
+    setDeepEvalError(null);
     addLog('==== PERFORM DEEP EVALUATION ====');
     
     try {
@@ -82,7 +95,16 @@ export default function EvaluationTab() {
       addLog('Successfully completed deep evaluation');
     } catch (error) {
       console.error('Error performing deep evaluation:', error);
-      addLog(`Error in deep evaluation: ${error}`);
+      
+      if (error instanceof Error && error.message === 'SERVER_ERROR') {
+        const errorMessage = 'Serverfehler: Es ist ein interner Serverfehler aufgetreten. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support.';
+        setDeepEvalError(errorMessage);
+        addLog(`Error in deep evaluation: ${errorMessage}`);
+      } else {
+        const errorMessage = `Fehler bei der vertieften Evaluierung: ${error}`;
+        setDeepEvalError(errorMessage);
+        addLog(`Error in deep evaluation: ${errorMessage}`);
+      }
     } finally {
       setDeepEvalLoading(false);
     }
@@ -126,6 +148,22 @@ export default function EvaluationTab() {
           )}
         </div>
       </details>
+
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Action Button */}
       <button
@@ -198,6 +236,22 @@ export default function EvaluationTab() {
                 ))}
               </select>
             </div>
+
+            {/* Deep Evaluation Error Display */}
+            {deepEvalError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-600">{deepEvalError}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <button
               onClick={handleDeepEvaluation}

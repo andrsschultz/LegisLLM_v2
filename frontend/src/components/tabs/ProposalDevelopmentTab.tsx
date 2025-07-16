@@ -14,6 +14,7 @@ export default function ProposalDevelopmentTab() {
   } = useApp();
   
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const getApiKey = (): string => {
     return getApiKeyForModel(state.selectedModel, state.availableModels);
@@ -32,6 +33,7 @@ export default function ProposalDevelopmentTab() {
     }
 
     setLoading(true);
+    setError(null);
     addLog('==== STEP 3: DEVELOP AMENDMENT PROPOSALS ====');
     
     try {
@@ -46,7 +48,16 @@ export default function ProposalDevelopmentTab() {
       addLog(`Successfully generated ${proposals.length} amendment proposals`);
     } catch (error) {
       console.error('Error developing alternatives:', error);
-      addLog(`Error developing proposals: ${error}`);
+      
+      if (error instanceof Error && error.message === 'SERVER_ERROR') {
+        const errorMessage = 'Serverfehler: Es ist ein interner Serverfehler aufgetreten. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support.';
+        setError(errorMessage);
+        addLog(`Error developing proposals: ${errorMessage}`);
+      } else {
+        const errorMessage = `Fehler beim Entwickeln der Vorschläge: ${error}`;
+        setError(errorMessage);
+        addLog(`Error developing proposals: ${errorMessage}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -90,6 +101,22 @@ export default function ProposalDevelopmentTab() {
           </div>
         </div>
       </details>
+
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Action Button */}
       <button

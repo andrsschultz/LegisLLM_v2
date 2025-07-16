@@ -71,6 +71,9 @@ class ApiClient {
       await this.logApiCall(endpoint, response.status, 0);
 
       if (!response.ok) {
+        if (response.status === 500) {
+          throw new Error('SERVER_ERROR');
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -80,7 +83,7 @@ class ApiClient {
       return data.entries || [];
     } catch (error) {
       console.error('Error identifying relevant norms:', error);
-      return [];
+      throw error;
     }
   }
 
@@ -105,6 +108,9 @@ class ApiClient {
       await this.logApiCall(endpoint, response.status, 0);
 
       if (!response.ok) {
+        if (response.status === 500) {
+          throw new Error('SERVER_ERROR');
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -114,7 +120,7 @@ class ApiClient {
       return data.entries || [];
     } catch (error) {
       console.error('Error generating proposals:', error);
-      return [];
+      throw error;
     }
   }
 
@@ -141,6 +147,9 @@ class ApiClient {
       await this.logApiCall(endpoint, response.status, 0);
 
       if (!response.ok) {
+        if (response.status === 500) {
+          throw new Error('SERVER_ERROR');
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -150,7 +159,7 @@ class ApiClient {
       return data.entries || [];
     } catch (error) {
       console.error('Error evaluating proposals:', error);
-      return [];
+      throw error;
     }
   }
 
@@ -177,6 +186,9 @@ class ApiClient {
       await this.logApiCall(endpoint, response.status, 0);
 
       if (!response.ok) {
+        if (response.status === 500) {
+          throw new Error('SERVER_ERROR');
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -186,7 +198,7 @@ class ApiClient {
       return data.entries && data.entries.length > 0 ? data.entries[0] : null;
     } catch (error) {
       console.error('Error performing deep evaluation:', error);
-      return null;
+      throw error;
     }
   }
 
@@ -222,6 +234,9 @@ class ApiClient {
       await this.logApiCall(endpoint, response.status, 0);
 
       if (!response.ok) {
+        if (response.status === 500) {
+          throw new Error('SERVER_ERROR');
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -233,7 +248,7 @@ class ApiClient {
         : 'Keine Änderung generiert.';
     } catch (error) {
       console.error('Error generating final amendment:', error);
-      return '';
+      throw error;
     }
   }
 }
