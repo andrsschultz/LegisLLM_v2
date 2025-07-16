@@ -17,9 +17,11 @@ class ApiClient {
     console.log(`Response length: ${responseLength} characters`);
   }
 
-  async fetchModels(): Promise<{ models: Model[]; default: string | null }> {
+  async fetchModels(apiKey: string): Promise<{ models: Model[]; default: string | null }> {
     try {
-      const response = await fetch(`${BACKEND_URL}/models`);
+      const response = await fetch(`${BACKEND_URL}/models`, {
+        headers: this.getHeaders(apiKey),
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -34,9 +36,11 @@ class ApiClient {
     }
   }
 
-  async fetchOrganizedModels(): Promise<{ organized: any; default: string | null }> {
+  async fetchOrganizedModels(apiKey: string): Promise<{ organized: any; default: string | null }> {
     try {
-      const response = await fetch(`${BACKEND_URL}/models/organized`);
+      const response = await fetch(`${BACKEND_URL}/models/organized`, {
+        headers: this.getHeaders(apiKey),
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

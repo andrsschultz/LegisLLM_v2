@@ -32,12 +32,42 @@ export default function ModelSelector() {
 
   const loadModels = async () => {
     try {
-      // Load organized models
-      const { organized, default: defaultModel } = await apiClient.fetchOrganizedModels();
-      setOrganizedModels(organized);
+      // Get API keys from localStorage
+      const storedOpenaiKey = localStorage.getItem('openai_api_key') || '';
+      const storedDeepinfraKey = localStorage.getItem('deepinfra_api_key') || '';
       
-      // Also load all models for the context (needed by other components)
-      const { models: allModels } = await apiClient.fetchModels();
+      let organizedModels: any = { openai: { recommended: [], additional: [] }, deepinfra: { recommended: [], additional: [] } };
+      let allModels: any[] = [];
+      let defaultModel: string | null = null;
+      
+      // Try fetching with OpenAI key first
+      if (storedOpenaiKey) {
+        try {
+          const openaiResults = await apiClient.fetchOrganizedModels(storedOpenaiKey);
+          organizedModels.openai = openaiResults.organized.openai || { recommended: [], additional: [] };
+          defaultModel = openaiResults.default;
+          
+          const openaiAllResults = await apiClient.fetchModels(storedOpenaiKey);
+          allModels = [...allModels, ...openaiAllResults.models.filter(m => m.provider === 'OpenAI')];
+        } catch (error) {
+          console.log('OpenAI key failed:', error);
+        }
+      }
+      
+      // Try fetching with DeepInfra key
+      if (storedDeepinfraKey) {
+        try {
+          const deepinfraResults = await apiClient.fetchOrganizedModels(storedDeepinfraKey);
+          organizedModels.deepinfra = deepinfraResults.organized.deepinfra || { recommended: [], additional: [] };
+          
+          const deepinfraAllResults = await apiClient.fetchModels(storedDeepinfraKey);
+          allModels = [...allModels, ...deepinfraAllResults.models.filter(m => m.provider === 'DeepInfra')];
+        } catch (error) {
+          console.log('DeepInfra key failed:', error);
+        }
+      }
+      
+      setOrganizedModels(organizedModels);
       setAvailableModels(allModels);
       
       if (defaultModel && !state.selectedModel) {
@@ -59,6 +89,11 @@ export default function ModelSelector() {
     } else {
       setDeepinfraApiKey(value);
       localStorage.setItem('deepinfra_api_key', value);
+    }
+    
+    // Reload models when API key changes
+    if (value.length > 10) { // Basic validation
+      loadModels();
     }
   };
 
