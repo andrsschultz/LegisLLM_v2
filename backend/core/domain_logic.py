@@ -1,6 +1,7 @@
 import json
 import os
 from typing import List, Optional
+from fastapi import HTTPException
 from .llm_service import query_llm
 from .models import NormEntry, ProposalEntry
 from .xml_parser import extract_table_of_contents, extract_section_from_law
@@ -53,7 +54,10 @@ async def identify_relevant_norms(task_description: str, api_key: str, model: st
     except json.JSONDecodeError as e:
         print(f"Error parsing JSON response: {e}")
         print(f"Raw response: {raw_response}")
-        return []
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to parse LLM response. The AI model returned an invalid JSON format. Please try again."
+        )
     
 
 
@@ -129,7 +133,10 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
     except json.JSONDecodeError as e:
         print(f"Error parsing JSON response: {e}")
         print(f"Raw response: {raw_response}")
-        return []
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to parse LLM response. The AI model returned an invalid JSON format. Please try again."
+        )
     
 
 async def evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposals: List[ProposalEntry], api_key: str, model: str) -> List:
@@ -203,7 +210,10 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
     except json.JSONDecodeError as e:
         print(f"Error parsing JSON response: {e}")
         print(f"Raw response: {raw_response}")
-        return []
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to parse LLM response. The AI model returned an invalid JSON format. Please try again."
+        )
 
     
 
@@ -324,7 +334,10 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
     except json.JSONDecodeError as e:
         print(f"Error parsing JSON response: {e}")
         print(f"Raw response: {raw_response}")
-        return []
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to parse LLM response. The AI model returned an invalid JSON format. Please try again."
+        )
 
 
 
@@ -426,7 +439,10 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
         print(f"Step 1: Error parsing JSON response: {e}")
         print(f"Step 1: Raw response: {raw_response_step1}")
         print(f"Step 1: Cleaned response: {clean_json_string(raw_response_step1)}")
-        return []
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to parse LLM response in step 1. The AI model returned an invalid JSON format. Please try again."
+        )
     except Exception as e:
         print(f"Step 1: Error creating NormEntry objects: {e}")
         return []
@@ -490,7 +506,10 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
             print(f"Step 2: Error parsing JSON response: {e}")
             print(f"Step 2: Raw response: {raw_response_step2}")
             print(f"Step 2: Cleaned response: {clean_json_string(raw_response_step2)}")
-            return []
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to parse LLM response in step 2. The AI model returned an invalid JSON format. Please try again."
+            )
         except Exception as e:
             print(f"Step 2: Error creating NormEntry objects: {e}")
             return []
@@ -592,7 +611,10 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
             print(f"Step 4: Error parsing JSON response: {e}")
             print(f"Step 4: Raw response: {raw_response_step4}")
             print(f"Step 4: Cleaned response: {clean_json_string(raw_response_step4)}")
-            return []
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to parse LLM response in step 4. The AI model returned an invalid JSON format. Please try again."
+            )
         except Exception as e:
             print(f"Step 4: Error creating NormEntry objects: {e}")
             return []
