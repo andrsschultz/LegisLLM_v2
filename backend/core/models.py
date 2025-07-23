@@ -124,8 +124,13 @@ class AmendRequest(BaseModel):
     amendment_proposal: ProposalEntry
 
 class AmendEntry(BaseModel):
-    amendedNorm: str
+    originalNorm: NormEntry
+    amendedNorm: NormEntry
 
 class AmendResponse(BaseModel):
     entries: List[AmendEntry]
+
+
+
+
 

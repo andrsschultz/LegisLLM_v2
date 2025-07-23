@@ -375,11 +375,32 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
 
         Regelungskontext: {relevant_norms_text}
 
-        Mache einen Änderungsvorschlag. Gebe die ausschließlich die Norm in der geänderten Fassung zurück. Hebe Änderungen mit [ ] hervor.
+        Setze die Regelungsalternative um. Gebe die zu ändernden Norm(en) in ihrer geänderten Fassung zurück. Hebe Änderungen mit [ ] hervor.
     
         Verwende dabei juristisch präzise Formulierungen und berücksichtige die gängigen Prinzipien der Legistik.
 
-        Gebe ausschließlich die Norm in der geänderten Fassung zurück und verwende keine zusätzlichen Außentexte oder Einleitungen.
+        Gib als Antwort ausschließlich eine JSON-Liste zurück, welche wie folgt formatiert ist:
+
+        {{
+            "entries": [
+                {{
+                    "originalNorm": {{
+                        "jurabk": "<Abkürzung des Gesetzes>",   // z. B. "EStG"
+                        "enbez": "<Paragraf>",                  // z. B. "§ 21"
+                        "P": "<Absatz>",                        // z. B. "1"
+                        "wording": "<ursprünglicher Normtext>"
+                    }},
+                    "amendedNorm": {{
+                        "jurabk": "<Abkürzung des Gesetzes>",   // z. B. "EStG"
+                        "enbez": "<Paragraf>",                  // z. B. "§ 21"
+                        "P": "<Absatz>",                        // z. B. "1"
+                        "wording": "<geänderter Normtext mit [] Hervorhebungen>"
+                    }}
+                }}
+            ]
+        }}
+
+        Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
 
     print("Querying LLM to generate final amendment...")
@@ -387,9 +408,20 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
-    # Since we're asking for direct text output (not JSON), return the text directly
-    # The response should be the amended norm text
-    return [{"amendedNorm": raw_response.strip()}]
+    try:
+        # Clean the response to remove markdown code blocks if present
+        cleaned_response = clean_json_string(raw_response)
+        parsed_response = json.loads(cleaned_response)
+        raw_entries = parsed_response.get("entries", [])
+        
+        print(f"Successfully parsed {len(raw_entries)} amendment entries")
+        return raw_entries
+        
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON response: {e}")
+        print(f"Raw response: {raw_response}")
+        # Fallback: return empty list if JSON parsing fails
+        return []
 
 
 

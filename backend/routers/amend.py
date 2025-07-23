@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query, Depends
 from typing import Optional
-from ..core.models import AmendRequest, AmendEntry, AmendResponse
+from ..core.models import AmendRequest, AmendEntry, AmendResponse, NormEntry
 from ..core.domain_logic import generate_final_amendment
 from ..core.config import ModelEnum
 from ..core.auth import verify_api_key
@@ -25,9 +25,26 @@ async def amend_law(
         model=selected_model
     )
     
+    # Create mapping from affected norms in the proposal to preserve original wording if needed
+    affected_norms_map = {
+        f"{norm.jurabk}_{norm.enbez}_{norm.P}": norm 
+        for norm in request.amendment_proposal.affectedNorms
+    }
+    
     entries = [
         AmendEntry(
-            amendedNorm=entry.get("amendedNorm", ""),
+            originalNorm=NormEntry(
+                jurabk=entry.get("originalNorm", {}).get("jurabk", ""),
+                enbez=entry.get("originalNorm", {}).get("enbez"),
+                P=entry.get("originalNorm", {}).get("P"),
+                wording=entry.get("originalNorm", {}).get("wording")
+            ),
+            amendedNorm=NormEntry(
+                jurabk=entry.get("amendedNorm", {}).get("jurabk", ""),
+                enbez=entry.get("amendedNorm", {}).get("enbez"),
+                P=entry.get("amendedNorm", {}).get("P"),
+                wording=entry.get("amendedNorm", {}).get("wording")
+            )
         )
         for entry in raw_entries
     ]
