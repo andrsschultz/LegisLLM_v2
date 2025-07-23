@@ -4,6 +4,8 @@ from ..core.models import AmendRequest, AmendEntry, AmendResponse, NormEntry
 from ..core.domain_logic import generate_final_amendment
 from ..core.config import ModelEnum
 from ..core.auth import verify_api_key
+import os
+from ..core.xml_parser import extract_section_from_law
 
 router = APIRouter()
 
@@ -25,29 +27,41 @@ async def amend_law(
         model=selected_model
     )
     
-    # Create mapping from affected norms in the proposal to preserve original wording if needed
-    affected_norms_map = {
-        f"{norm.jurabk}_{norm.enbez}_{norm.P}": norm 
-        for norm in request.amendment_proposal.affectedNorms
-    }
-    
-    entries = [
-        AmendEntry(
-            originalNorm=NormEntry(
-                jurabk=entry.get("originalNorm", {}).get("jurabk", ""),
-                enbez=entry.get("originalNorm", {}).get("enbez"),
-                P=entry.get("originalNorm", {}).get("P"),
-                wording=entry.get("originalNorm", {}).get("wording")
-            ),
-            amendedNorm=NormEntry(
-                jurabk=entry.get("amendedNorm", {}).get("jurabk", ""),
-                enbez=entry.get("amendedNorm", {}).get("enbez"),
-                P=entry.get("amendedNorm", {}).get("P"),
-                wording=entry.get("amendedNorm", {}).get("wording")
+    entries = []
+    for entry in raw_entries:
+        jurabk = entry.get("amendedNorm", {}).get("jurabk", "")
+        enbez = entry.get("amendedNorm", {}).get("enbez")
+        P = entry.get("amendedNorm", {}).get("P")
+        amendedWording = entry.get("amendedNorm", {}).get("wording")
+
+        # Get the original wording from XML
+        data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+        xml_file = os.path.join(data_dir, f"{jurabk}.xml")
+        section_num = enbez.replace("§", "").strip()
+
+        originalWording = ""
+        try:
+            originalWording = extract_section_from_law(xml_file, section_num)
+        except Exception as e:
+            print(f"Error extracting wording for {jurabk} {enbez} P{P}: {e}")
+            originalWording = f"Fehler beim Laden des Wortlauts für {jurabk} {enbez}"
+
+        entries.append(
+            AmendEntry(
+                originalNorm=NormEntry(
+                    jurabk=jurabk,
+                    enbez=enbez,
+                    P=P,
+                    wording=originalWording
+                ),
+                amendedNorm=NormEntry(
+                    jurabk=jurabk,
+                    enbez=enbez,
+                    P=P,
+                    wording=amendedWording
+                )
             )
         )
-        for entry in raw_entries
-    ]
     
     return AmendResponse(entries=entries)
 
