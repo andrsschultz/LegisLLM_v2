@@ -57,6 +57,11 @@ export interface ApiResponse<T> {
   entries: T[];
 }
 
+export interface AmendmentEntry {
+  originalNorm: NormEntry;
+  amendedNorm: NormEntry;
+}
+
 export interface AppState {
   taskDescription: string;
   selectedModel: string;
@@ -64,7 +69,7 @@ export interface AppState {
   relevantNorms: NormEntry[] | null;
   amendmentProposals: ProposalEntry[] | null;
   evaluatedProposals: EvaluatedProposal[] | null;
-  finalAmendment: string | null;
+  finalAmendment: AmendmentEntry[] | null;
   currentTab: number;
   multistepReasoning: boolean;
   logs: string[];

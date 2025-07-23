@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { AppState, NormEntry, ProposalEntry, EvaluatedProposal, Model } from '@/types';
+import { AppState, NormEntry, ProposalEntry, EvaluatedProposal, Model, AmendmentEntry } from '@/types';
 
 interface AppAction {
   type: string;
@@ -63,7 +63,7 @@ interface AppContextType {
   setRelevantNorms: (norms: NormEntry[]) => void;
   setAmendmentProposals: (proposals: ProposalEntry[]) => void;
   setEvaluatedProposals: (proposals: EvaluatedProposal[]) => void;
-  setFinalAmendment: (amendment: string) => void;
+  setFinalAmendment: (amendment: AmendmentEntry[]) => void;
   setCurrentTab: (tab: number) => void;
   setMultistepReasoning: (enabled: boolean) => void;
   addLog: (message: string) => void;
@@ -90,7 +90,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_AMENDMENT_PROPOSALS', payload: proposals }),
     setEvaluatedProposals: (proposals: EvaluatedProposal[]) => 
       dispatch({ type: 'SET_EVALUATED_PROPOSALS', payload: proposals }),
-    setFinalAmendment: (amendment: string) => 
+    setFinalAmendment: (amendment: AmendmentEntry[]) => 
       dispatch({ type: 'SET_FINAL_AMENDMENT', payload: amendment }),
     setCurrentTab: (tab: number) => 
       dispatch({ type: 'SET_CURRENT_TAB', payload: tab }),

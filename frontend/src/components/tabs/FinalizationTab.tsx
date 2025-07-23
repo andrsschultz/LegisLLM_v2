@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { apiClient } from '@/lib/api';
-import { ProposalEntry, EvaluatedProposal } from '@/types';
+import { ProposalEntry, EvaluatedProposal, AmendmentEntry } from '@/types';
 import { getApiKeyForModel } from '@/lib/apiKeyUtils';
+import AmendmentSplitView from '@/components/AmendmentSplitView';
 
 export default function FinalizationTab() {
   const { 
@@ -37,7 +38,7 @@ export default function FinalizationTab() {
     addLog('==== GENERATE FINAL AMENDMENT ====');
     
     try {
-      const finalText = await apiClient.generateFinalAmendment(
+      const finalAmendments = await apiClient.generateFinalAmendment(
         state.taskDescription,
         selectedProposal,
         state.relevantNorms || [],
@@ -47,8 +48,8 @@ export default function FinalizationTab() {
         state.amendmentProposals || undefined
       );
       
-      setFinalAmendment(finalText);
-      addLog(`Final amendment generated. Length: ${finalText.length} characters`);
+      setFinalAmendment(finalAmendments);
+      addLog(`Final amendment generated. ${finalAmendments.length} amendment entries created`);
     } catch (error) {
       console.error('Error generating final amendment:', error);
       
@@ -81,9 +82,26 @@ export default function FinalizationTab() {
     await handleGenerateFinalAmendment(manualProposalEntry);
   };
 
-  const downloadText = (text: string, filename: string) => {
+  const downloadAmendments = (amendments: AmendmentEntry[], filename: string) => {
+    // Create a formatted text version of the amendments
+    const formattedText = amendments.map((amendment) => {
+      const normId = `${amendment.originalNorm.jurabk} ${amendment.originalNorm.enbez}${amendment.originalNorm.P ? ` Abs. ${amendment.originalNorm.P}` : ''}`;
+      
+      return `
+=== ${normId} ===
+
+URSPRÜNGLICHE FASSUNG:
+${amendment.originalNorm.wording || 'Keine ursprüngliche Fassung verfügbar'}
+
+GEÄNDERTE FASSUNG:
+${amendment.amendedNorm.wording || 'Keine geänderte Fassung verfügbar'}
+
+${'='.repeat(50)}
+`;
+    }).join('\n');
+
     const element = document.createElement('a');
-    const file = new Blob([text], { type: 'text/plain' });
+    const file = new Blob([formattedText], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
     element.download = filename;
     document.body.appendChild(element);
@@ -315,23 +333,22 @@ export default function FinalizationTab() {
       )}
 
       {/* Final Amendment Result */}
-      {state.finalAmendment && (
+      {state.finalAmendment && state.finalAmendment.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">Finaler Änderungsentwurf:</h3>
-          <p className="text-sm text-gray-600">Änderungen sind mit [] hervorgehoben.</p>
-          
-          <div className="bg-gray-50 border border-gray-300 rounded-lg p-4">
-            <pre className="whitespace-pre-wrap text-sm text-gray-800 font-mono">
-              {state.finalAmendment}
-            </pre>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Finaler Änderungsentwurf:</h3>
+              <p className="text-sm text-gray-600">Vergleich zwischen ursprünglicher und geänderter Fassung</p>
+            </div>
+            <button
+              onClick={() => downloadAmendments(state.finalAmendment!, 'aenderungsentwurf.txt')}
+              className="px-6 py-2 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-xl hover:from-slate-700 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all duration-200 font-semibold shadow-lg"
+            >
+              Als Textdatei speichern
+            </button>
           </div>
-
-          <button
-            onClick={() => downloadText(state.finalAmendment!, 'aenderungsentwurf.txt')}
-            className="px-8 py-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-xl hover:from-slate-700 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all duration-200 font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Als Textdatei speichern
-          </button>
+          
+          <AmendmentSplitView amendments={state.finalAmendment} />
         </div>
       )}
 

@@ -214,7 +214,7 @@ class ApiClient {
     model: string,
     customAdjustments?: string,
     originalProposals?: ProposalEntry[]
-  ): Promise<string> {
+  ): Promise<{ originalNorm: NormEntry; amendedNorm: NormEntry }[]> {
     const endpoint = `${BACKEND_URL}/amend`;
     
     // Convert proposal to the expected format
@@ -254,12 +254,10 @@ class ApiClient {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data: ApiResponse<{ amendedNorm: string }> = await response.json();
+      const data: ApiResponse<{ originalNorm: NormEntry; amendedNorm: NormEntry }> = await response.json();
       await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
       
-      return data.entries && data.entries.length > 0 
-        ? data.entries[0].amendedNorm 
-        : 'Keine Änderung generiert.';
+      return data.entries || [];
     } catch (error) {
       console.error('Error generating final amendment:', error);
       throw error;
