@@ -194,7 +194,18 @@ export default function EvaluationTab() {
               <div className="p-4 pt-0 space-y-3">
                 <div>
                   <p className="font-medium text-gray-700">Betroffene Rechtsnorm:</p>
-                  <p className="text-gray-600">{proposal.proposalTitle}</p>
+                  <ul className="text-gray-600 list-disc list-inside">
+                    {proposal.affectedNorms.map((norm, normIndex) => (
+                      <li key={normIndex}>
+                        {norm.jurabk} {norm.enbez}{norm.P ? ` Abs. ${norm.P}` : ''}
+                        {norm.amendmentDescription && (
+                          <div className="ml-4 mt-1 text-sm text-gray-500">
+                              ↳ {norm.amendmentDescription}
+                          </div>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
                 <div>
                   <p className="font-medium text-gray-700">Pro:</p>

@@ -14,6 +14,10 @@ async def query_llm(prompt: str, api_key: str, model: str) -> str:
     Returns:
         The generated response content
     """
+
+    print("Prompt:")
+    print(prompt)
+    
     if is_deepinfra_model(model):
         # Use user-provided API key for DeepInfra models
         return await query_deepinfra(prompt, api_key, model)

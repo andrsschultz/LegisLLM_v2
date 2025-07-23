@@ -7,11 +7,7 @@ class NormEntry(BaseModel):
     enbez: str | None = None
     P: str | None = None
     wording: str | None = None
-
-class NormReference(BaseModel):
-    jurabk: str
-    enbez: str
-    P: str
+    amendmentDescription: str | None = None
 
 class NormRequest(BaseModel):
     task_description: str 
@@ -55,7 +51,7 @@ class ProposalRequest(BaseModel):
 class ProposalEntry(BaseModel):
     proposalTitle: str
     description: str
-    affectedNorms: List[NormReference]
+    affectedNorms: List[NormEntry]
 
 class ProposalResponse(BaseModel):
     entries: List[ProposalEntry]
@@ -68,7 +64,7 @@ class EvaluateRequest(BaseModel):
 
 class EvaluateEntry(BaseModel):
     proposalTitle: str
-    affectedNorms: List[NormReference]
+    affectedNorms: List[NormEntry]
     pro: List[str]
     contra: List[str]
 
@@ -87,7 +83,7 @@ class DeepEvaluateEntry(BaseModel):
     class JuristischeBeurteilung(BaseModel):
         Bewertung: str
         PotentielleProbleme: str
-        Querverweise: List[NormReference]
+        Querverweise: List[NormEntry]
 
     class RechtstechnischeBeurteilung(BaseModel):
         Klarheit: str
@@ -110,7 +106,7 @@ class DeepEvaluateEntry(BaseModel):
         OffeneFragen: List[str]
 
     proposalTitle: str
-    affectedNorms: List[NormReference]
+    affectedNorms: List[NormEntry]
     juristischeBeurteilung: JuristischeBeurteilung
     rechtstechnischeBeurteilung: RechtstechnischeBeurteilung
     dogmatischeBeurteilung: DogmatischeBeurteilung

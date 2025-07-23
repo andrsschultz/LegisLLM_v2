@@ -24,16 +24,23 @@ async def evaluate_proposals_endpoint(
         model=selected_model
     )
     
+    # Create mapping from proposal title to original affected norms to preserve wording
+    proposal_norms_map = {
+        proposal.proposalTitle: proposal.affectedNorms 
+        for proposal in request.amendment_proposals
+    }
+    
     entries = [
         EvaluateEntry(
             proposalTitle=entry.get("proposalTitle", ""),
-            affectedNorms=entry.get("affectedNorms", []),
+            affectedNorms=proposal_norms_map.get(entry.get("proposalTitle", ""), []),
             pro=entry.get("pro", []),
             contra=entry.get("contra", [])
         )
         for entry in raw_entries
     ]
     
+    print("Entries after evaluation:", entries)
     return EvaluateResponse(entries=entries)
 
 
@@ -52,10 +59,13 @@ async def deep_evaluate_proposals_endpoint(
         model=selected_model
     )
     
+    # Preserve original affected norms with wording from request
+    original_affected_norms = request.amendment_proposal.affectedNorms
+    
     entries = [
         DeepEvaluateEntry(
             proposalTitle=entry.get("proposalTitle", ""),
-            affectedNorms=entry.get("affectedNorms", []),
+            affectedNorms=original_affected_norms,
             juristischeBeurteilung=DeepEvaluateEntry.JuristischeBeurteilung(
                 Bewertung=entry.get("juristischeBeurteilung", {}).get("Bewertung", ""),
                 PotentielleProbleme=entry.get("juristischeBeurteilung", {}).get("PotentielleProbleme", ""),

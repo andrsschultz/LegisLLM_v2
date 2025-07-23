@@ -43,7 +43,8 @@ export default function FinalizationTab() {
         state.relevantNorms || [],
         apiKey,
         state.selectedModel,
-        customAdjustments || undefined
+        customAdjustments || undefined,
+        state.amendmentProposals || undefined
       );
       
       setFinalAmendment(finalText);

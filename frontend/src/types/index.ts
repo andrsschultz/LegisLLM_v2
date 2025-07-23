@@ -3,6 +3,7 @@ export interface NormEntry {
   enbez: string;
   P?: string;
   wording?: string;
+  amendmentDescription?: string;
 }
 
 export interface ProposalEntry {

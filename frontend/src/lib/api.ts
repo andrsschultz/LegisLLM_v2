@@ -212,14 +212,24 @@ class ApiClient {
     relevantNorms: NormEntry[],
     apiKey: string,
     model: string,
-    customAdjustments?: string
+    customAdjustments?: string,
+    originalProposals?: ProposalEntry[]
   ): Promise<string> {
     const endpoint = `${BACKEND_URL}/amend`;
     
     // Convert proposal to the expected format
+    let description = '';
+    if ('description' in selectedProposal) {
+      description = selectedProposal.description;
+    } else if (originalProposals) {
+      // Find the original proposal by title to get the description
+      const originalProposal = originalProposals.find(p => p.proposalTitle === selectedProposal.proposalTitle);
+      description = originalProposal?.description || '';
+    }
+    
     const proposalEntry = {
       proposalTitle: selectedProposal.proposalTitle,
-      description: 'description' in selectedProposal ? selectedProposal.description : '',
+      description: description,
       affectedNorms: selectedProposal.affectedNorms,
     };
     

@@ -90,12 +90,14 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
                 {{
                 "jurabk": "<Abkürzung des Gesetzes>", 
                 "enbez": "<§‑Angabe>",             
-                "P": "<Absatz>"             
+                "P": "<Absatz>",
+                "amendmentDescription": "<Abstrakte Beschreibung, welche Änderung notwendig zur Umsetzung der Regelungsalternative ist>"        
                 }},
                 {{
                 "jurabk": "<Abkürzung des Gesetzes>", 
                 "enbez": "<§‑Angabe>",                
-                "P": "<Absatz>"             
+                "P": "<Absatz>",
+                "amendmentDescription": "<Abstrakte Beschreibung, welche Änderung notwendig zur Umsetzung der Regelungsalternative ist>"          
                 }}
             ]
             }},
@@ -106,7 +108,8 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
                 {{
                 "jurabk": "<Abkürzung des Gesetzes>",   
                 "enbez": "<§‑Angabe>",                  
-                "P": "<Absatz>"          
+                "P": "<Absatz>",
+                "amendmentDescription": "<Abstrakte Beschreibung, welche Änderung notwendig zur Umsetzung der Regelungsalternative ist>"           
                 }}
             ]
             }}
@@ -114,6 +117,8 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
         }}
 
         Die JSON Liste soll sämtliche Regelungsalternativen enthalten, die für die Maßnahme in Betracht kommen. Es können auch mehr als zwei Regelungsalternativen in Betracht kommen.
+
+        Jede Regelungsalternative muss innerhalb des "affectedNorms" Eintrag sämtliche von ihr betroffenen Rechtsnormen enthalten. Dies umfasst alle Rechtsnormen welche unmittelbar durch die Regelungsalternative geändert werden sowie sämtliche Rechtsnormen welche als Folge der Umsetzung der Regelungsalternative mittelbar geändert werden müssen.
 
         Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
@@ -150,9 +155,14 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
     relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}: {norm.wording}" for norm in relevant_norms])
     
     # Convert amendment_proposals to readable text format
-    amendment_proposals_text = "\n".join([
-        f"- {proposal.proposalTitle}: {proposal.description}\n  Affected Norms: {', '.join([f'{norm.jurabk} {norm.enbez} Abs. {norm.P}' for norm in proposal.affectedNorms])}" 
-        for proposal in amendment_proposals
+    amendment_proposals_text = "\n\n".join([
+        f"""{i+1}. **{proposal.proposalTitle}**
+    **Beschreibung**: {proposal.description}
+    **Betroffene Rechtsnormen**:\n""" + "\n".join([
+            f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}  \n  Änderungsbeschreibung: {norm.amendmentDescription}"
+            for norm in proposal.affectedNorms
+        ])
+        for i, proposal in enumerate(amendment_proposals)
     ])
 
 
@@ -176,14 +186,7 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
         {{
         "entries": [
             {{
-            "proposalTitle": "Kurze, prägnante Bezeichnung der Alternative mit Nennung der zu ändernden Norm",
-            "affectedNorms": [
-                {{
-                "jurabk": "<Abkürzung des Gesetzes>",  
-                "enbez": "<§‑Angabe>",                
-                "P": "<Absatz>"               
-                }}
-            ],
+            "proposalTitle": "VERWENDE EXAKT DEN TITEL AUS DEM EINGABETEXT",
             "pro": ["Pro-Argument 1", "Pro-Argument 2"],
             "contra": ["Contra-Argument 1", "Contra-Argument 2"]
             }}
@@ -225,9 +228,16 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
 
     # Convert relevant_norms to readable text format
     relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}: {norm.wording}" for norm in relevant_norms])
-    
-    # Convert amendment_proposal to readable text format
-    amendment_proposals_text = f"- {amendment_proposal.proposalTitle}: {amendment_proposal.description}\n  Affected Norms: {', '.join([f'{norm.jurabk} {norm.enbez} Abs. {norm.P}' for norm in amendment_proposal.affectedNorms])}"
+
+    # Convert amendment_proposals to readable text format
+    amendment_proposals_text = "\n\n".join([
+        f"""**{amendment_proposal.proposalTitle}**
+    **Beschreibung**: {amendment_proposal.description}
+    **Betroffene Rechtsnormen**:\n""" + "\n".join([
+            f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}  \n  Änderungsbeschreibung: {norm.amendmentDescription}"
+            for norm in amendment_proposal.affectedNorms
+        ])
+    ])
 
     prompt = f"""
         Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
@@ -252,7 +262,7 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
 
         1. Juristische Beurteilung
         - Beziehe dich auf relevante verfassungsrechtliche Anforderungen, EU-Rechtskonformität, 
-        Auslegungsfragen (systematisch, teleologisch etc.) und mögliche Querverweise. 
+        Auslegungsfragen (systematisch, teleologisch etc.) und mögliche Querverweise auf relevante Normen, Rechtskonzepte, Rechtsprechung etc. 
         2. Rechtstechnische Beurteilung
         - Prüfe Klarheit der Regelung, Anschlussfähigkeit an bestehende Gesetzesstrukturen, 
         Widersprüche oder Dopplungen, ggf. Formulierungsvorschläge. 
@@ -271,14 +281,7 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
         {{
         "entries": [
             {{
-            "proposalTitle": "Kurze, prägnante Bezeichnung der Alternative mit Nennung der zu ändernden Norm",
-            "affectedNorms": [
-                {{
-                "jurabk": "<Abkürzung des Gesetzes>",  
-                "enbez": "<§‑Angabe>",                
-                "P": "<Absatz>"               
-                }}
-            ],
+            "proposalTitle": "VERWENDE EXAKT DEN TITEL AUS DEM EINGABETEXT",
             "juristischeBeurteilung": {{
                 "Bewertung": "Detaillierte juristische Bewertung",
                 "PotentielleProbleme": "Beschreibung möglicher rechtlicher Probleme",
@@ -349,8 +352,15 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
     # Convert relevant_norms to readable text format
     relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}: {norm.wording}" for norm in relevant_norms])
     
-    # Convert amendment_proposal to readable text format
-    amendment_proposals_text = f"- {amendment_proposal.proposalTitle}: {amendment_proposal.description}\n  Affected Norms: {', '.join([f'{norm.jurabk} {norm.enbez} Abs. {norm.P}' for norm in amendment_proposal.affectedNorms])}"
+    # Convert amendment_proposals to readable text format
+    amendment_proposals_text = "\n\n".join([
+        f"""**{amendment_proposal.proposalTitle}**
+    **Beschreibung**: {amendment_proposal.description}
+    **Betroffene Rechtsnormen**:\n""" + "\n".join([
+            f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}  \n  Änderungsbeschreibung: {norm.amendmentDescription}"
+            for norm in amendment_proposal.affectedNorms
+        ])
+    ])
 
     prompt = f"""
         Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
