@@ -155,14 +155,18 @@ export default function ContextIdentificationTab() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Volltext der relevanten Rechtsnormen
             </label>
-            <textarea
-              value={state.relevantNorms.map(norm => 
-                `${norm.jurabk} ${norm.enbez}${norm.P ? ` Abs. ${norm.P}` : ''}:\n${norm.wording || ''}\n\n`
-              ).join('')}
-              readOnly
-              rows={8}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm font-mono"
-            />
+            <div className="block w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 text-sm font-mono max-h-96 overflow-y-auto">
+              {state.relevantNorms.map((norm, index) => (
+                <div key={index} className="mb-6 last:mb-0">
+                  <div className="font-semibold text-gray-900 mb-2">
+                    {norm.jurabk} {norm.enbez}{norm.P ? ` Abs. ${norm.P}` : ''}:
+                  </div>
+                  <pre className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+                    {norm.wording || ''}
+                  </pre>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}

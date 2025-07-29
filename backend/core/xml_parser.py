@@ -1,5 +1,47 @@
 import os
 import xml.etree.ElementTree as ET
+import re
+
+
+def format_content_with_paragraphs(content_elem):
+    """Format XML content with proper paragraph breaks and enumeration formatting."""
+    # Get all text from the content element
+    raw_text = ET.tostring(content_elem, encoding='unicode', method='text').strip()
+    
+    # Check if the text already contains paragraph numbering like (1), (2), (3)
+    has_paragraph_numbers = re.search(r'\(\d+\)', raw_text)
+    
+    if has_paragraph_numbers:
+        # Text already has paragraph numbers, just improve formatting
+        # Add line breaks and empty lines before paragraph numbers for better readability
+        formatted_text = re.sub(r'\((\d+)\)', r'\n\n(\1)', raw_text)
+        
+        # Add line breaks before numbered enumeration within paragraphs
+        formatted_text = re.sub(r'(\d+)\.(?=\w)', r'\n\1. ', formatted_text)
+        formatted_text = re.sub(r'(\d+),(?=(?:für|bei|wenn|soweit|vor|als))', r'\n\1, ', formatted_text)
+        
+        # Clean up: remove leading newlines and normalize spacing
+        formatted_text = formatted_text.lstrip('\n')
+        formatted_text = re.sub(r'\n\s*\n\s*\n+', '\n\n', formatted_text)
+        
+        return formatted_text.strip()
+    else:
+        # No existing paragraph numbers, look for P elements
+        p_elements = content_elem.findall(".//P")
+        
+        if p_elements and len(p_elements) > 1:
+            text = ""
+            for i, p_elem in enumerate(p_elements):
+                p_text = ET.tostring(p_elem, encoding='unicode', method='text').strip()
+                if p_text:
+                    text += f"({i + 1}) {p_text}\n\n"
+            return text.strip()
+        else:
+            # Single paragraph or no P elements, apply basic formatting
+            formatted_text = re.sub(r'(\d+)\.(?=\w)', r'\n\1. ', raw_text)
+            formatted_text = re.sub(r'(\d+),(?=\w)', r'\n\1, ', raw_text)
+            formatted_text = re.sub(r'\n\s*\n+', '\n\n', formatted_text)
+            return formatted_text.strip()
 
 
 # Function to extract specific section from a law
@@ -45,9 +87,8 @@ def extract_section_from_law(xml_file: str, section_num: str) -> str:
             content_elem = norm_elem.find(".//Content")
             if content_elem is not None:
                 print("  Found Content element")
-                # Get all text from the content element
-                text = ET.tostring(content_elem, encoding='unicode', method='text')
-                formatted_text += text.strip()
+                # Get structured text with paragraph formatting
+                formatted_text += format_content_with_paragraphs(content_elem)
             else:
                 print("  No Content element found, searching for text elements")
                 # If no content element, try to get text directly from norm or its children
