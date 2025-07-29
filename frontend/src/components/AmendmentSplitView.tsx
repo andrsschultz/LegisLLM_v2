@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { AmendmentEntry } from '@/types';
-import { formatTextWithSuperscript } from '@/utils/textFormatting';
+import { formatTextWithSuperscript, extractSpecificParagraph } from '@/utils/textFormatting';
 
 interface AmendmentSplitViewProps {
   amendments: AmendmentEntry[];
@@ -11,6 +11,11 @@ interface AmendmentSplitViewProps {
 
 
 export function AmendmentSplitView({ amendments }: AmendmentSplitViewProps) {
+  const getOriginalParagraphText = (amendment: AmendmentEntry) => {
+    const fullText = amendment.originalNorm.wording || 'Keine ursprüngliche Fassung verfügbar';
+    return extractSpecificParagraph(fullText, amendment.originalNorm.P);
+  };
+
   return (
     <div className="space-y-6">
       {amendments.map((amendment, index) => (
@@ -33,7 +38,7 @@ export function AmendmentSplitView({ amendments }: AmendmentSplitViewProps) {
               </div>
               <div className="text-sm text-gray-800 leading-relaxed">
                 <div className="whitespace-pre-wrap font-serif">
-                  {formatTextWithSuperscript(amendment.originalNorm.wording || 'Keine ursprüngliche Fassung verfügbar')}
+                  {formatTextWithSuperscript(getOriginalParagraphText(amendment))}
                 </div>
               </div>
             </div>

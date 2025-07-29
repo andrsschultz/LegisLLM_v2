@@ -122,3 +122,35 @@ const formatContentParagraphs = (text: string) => {
     }, formatTextWithSuperscript(paragraph));
   }).filter(Boolean);
 };
+
+/**
+ * Extracts a specific paragraph from norm text
+ * @param text - The full norm text
+ * @param paragraphNumber - The paragraph number to extract (e.g., "1", "2", "3")
+ * @returns The extracted paragraph text or the full text if paragraph not found
+ */
+export const extractSpecificParagraph = (text: string, paragraphNumber?: string): string => {
+  if (!text || !paragraphNumber || paragraphNumber.trim() === '') {
+    return text;
+  }
+  
+  // Split content into paragraphs
+  const paragraphs = text.split(/\n\s*\n/);
+  
+  for (const paragraph of paragraphs) {
+    if (!paragraph.trim()) continue;
+    
+    // Check if paragraph starts with the target number in parentheses
+    const paragraphMatch = paragraph.match(/^(\((\d+[a-z]?)\))\s*(.*)/s);
+    
+    if (paragraphMatch) {
+      const extractedNumber = paragraphMatch[2]; // The number without parentheses
+      if (extractedNumber === paragraphNumber) {
+        return paragraph.trim();
+      }
+    }
+  }
+  
+  // If specific paragraph not found, return the full text
+  return text;
+};
