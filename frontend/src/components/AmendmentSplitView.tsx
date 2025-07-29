@@ -7,32 +7,7 @@ interface AmendmentSplitViewProps {
   amendments: AmendmentEntry[];
 }
 
-const highlightChanges = (text: string): JSX.Element => {
-  if (!text) return <span></span>;
-  
-  // Split text by [] brackets and highlight content inside them
-  const parts = text.split(/(\[.*?\])/);
-  
-  return (
-    <span>
-      {parts.map((part, index) => {
-        if (part.startsWith('[') && part.endsWith(']')) {
-          // Remove brackets and highlight the content
-          const content = part.slice(1, -1);
-          return (
-            <span
-              key={index}
-              className="bg-yellow-200 border border-yellow-400 rounded px-1 font-semibold"
-            >
-              {content}
-            </span>
-          );
-        }
-        return <span key={index}>{part}</span>;
-      })}
-    </span>
-  );
-};
+
 
 export function AmendmentSplitView({ amendments }: AmendmentSplitViewProps) {
   return (
@@ -70,23 +45,12 @@ export function AmendmentSplitView({ amendments }: AmendmentSplitViewProps) {
               </div>
               <div className="text-sm text-gray-800 leading-relaxed">
                 <pre className="whitespace-pre-wrap font-sans">
-                  {amendment.amendedNorm.wording ? (
-                    highlightChanges(amendment.amendedNorm.wording)
-                  ) : (
-                    'Keine geänderte Fassung verfügbar'
-                  )}
+                  {amendment.amendedNorm.wording || 'Keine geänderte Fassung verfügbar'}
                 </pre>
               </div>
             </div>
           </div>
 
-          {/* Legend */}
-          <div className="bg-gray-50 px-4 py-2 border-t border-gray-300">
-            <div className="flex items-center text-xs text-gray-600">
-              <span className="bg-yellow-200 border border-yellow-400 rounded px-1 mr-2">Änderung</span>
-              <span>Änderungen sind gelb hervorgehoben</span>
-            </div>
-          </div>
         </div>
       ))}
     </div>
