@@ -186,32 +186,36 @@ def format_definition_description(dd_elem):
 
 
 def format_la_element(la_elem):
-    """Format an LA element which can contain text or nested DL."""
+    """Format an LA element which can contain text, SUP elements, or nested DL."""
     result = []
     
-    # Check if LA contains nested DL (sub-enumeration like a), b), c))
-    has_nested_dl = any(child.tag == 'DL' for child in la_elem)
+    # Get initial text
+    if la_elem.text and la_elem.text.strip():
+        result.append(la_elem.text.strip())
     
-    if has_nested_dl:
-        # Handle nested enumeration
-        for child in la_elem:
-            if child.tag == 'DL':
-                # Format nested DL with indentation for sub-items
-                nested_dl = format_nested_definition_list(child)
-                if nested_dl.strip():
-                    result.append(nested_dl)
-            else:
-                # Other content in LA
-                child_text = get_element_text(child).strip()
-                if child_text:
-                    result.append(child_text)
-    else:
-        # Simple LA with just text content
-        la_text = get_element_text(la_elem).strip()
-        if la_text:
-            result.append(la_text)
+    # Process each child element in order
+    for child in la_elem:
+        if child.tag == 'SUP':
+            # Format SUP element
+            sup_content = format_sup_element(child)
+            if sup_content:
+                result.append(sup_content)
+        elif child.tag == 'DL':
+            # Format nested DL with indentation for sub-items
+            nested_dl = format_nested_definition_list(child)
+            if nested_dl.strip():
+                result.append(nested_dl)
+        else:
+            # Other content
+            child_text = get_element_text(child).strip()
+            if child_text:
+                result.append(child_text)
+        
+        # Add tail text after the child element
+        if child.tail and child.tail.strip():
+            result.append(child.tail.strip())
     
-    return " ".join(result)
+    return "".join(result)
 
 
 def format_nested_definition_list(dl_elem):
