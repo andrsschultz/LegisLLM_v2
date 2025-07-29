@@ -16,6 +16,7 @@ export default function ContextIdentificationTab() {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expandedNorms, setExpandedNorms] = useState<Set<number>>(new Set());
 
   const getApiKey = (): string => {
     return getApiKeyForModel(state.selectedModel, state.availableModels);
@@ -65,6 +66,18 @@ export default function ContextIdentificationTab() {
 
   const handleNext = () => {
     setCurrentTab(2);
+  };
+
+  const toggleNormExpansion = (index: number) => {
+    setExpandedNorms(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -139,34 +152,40 @@ export default function ContextIdentificationTab() {
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">Identifizierte Rechtsnormen:</h3>
           
-          {/* Norm Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Individual Collapsible Norm Cards */}
+          <div className="space-y-3">
             {state.relevantNorms.map((norm, index) => (
-              <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="font-medium text-blue-900">
-                  {norm.jurabk} {norm.enbez} {norm.P ? `Abs. ${norm.P}` : ''}
-                </p>
+              <div key={index} className="border border-gray-300 rounded-lg overflow-hidden">
+                {/* Clickable Header */}
+                <button
+                  onClick={() => toggleNormExpansion(index)}
+                  className="w-full px-4 py-3 bg-blue-50 hover:bg-blue-100 text-left flex items-center justify-between transition-colors duration-200"
+                >
+                  <span className="font-medium text-blue-900">
+                    {norm.jurabk} {norm.enbez} {norm.P ? `Abs. ${norm.P}` : ''}
+                  </span>
+                  <svg
+                    className={`w-5 h-5 text-blue-600 transition-transform duration-200 ${
+                      expandedNorms.has(index) ? 'rotate-180' : ''
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {/* Collapsible Content */}
+                {expandedNorms.has(index) && (
+                  <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                    <pre className="whitespace-pre-wrap text-gray-700 leading-relaxed text-sm font-mono">
+                      {norm.wording || ''}
+                    </pre>
+                  </div>
+                )}
               </div>
             ))}
-          </div>
-
-          {/* Full Text */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Volltext der relevanten Rechtsnormen
-            </label>
-            <div className="block w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 text-sm font-mono max-h-96 overflow-y-auto">
-              {state.relevantNorms.map((norm, index) => (
-                <div key={index} className="mb-6 last:mb-0">
-                  <div className="font-semibold text-gray-900 mb-2">
-                    {norm.jurabk} {norm.enbez}{norm.P ? ` Abs. ${norm.P}` : ''}:
-                  </div>
-                  <pre className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-                    {norm.wording || ''}
-                  </pre>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       )}
