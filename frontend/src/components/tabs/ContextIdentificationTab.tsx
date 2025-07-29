@@ -90,7 +90,7 @@ export default function ContextIdentificationTab() {
       if (supMatch) {
         const number = supMatch[1];
         return (
-          <sup key={index} className="text-xs font-normal">
+          <sup key={index} className="text-xs font-medium text-blue-600">
             {number}
           </sup>
         );
@@ -98,6 +98,85 @@ export default function ContextIdentificationTab() {
       // Regular text part
       return part;
     });
+  };
+
+  const formatNormContent = (text: string) => {
+    if (!text) return null;
+
+    // Split by the first line break to separate title from content
+    const lines = text.split('\n');
+    const firstLine = lines[0];
+    const restOfContent = lines.slice(1).join('\n');
+
+    // Check if first line is a title (contains § and text)
+    const titleMatch = firstLine.match(/^(§\s*\d+[a-z]?)\s*(.*)$/);
+    
+    if (titleMatch) {
+      const sectionNumber = titleMatch[1];
+      const title = titleMatch[2];
+      
+      return (
+        <div className="space-y-6">
+          {/* Section Title */}
+          <div className="border-b-2 border-blue-200 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+              <span className="inline-flex items-center justify-center text-xl font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2 rounded-lg shadow-sm">
+                {sectionNumber}
+              </span>
+              <h3 className="text-lg font-bold text-gray-900 leading-tight">
+                {title}
+              </h3>
+            </div>
+          </div>
+          
+          {/* Content */}
+          <div className="prose prose-sm max-w-none">
+            <div className="text-gray-800 leading-7 font-serif whitespace-pre-wrap">
+              {formatContentParagraphs(restOfContent)}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Fallback: no title detected, format as regular content
+    return (
+      <div className="prose prose-sm max-w-none">
+        <div className="text-gray-800 leading-7 font-serif whitespace-pre-wrap">
+          {formatContentParagraphs(text)}
+        </div>
+      </div>
+    );
+  };
+
+  const formatContentParagraphs = (text: string) => {
+    // Split content into paragraphs and format each
+    const paragraphs = text.split(/\n\s*\n/);
+    
+    return paragraphs.map((paragraph, index) => {
+      if (!paragraph.trim()) return null;
+      
+      // Check if paragraph starts with a number in parentheses like (1), (2), etc.
+      const paragraphMatch = paragraph.match(/^(\(\d+\))\s*(.*)/s);
+      
+      if (paragraphMatch) {
+        const paragraphNum = paragraphMatch[1];
+        const paragraphContent = paragraphMatch[2];
+        
+        return (
+          <div key={index} className="mb-6 text-gray-800">
+            {paragraphNum} {formatTextWithSuperscript(paragraphContent)}
+          </div>
+        );
+      }
+      
+      // Regular paragraph without number
+      return (
+        <div key={index} className="mb-4 text-gray-800">
+          {formatTextWithSuperscript(paragraph)}
+        </div>
+      );
+    }).filter(Boolean);
   };
 
   return (
@@ -173,34 +252,44 @@ export default function ContextIdentificationTab() {
           <h3 className="text-lg font-semibold text-gray-900">Identifizierte Rechtsnormen:</h3>
           
           {/* Individual Collapsible Norm Cards */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             {state.relevantNorms.map((norm, index) => (
-              <div key={index} className="border border-gray-300 rounded-lg overflow-hidden">
+              <div key={index} className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
                 {/* Clickable Header */}
                 <button
                   onClick={() => toggleNormExpansion(index)}
-                  className="w-full px-4 py-3 bg-blue-50 hover:bg-blue-100 text-left flex items-center justify-between transition-colors duration-200"
+                  className="w-full px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-left flex items-center justify-between transition-all duration-200 border-b border-blue-100"
                 >
-                  <span className="font-medium text-blue-900">
-                    {norm.jurabk} {norm.enbez} {norm.P ? `Abs. ${norm.P}` : ''}
-                  </span>
-                  <svg
-                    className={`w-5 h-5 text-blue-600 transition-transform duration-200 ${
-                      expandedNorms.has(index) ? 'rotate-180' : ''
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      {norm.jurabk}
+                    </div>
+                    <span className="font-semibold text-blue-900 text-lg">
+                      {norm.enbez} {norm.P ? `Abs. ${norm.P}` : ''}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-blue-600 font-medium">
+                      {expandedNorms.has(index) ? 'Einklappen' : 'Volltext anzeigen'}
+                    </span>
+                    <svg
+                      className={`w-5 h-5 text-blue-600 transition-transform duration-300 ${
+                        expandedNorms.has(index) ? 'rotate-180' : ''
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </button>
                 
                 {/* Collapsible Content */}
                 {expandedNorms.has(index) && (
-                  <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
-                    <div className="whitespace-pre-wrap text-gray-700 leading-relaxed text-sm font-mono">
-                      {formatTextWithSuperscript(norm.wording || '')}
+                  <div className="px-6 py-6 bg-white">
+                    <div className="prose prose-sm max-w-none">
+                      {formatNormContent(norm.wording || '')}
                     </div>
                   </div>
                 )}
