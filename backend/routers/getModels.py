@@ -110,7 +110,7 @@ async def get_available_models(api_key: str = Depends(verify_api_key)):
     
     return {
         "models": models_list,
-        "default": ModelEnum.GPT_4.value,
+        "default": ModelEnum.GPT_4O.value,
     }
 
 @router.get("/models/organized")
@@ -125,6 +125,7 @@ async def get_organized_available_models(api_key: str = Depends(verify_api_key))
         "o4-mini",
         "gpt-3.5-turbo",
         "gpt-4",
+        "gpt-4o",
         "gpt-4-turbo",
     ]
     
@@ -182,5 +183,5 @@ async def get_organized_available_models(api_key: str = Depends(verify_api_key))
     
     return {
         "organized": result,
-        "default": ModelEnum.GPT_4.value,
+        "default": ModelEnum.GPT_4O.value,
     }

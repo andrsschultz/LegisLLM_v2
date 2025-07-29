@@ -14,6 +14,7 @@ class ModelEnum(str, Enum):
     GPT_O4_MINI = "o4-mini"
     GPT_3_5_TURBO = "gpt-3.5-turbo"
     GPT_4 = "gpt-4"
+    GPT_4O = "gpt-4o"
     GPT_4_TURBO = "gpt-4-turbo"
     
     # DeepInfra models
@@ -28,7 +29,7 @@ class Settings(BaseSettings):
     deepinfra_api_key: str = ""
     
     # Default model
-    default_model: ModelEnum = ModelEnum.GPT_4
+    default_model: ModelEnum = ModelEnum.GPT_4O
 
     class Config:
         env_file = ".env"
