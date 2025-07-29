@@ -262,11 +262,12 @@ def format_sup_element(sup_elem):
             sentence_num = match.group(1)
             sentence_text = match.group(2)
             # Mark sentence number for superscript with special markers
+            # No line breaks - sentences flow together within paragraph
             formatted_text = f"<SUP>{sentence_num}</SUP>{sentence_text}"
-            return f"\n\n{formatted_text}"
+            return f" {formatted_text}"
         else:
             # Fallback if pattern doesn't match
-            return f"\n\n{sup_text}"
+            return f" {sup_text}"
     
     return ""
 
