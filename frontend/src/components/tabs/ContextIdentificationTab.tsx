@@ -80,6 +80,26 @@ export default function ContextIdentificationTab() {
     });
   };
 
+  const formatTextWithSuperscript = (text: string) => {
+    // Split text by <SUP> markers and create React elements
+    const parts = text.split(/(<SUP>\d+<\/SUP>)/);
+    
+    return parts.map((part, index) => {
+      // Check if this part is a SUP marker
+      const supMatch = part.match(/^<SUP>(\d+)<\/SUP>$/);
+      if (supMatch) {
+        const number = supMatch[1];
+        return (
+          <sup key={index} className="text-xs font-normal">
+            {number}
+          </sup>
+        );
+      }
+      // Regular text part
+      return part;
+    });
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">2. Ermittlung des maßgeblichen Regelungskontexts</h2>
@@ -179,9 +199,9 @@ export default function ContextIdentificationTab() {
                 {/* Collapsible Content */}
                 {expandedNorms.has(index) && (
                   <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
-                    <pre className="whitespace-pre-wrap text-gray-700 leading-relaxed text-sm font-mono">
-                      {norm.wording || ''}
-                    </pre>
+                    <div className="whitespace-pre-wrap text-gray-700 leading-relaxed text-sm font-mono">
+                      {formatTextWithSuperscript(norm.wording || '')}
+                    </div>
                   </div>
                 )}
               </div>

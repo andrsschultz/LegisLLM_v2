@@ -5,6 +5,121 @@ import re
 
 def format_content_with_paragraphs(content_elem):
     """Format XML content with proper paragraph breaks and enumeration formatting."""
+    
+    # Check if this content has Definition List (DL) structure for enumeration
+    dl_elements = content_elem.findall(".//DL")
+    
+    if dl_elements:
+        return format_definition_list_content(content_elem)
+    else:
+        # Fallback to paragraph-based formatting
+        return format_paragraph_content(content_elem)
+
+
+def format_definition_list_content(content_elem):
+    """Format content that uses Definition List (DL) structure for enumeration."""
+    formatted_text = ""
+    
+    # Process all elements in content
+    for elem in content_elem:
+        if elem.tag == 'P':
+            # Regular paragraph - add the text
+            p_text = elem.text.strip() if elem.text else ""
+            if p_text:
+                formatted_text += p_text + " "
+            
+            # Process children within the paragraph and any tail text
+            for child in elem:
+                if child.tag == 'DL':
+                    formatted_text += format_dl_element(child)
+                    # Check for text after the DL element (tail text)
+                    if child.tail and child.tail.strip():
+                        formatted_text += " " + child.tail.strip() + " "
+                elif child.tag == 'SUP':
+                    # SUP elements are numbered sentences within a paragraph
+                    # Get only the direct text content, not recursive
+                    sup_text = (child.text or "").strip()
+                    if sup_text:
+                        formatted_text += f"\n\n{sup_text}"
+                        # Check for text after the SUP element (tail text)
+                        if child.tail and child.tail.strip():
+                            formatted_text += " " + child.tail.strip()
+        elif elem.tag == 'DL':
+            # Direct DL element
+            formatted_text += format_dl_element(elem)
+    
+    return formatted_text.strip()
+
+
+def format_dl_element(dl_elem, indent_level=0):
+    """Format a Definition List (DL) element with proper indentation."""
+    formatted_text = ""
+    indent = "  " * indent_level
+    
+    i = 0
+    while i < len(dl_elem):
+        child = dl_elem[i]
+        
+        if child.tag == 'DT':
+            # Definition Term (number or letter)
+            dt_text = ET.tostring(child, encoding='unicode', method='text').strip()
+            formatted_text += f"\n\n{indent}{dt_text} "
+            
+            # Look for corresponding DD
+            if i + 1 < len(dl_elem) and dl_elem[i + 1].tag == 'DD':
+                dd_elem = dl_elem[i + 1]
+                dd_text = format_dd_element(dd_elem, indent_level)
+                formatted_text += dd_text
+                i += 2  # Skip the DD we just processed
+            else:
+                i += 1
+        else:
+            i += 1
+    
+    return formatted_text
+
+
+def format_dd_element(dd_elem, indent_level=0):
+    """Format a Definition Description (DD) element."""
+    formatted_text = ""
+    
+    # Get direct text
+    if dd_elem.text and dd_elem.text.strip():
+        formatted_text += dd_elem.text.strip()
+    
+    # Process children
+    for child in dd_elem:
+        if child.tag == 'LA':
+            # Check if LA has nested DL (sub-enumeration) or just text content
+            has_nested_dl = any(la_child.tag == 'DL' for la_child in child)
+            
+            if has_nested_dl:
+                # Look for nested DL within LA
+                for la_child in child:
+                    if la_child.tag == 'DL':
+                        # This is a sub-enumeration (a), b), c))
+                        formatted_text += format_dl_element(la_child, indent_level + 1)
+                    else:
+                        # Other content in LA
+                        child_text = ET.tostring(la_child, encoding='unicode', method='text').strip()
+                        if child_text:
+                            formatted_text += child_text + " "
+            else:
+                # LA without nested DL - get all text content
+                la_text = ET.tostring(child, encoding='unicode', method='text').strip()
+                if la_text:
+                    formatted_text += la_text
+        else:
+            # Other elements - get their text content
+            child_text = ET.tostring(child, encoding='unicode', method='text').strip()
+            if child_text:
+                formatted_text += child_text + " "
+    
+    return formatted_text
+
+
+def format_paragraph_content(content_elem):
+    """Fallback formatting for content without DL structure."""
     # Get all text from the content element
     raw_text = ET.tostring(content_elem, encoding='unicode', method='text').strip()
     
@@ -15,10 +130,6 @@ def format_content_with_paragraphs(content_elem):
         # Text already has paragraph numbers, just improve formatting
         # Add line breaks and empty lines before paragraph numbers for better readability
         formatted_text = re.sub(r'\((\d+)\)', r'\n\n(\1)', raw_text)
-        
-        # Add line breaks before numbered enumeration within paragraphs
-        formatted_text = re.sub(r'(\d+)\.(?=\w)', r'\n\1. ', formatted_text)
-        formatted_text = re.sub(r'(\d+),(?=(?:für|bei|wenn|soweit|vor|als))', r'\n\1, ', formatted_text)
         
         # Clean up: remove leading newlines and normalize spacing
         formatted_text = formatted_text.lstrip('\n')
@@ -37,110 +148,20 @@ def format_content_with_paragraphs(content_elem):
                     text += f"({i + 1}) {p_text}\n\n"
             return text.strip()
         else:
-            # Single paragraph or no P elements, apply basic formatting
-            formatted_text = re.sub(r'(\d+)\.(?=\w)', r'\n\1. ', raw_text)
-            formatted_text = re.sub(r'(\d+),(?=\w)', r'\n\1, ', raw_text)
-            formatted_text = re.sub(r'\n\s*\n+', '\n\n', formatted_text)
-            return formatted_text.strip()
+            # Single paragraph or no P elements, return as-is
+            return raw_text
 
+
+# Import the new XML extractor
+from .new_xml_extractor import extract_section_from_law_new
 
 # Function to extract specific section from a law
 def extract_section_from_law(xml_file: str, section_num: str) -> str:
     """
     Extract a specific section from an XML law file.
+    Uses the new improved XML extractor for better formatting and completeness.
     """
-    print(f"\n==== EXTRACT SECTION FROM LAW: Section {section_num} from {xml_file} ====")
-    try:
-        # Extract law_code from xml_file path
-        law_code = os.path.basename(xml_file).replace('.xml', '')
-        
-        print(f"Extracting section {section_num} from {xml_file} (law code: {law_code})")
-        
-        # Check if file exists
-        if not os.path.exists(xml_file):
-            print(f"ERROR: XML file not found: {xml_file}")
-            return f"XML-Datei für {law_code} nicht gefunden"
-        
-        print("Parsing XML file...")
-        tree = ET.parse(xml_file)
-        root = tree.getroot()
-        
-        print(f"Root tag: {root.tag}")
-        
-        # Format norm from dokumente XML structure
-        def format_norm(norm_elem):
-            print("Formatting norm element...")
-            # Extract enbez (section number)
-            enbez_elem = norm_elem.find(".//enbez")
-            enbez = enbez_elem.text if enbez_elem is not None else ""
-            print(f"  Enbez: {enbez}")
-            
-            # Extract title
-            titel_elem = norm_elem.find(".//titel")
-            title = titel_elem.text if titel_elem is not None else ""
-            print(f"  Title: {title}")
-            
-            # Start with section header
-            formatted_text = f"{enbez} {title}\n\n"
-            
-            # Extract content - try different content locations
-            content_elem = norm_elem.find(".//Content")
-            if content_elem is not None:
-                print("  Found Content element")
-                # Get structured text with paragraph formatting
-                formatted_text += format_content_with_paragraphs(content_elem)
-            else:
-                print("  No Content element found, searching for text elements")
-                # If no content element, try to get text directly from norm or its children
-                text_elems = norm_elem.findall(".//text")
-                print(f"  Found {len(text_elems)} text elements")
-                for elem in text_elems:
-                    if elem.text and elem.text.strip():
-                        formatted_text += elem.text.strip() + "\n"
-            
-            print(f"Finished formatting norm. Text length: {len(formatted_text)} characters")
-            return formatted_text
-        
-        # Find matching norms
-        matching_norms = []
-        
-        if root.tag == "dokumente":
-            print("Using 'dokumente' XML structure parser")
-            # First, try to match by enbez (exact section number)
-            print(f"Searching for exact match with '§ {section_num}'")
-            for norm in root.findall(".//norm"):
-                enbez_elem = norm.find(".//enbez")
-                if enbez_elem is not None and enbez_elem.text == f"§ {section_num}":
-                    matching_norms.append(norm)
-                    print(f"Found matching norm with enbez: {enbez_elem.text}")
-            
-            # If no exact match, try alternate matching methods
-            if not matching_norms:
-                print("No exact matches found. Trying pattern matching...")
-                # Try looking for patterns like "§ {section_num}" in any text
-                pattern = f"§ {section_num}"
-                for norm in root.findall(".//norm"):
-                    # Convert the entire norm to text to search
-                    norm_text = ET.tostring(norm, encoding='unicode', method='text')
-                    if pattern in norm_text:
-                        matching_norms.append(norm)
-                        print(f"Found matching norm with pattern '{pattern}' in text")
-        
-        # Extract text from matching norms
-        if matching_norms:
-            print(f"Found {len(matching_norms)} matching norms for section {section_num}")
-            norm_text = format_norm(matching_norms[0])
-            return norm_text
-        else:
-            print(f"No matching norms found for section {section_num}")
-            return f"§ {section_num} in XML-Datei nicht gefunden."
-    
-    except Exception as e:
-        print(f"ERROR in extract_section_from_law: {str(e)}")
-        import traceback
-        print(f"Error extracting norm text: {str(e)}")
-        print(traceback.format_exc())
-        return f"Fehler beim Parsen der XML-Datei: {str(e)}"
+    return extract_section_from_law_new(xml_file, section_num)
 
 
 def extract_table_of_contents(xml_file: str) -> str:
