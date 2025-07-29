@@ -376,6 +376,8 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
         Regelungskontext: {relevant_norms_text}
 
         Setze die Regelungsalternative um. Gebe die zu ändernden Norm(en) in ihrer geänderten Fassung zurück. Hebe Änderungen mit [ ] hervor. Wichtig: Gebe den Wortlaut der gesamten Norm mitsamt Änderungen wieder.
+
+        Wichtig: Gebe die gesamte Norm im Wortlaut wieder! Dies umschließt alle Paragraphe, Aufzählungen etc.
     
         Verwende dabei juristisch präzise Formulierungen und berücksichtige die gängigen Prinzipien der Legistik.
 

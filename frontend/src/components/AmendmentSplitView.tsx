@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { AmendmentEntry } from '@/types';
+import { formatTextWithSuperscript } from '@/utils/textFormatting';
 
 interface AmendmentSplitViewProps {
   amendments: AmendmentEntry[];
@@ -31,9 +32,9 @@ export function AmendmentSplitView({ amendments }: AmendmentSplitViewProps) {
                 <h5 className="font-medium text-gray-700">Ursprüngliche Fassung</h5>
               </div>
               <div className="text-sm text-gray-800 leading-relaxed">
-                <pre className="whitespace-pre-wrap font-sans">
-                  {amendment.originalNorm.wording || 'Keine ursprüngliche Fassung verfügbar'}
-                </pre>
+                <div className="whitespace-pre-wrap font-serif">
+                  {formatTextWithSuperscript(amendment.originalNorm.wording || 'Keine ursprüngliche Fassung verfügbar')}
+                </div>
               </div>
             </div>
 
@@ -44,9 +45,9 @@ export function AmendmentSplitView({ amendments }: AmendmentSplitViewProps) {
                 <h5 className="font-medium text-gray-700">Geänderte Fassung</h5>
               </div>
               <div className="text-sm text-gray-800 leading-relaxed">
-                <pre className="whitespace-pre-wrap font-sans">
-                  {amendment.amendedNorm.wording || 'Keine geänderte Fassung verfügbar'}
-                </pre>
+                <div className="whitespace-pre-wrap font-serif">
+                  {formatTextWithSuperscript(amendment.amendedNorm.wording || 'Keine geänderte Fassung verfügbar')}
+                </div>
               </div>
             </div>
           </div>
