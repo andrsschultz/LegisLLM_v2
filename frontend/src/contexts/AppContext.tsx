@@ -16,6 +16,7 @@ const initialState: AppState = {
   amendmentProposals: null,
   evaluatedProposals: null,
   finalAmendment: null,
+  generatedEntwurf: null,
   currentTab: 0,
   multistepReasoning: false,
   logs: [],
@@ -37,6 +38,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, evaluatedProposals: action.payload };
     case 'SET_FINAL_AMENDMENT':
       return { ...state, finalAmendment: action.payload };
+    case 'SET_GENERATED_ENTWURF':
+      return { ...state, generatedEntwurf: action.payload };
     case 'SET_CURRENT_TAB':
       return { ...state, currentTab: action.payload };
     case 'SET_MULTISTEP_REASONING':
@@ -64,6 +67,7 @@ interface AppContextType {
   setAmendmentProposals: (proposals: ProposalEntry[]) => void;
   setEvaluatedProposals: (proposals: EvaluatedProposal[]) => void;
   setFinalAmendment: (amendment: AmendmentEntry[]) => void;
+  setGeneratedEntwurf: (entwurf: string) => void;
   setCurrentTab: (tab: number) => void;
   setMultistepReasoning: (enabled: boolean) => void;
   addLog: (message: string) => void;
@@ -92,6 +96,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_EVALUATED_PROPOSALS', payload: proposals }),
     setFinalAmendment: (amendment: AmendmentEntry[]) => 
       dispatch({ type: 'SET_FINAL_AMENDMENT', payload: amendment }),
+    setGeneratedEntwurf: (entwurf: string) => 
+      dispatch({ type: 'SET_GENERATED_ENTWURF', payload: entwurf }),
     setCurrentTab: (tab: number) => 
       dispatch({ type: 'SET_CURRENT_TAB', payload: tab }),
     setMultistepReasoning: (enabled: boolean) => 

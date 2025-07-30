@@ -263,6 +263,80 @@ class ApiClient {
       throw error;
     }
   }
+
+  async generateAenderungsbefehle(
+    taskDescription: string,
+    finalAmendments: { originalNorm: any; amendedNorm: any }[],
+    apiKey: string,
+    model: string
+  ): Promise<{ response: string }> {
+    const endpoint = `${BACKEND_URL}/generate_aenderungsbefehle`;
+    
+    try {
+      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
+        method: 'POST',
+        headers: this.getHeaders(apiKey),
+        body: JSON.stringify({
+          task_description: taskDescription,
+          final_amendments: finalAmendments,
+        }),
+      });
+
+      await this.logApiCall(endpoint, response.status, 0);
+
+      if (!response.ok) {
+        if (response.status === 500) {
+          throw new Error('SERVER_ERROR');
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
+      
+      return data;
+    } catch (error) {
+      console.error('Error generating Änderungsbefehle:', error);
+      throw error;
+    }
+  }
+
+  async generateEntwurfContent(
+    taskDescription: string,
+    aenderungsbefehle: string,
+    apiKey: string,
+    model: string
+  ): Promise<{ response: string }> {
+    const endpoint = `${BACKEND_URL}/generate_entwurf`;
+    
+    try {
+      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
+        method: 'POST',
+        headers: this.getHeaders(apiKey),
+        body: JSON.stringify({
+          task_description: taskDescription,
+          aenderungsbefehle: aenderungsbefehle,
+        }),
+      });
+
+      await this.logApiCall(endpoint, response.status, 0);
+
+      if (!response.ok) {
+        if (response.status === 500) {
+          throw new Error('SERVER_ERROR');
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
+      
+      return data;
+    } catch (error) {
+      console.error('Error generating Entwurf content:', error);
+      throw error;
+    }
+  }
 }
 
 export const apiClient = new ApiClient();

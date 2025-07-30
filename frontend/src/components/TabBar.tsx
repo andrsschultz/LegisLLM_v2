@@ -9,6 +9,7 @@ const tabs = [
   { id: 2, label: 'Regelungsalternativen', icon: '💡', shortLabel: 'Alternativen' },
   { id: 3, label: 'Evaluierung', icon: '⚖️', shortLabel: 'Evaluierung' },
   { id: 4, label: 'Finalisierung', icon: '✅', shortLabel: 'Finalisierung' },
+  { id: 5, label: 'Gesetzesentwurf', icon: '📋', shortLabel: 'Entwurf' },
 ];
 
 export default function TabBar() {
@@ -30,6 +31,8 @@ export default function TabBar() {
         return state.amendmentProposals ? 'available' : 'disabled';
       case 4:
         return state.amendmentProposals || state.evaluatedProposals ? 'available' : 'disabled';
+      case 5:
+        return state.finalAmendment ? 'available' : 'disabled';
       default:
         return 'disabled';
     }

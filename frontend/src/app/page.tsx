@@ -8,6 +8,7 @@ import ContextIdentificationTab from '@/components/tabs/ContextIdentificationTab
 import ProposalDevelopmentTab from '@/components/tabs/ProposalDevelopmentTab';
 import EvaluationTab from '@/components/tabs/EvaluationTab';
 import FinalizationTab from '@/components/tabs/FinalizationTab';
+import EntwurfTab from '@/components/tabs/EntwurfTab';
 
 export default function HomePage() {
   const { state } = useApp();
@@ -24,6 +25,8 @@ export default function HomePage() {
         return <EvaluationTab />;
       case 4:
         return <FinalizationTab />;
+      case 5:
+        return <EntwurfTab />;
       default:
         return <TaskDescriptionTab />;
     }

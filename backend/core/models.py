@@ -131,6 +131,53 @@ class AmendResponse(BaseModel):
     entries: List[AmendEntry]
 
 
+class AenderungsbefehlRequest(BaseModel):
+    task_description: str
+    final_amendments: List[AmendEntry]
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "task_description": "Einführung einer Freigrenze für Einnahmen aus Vermietung und Verpachtung",
+                    "final_amendments": [
+                        {
+                            "originalNorm": {
+                                "jurabk": "EStG",
+                                "enbez": "§ 21",
+                                "P": "1",
+                                "wording": "Einkünfte aus Vermietung und Verpachtung..."
+                            },
+                            "amendedNorm": {
+                                "jurabk": "EStG",
+                                "enbez": "§ 21",
+                                "P": "1",
+                                "wording": "Einkünfte aus Vermietung und Verpachtung...",
+                                "amendmentDescription": "Einführung einer Freigrenze"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
 
+class AenderungsbefehlResponse(BaseModel):
+    response: str
 
+class GesetzesentwurfRequest(BaseModel):
+    task_description: str
+    aenderungsbefehle: str
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "task_description": "Einführung einer Freigrenze für Einnahmen aus Vermietung und Verpachtung",
+                    "aenderungsbefehle": "1. § 21 wird wie folgt geändert..."
+                }
+            ]
+        }
+    }
+
+class GesetzesentwurfResponse(BaseModel):
+    response: str
 

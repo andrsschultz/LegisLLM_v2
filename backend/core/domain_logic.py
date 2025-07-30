@@ -3,7 +3,7 @@ import os
 from typing import List, Optional
 from fastapi import HTTPException
 from .llm_service import query_llm
-from .models import NormEntry, ProposalEntry
+from .models import NormEntry, ProposalEntry, AmendEntry
 from .xml_parser import extract_table_of_contents, extract_section_from_law
 from .utils import clean_json_string
 
@@ -711,6 +711,77 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
     
 
     return norm_entries
+
+
+async def generate_aenderungsbefehle(task_description: str, final_amendments: List[AmendEntry], api_key: str, model: str) -> str:
+    """Generate Änderungsbefehle from final amendments using LLM."""
+    print("\n==== GENERATE ÄNDERUNGSBEFEHLE ====")
+    print(f"Task description: {task_description}")
+    print(f"Number of final amendments: {len(final_amendments)}")
+    print(f"Model: {model}")
+    
+    # Load template from file
+    templates_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
+    aenderungsbefehl_template_path = os.path.join(templates_dir, "aenderungsbefehl_prompt.md")
+    
+    try:
+        with open(aenderungsbefehl_template_path, 'r', encoding='utf-8') as f:
+            aenderungsbefehl_template = f.read()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading Änderungsbefehl template: {str(e)}")
+    
+    # Format amendment data for the prompt
+    amendment_data = "\n\n".join([
+        f"""**Norm:** {amendment.originalNorm.jurabk} {amendment.originalNorm.enbez}{f" Absatz {amendment.originalNorm.P}" if amendment.originalNorm.P else ''}
+**Ursprünglicher Wortlaut:** {amendment.originalNorm.wording or 'Nicht verfügbar'}
+**Geänderter Wortlaut:** {amendment.amendedNorm.wording or 'Nicht verfügbar'}
+**Art der Änderung:** {amendment.amendedNorm.amendmentDescription or 'Ersetzung'}"""
+        for amendment in final_amendments
+    ])
+    
+    # Replace placeholder with actual amendment data
+    aenderungsbefehl_prompt = aenderungsbefehl_template.replace(
+        '[HIER WERDEN DIE NORM-ÄNDERUNGEN EINGEFÜGT]',
+        amendment_data
+    )
+    
+    # Query LLM for Änderungsbefehle generation
+    print("Querying LLM to generate Änderungsbefehle...")
+    response = await query_llm(aenderungsbefehl_prompt, api_key, model)
+    
+    print(f"Response received. Length: {len(response)} characters")
+    return response
+
+
+async def generate_gesetzesentwurf_content(task_description: str, aenderungsbefehle: str, api_key: str, model: str) -> str:
+    """Generate Gesetzesentwurf content from Änderungsbefehle using LLM."""
+    print("\n==== GENERATE GESETZESENTWURF CONTENT ====")
+    print(f"Task description: {task_description}")
+    print(f"Änderungsbefehle length: {len(aenderungsbefehle)} characters")
+    print(f"Model: {model}")
+    
+    # Load template from file
+    templates_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
+    gesetzesentwurf_template_path = os.path.join(templates_dir, "gesetzesentwurf_prompt.md")
+    
+    try:
+        with open(gesetzesentwurf_template_path, 'r', encoding='utf-8') as f:
+            gesetzesentwurf_template = f.read()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading Gesetzesentwurf template: {str(e)}")
+    
+    # Replace placeholder with Änderungsbefehle
+    gesetzesentwurf_prompt = gesetzesentwurf_template.replace(
+        '[HIER WERDEN DIE ÄNDERUNGSBEFEHLE EINGEFÜGT]',
+        aenderungsbefehle
+    )
+    
+    # Query LLM for Gesetzesentwurf generation
+    print("Querying LLM to generate Gesetzesentwurf...")
+    response = await query_llm(gesetzesentwurf_prompt, api_key, model)
+    
+    print(f"Response received. Length: {len(response)} characters")
+    return response
 
 
 

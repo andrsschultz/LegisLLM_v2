@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import amend, evaluate, getModels, norms, proposals
+from .routers import amend, evaluate, gesetzesentwurf, getModels, norms, proposals
 
 app = FastAPI()
 
@@ -10,6 +10,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",  # Local development
+        "http://localhost:3001",  # Local development alternate port
         "https://legisllm.onrender.com",  # Frontend domain
         "https://legisllm-frontend.onrender.com",  # Alternative frontend domain
         "https://www.legisllm.de",  # Main domain
@@ -22,6 +23,7 @@ app.add_middleware(
 
 
 app.include_router(amend.router)
+app.include_router(gesetzesentwurf.router)
 app.include_router(norms.router)
 app.include_router(proposals.router)
 app.include_router(evaluate.router)

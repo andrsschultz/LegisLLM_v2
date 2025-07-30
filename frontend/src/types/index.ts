@@ -70,6 +70,7 @@ export interface AppState {
   amendmentProposals: ProposalEntry[] | null;
   evaluatedProposals: EvaluatedProposal[] | null;
   finalAmendment: AmendmentEntry[] | null;
+  generatedEntwurf: string | null;
   currentTab: number;
   multistepReasoning: boolean;
   logs: string[];
