@@ -7,7 +7,7 @@ import TaskDescriptionTab from '@/components/tabs/TaskDescriptionTab';
 import ContextIdentificationTab from '@/components/tabs/ContextIdentificationTab';
 import ProposalDevelopmentTab from '@/components/tabs/ProposalDevelopmentTab';
 import EvaluationTab from '@/components/tabs/EvaluationTab';
-import FinalizationTab from '@/components/tabs/FinalizationTab';
+import UmsetzungTab from '@/components/tabs/UmsetzungTab';
 import EntwurfTab from '@/components/tabs/EntwurfTab';
 
 export default function HomePage() {
@@ -24,7 +24,7 @@ export default function HomePage() {
       case 3:
         return <EvaluationTab />;
       case 4:
-        return <FinalizationTab />;
+        return <UmsetzungTab />;
       case 5:
         return <EntwurfTab />;
       default:

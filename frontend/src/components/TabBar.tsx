@@ -8,7 +8,7 @@ const tabs = [
   { id: 1, label: 'Regelungskontext', icon: '🔍', shortLabel: 'Kontext' },
   { id: 2, label: 'Regelungsalternativen', icon: '💡', shortLabel: 'Alternativen' },
   { id: 3, label: 'Evaluierung', icon: '⚖️', shortLabel: 'Evaluierung' },
-  { id: 4, label: 'Finalisierung', icon: '✅', shortLabel: 'Finalisierung' },
+  { id: 4, label: 'Umsetzung', icon: '✏️', shortLabel: 'Umsetzung' },
   { id: 5, label: 'Gesetzesentwurf', icon: '📋', shortLabel: 'Entwurf' },
 ];
 

@@ -11,6 +11,19 @@ export default function EntwurfTab() {
   const [error, setError] = useState<string | null>(null);
   const [aenderungsbefehle, setAenderungsbefehle] = useState<string>('');
 
+  const downloadGesetzesentwurf = () => {
+    if (!state.generatedEntwurf) return;
+    
+    const content = state.generatedEntwurf;
+    const element = document.createElement('a');
+    const file = new Blob([content], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = 'gesetzesentwurf.txt';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
   const generateEntwurf = async () => {
     if (!state.finalAmendment || !state.selectedModel || !state.taskDescription) {
       setError('Finalamendment, Modell und Aufgabenbeschreibung sind erforderlich');
@@ -171,12 +184,20 @@ export default function EntwurfTab() {
             <h3 className="text-lg font-semibold text-slate-800">
               Generierter Gesetzesentwurf
             </h3>
-            <button
-              onClick={() => navigator.clipboard.writeText(state.generatedEntwurf || '')}
-              className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors text-sm"
-            >
-              📋 Kopieren
-            </button>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => navigator.clipboard.writeText(state.generatedEntwurf || '')}
+                className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors text-sm"
+              >
+                📋 Kopieren
+              </button>
+              <button
+                onClick={downloadGesetzesentwurf}
+                className="px-6 py-2 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-xl hover:from-slate-700 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all duration-200 font-semibold shadow-lg"
+              >
+                Als Textdatei speichern
+              </button>
+            </div>
           </div>
           <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
             <pre className="whitespace-pre-wrap text-sm text-slate-800 font-mono">
