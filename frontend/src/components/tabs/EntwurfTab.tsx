@@ -10,6 +10,8 @@ export default function EntwurfTab() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [aenderungsbefehle, setAenderungsbefehle] = useState<string>('');
+  const [isGeneratingAenderungsbefehle, setIsGeneratingAenderungsbefehle] = useState(false);
+  const [isGeneratingEntwurf, setIsGeneratingEntwurf] = useState(false);
 
   const downloadGesetzesentwurf = () => {
     if (!state.generatedEntwurf) return;
@@ -24,7 +26,7 @@ export default function EntwurfTab() {
     document.body.removeChild(element);
   };
 
-  const generateEntwurf = async () => {
+  const generateAenderungsbefehle = async () => {
     if (!state.finalAmendment || !state.selectedModel || !state.taskDescription) {
       setError('Finalamendment, Modell und Aufgabenbeschreibung sind erforderlich');
       return;
@@ -36,12 +38,11 @@ export default function EntwurfTab() {
       return;
     }
 
-    setIsGenerating(true);
+    setIsGeneratingAenderungsbefehle(true);
     setError(null);
 
     try {
-      // Step 1: Generate Änderungsbefehle
-      addLog('Schritt 1: Generiere Änderungsbefehle...');
+      addLog('Generiere Änderungsbefehle...');
 
       const aenderungsbefehlResponse = await apiClient.generateAenderungsbefehle(
         state.taskDescription,
@@ -58,12 +59,36 @@ export default function EntwurfTab() {
       setAenderungsbefehle(generatedAenderungsbefehle);
       addLog('Änderungsbefehle erfolgreich generiert');
 
-      // Step 2: Generate Gesetzesentwurf
-      addLog('Schritt 2: Erstelle Gesetzesentwurf...');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler beim Generieren der Änderungsbefehle';
+      setError(errorMessage);
+      addLog(`Fehler: ${errorMessage}`);
+    } finally {
+      setIsGeneratingAenderungsbefehle(false);
+    }
+  };
+
+  const generateGesetzesentwurf = async () => {
+    if (!aenderungsbefehle || !state.selectedModel || !state.taskDescription) {
+      setError('Änderungsbefehle, Modell und Aufgabenbeschreibung sind erforderlich');
+      return;
+    }
+
+    const apiKey = getApiKeyForModel(state.selectedModel, state.availableModels);
+    if (!apiKey) {
+      setError('API-Schlüssel erforderlich');
+      return;
+    }
+
+    setIsGeneratingEntwurf(true);
+    setError(null);
+
+    try {
+      addLog('Erstelle Gesetzesentwurf...');
 
       const entwurfResponse = await apiClient.generateEntwurfContent(
         state.taskDescription,
-        generatedAenderungsbefehle,
+        aenderungsbefehle,
         apiKey,
         state.selectedModel
       );
@@ -76,11 +101,11 @@ export default function EntwurfTab() {
       }
 
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler beim Generieren des Entwurfs';
+      const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler beim Generieren des Gesetzesentwurfs';
       setError(errorMessage);
       addLog(`Fehler: ${errorMessage}`);
     } finally {
-      setIsGenerating(false);
+      setIsGeneratingEntwurf(false);
     }
   };
 
@@ -123,37 +148,26 @@ export default function EntwurfTab() {
         </div>
       )}
 
-      {/* Generate Button */}
+      {/* Step 1: Generate Änderungsbefehle */}
       <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-slate-800 mb-2">
-              Gesetzesentwurf erstellen
+              Schritt 1: Änderungsbefehle generieren
             </h3>
             <p className="text-slate-600">
-              Verwendet den Masterprompt mit den finalisierten Änderungen.
+              Erstelle strukturierte Änderungsbefehle basierend auf den finalisierten Änderungen.
             </p>
           </div>
           <button
-            onClick={generateEntwurf}
-            disabled={isGenerating || !state.finalAmendment || !state.selectedModel || !state.taskDescription}
+            onClick={generateAenderungsbefehle}
+            disabled={isGeneratingAenderungsbefehle || !state.finalAmendment || !state.selectedModel || !state.taskDescription}
             className="px-6 py-3 bg-slate-600 text-white rounded-lg hover:bg-slate-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors font-medium"
           >
-            {isGenerating ? 'Generiere...' : 'Entwurf erstellen'}
+            {isGeneratingAenderungsbefehle ? 'Generiere...' : 'Änderungsbefehle erstellen'}
           </button>
         </div>
       </div>
-
-      {/* Error Display */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-red-500">⚠️</span>
-            <span className="text-red-700 font-medium">Fehler:</span>
-          </div>
-          <p className="text-red-600 mt-1">{error}</p>
-        </div>
-      )}
 
       {/* Generated Änderungsbefehle Display */}
       {aenderungsbefehle && (
@@ -176,6 +190,41 @@ export default function EntwurfTab() {
           </div>
         </div>
       )}
+
+      {/* Step 2: Generate Gesetzesentwurf (only shown after Änderungsbefehle are generated) */}
+      {aenderungsbefehle && (
+        <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-slate-800 mb-2">
+                Schritt 2: Gesetzesentwurf erstellen
+              </h3>
+              <p className="text-slate-600">
+                Erstelle einen vollständigen Gesetzesentwurf basierend auf den generierten Änderungsbefehlen.
+              </p>
+            </div>
+            <button
+              onClick={generateGesetzesentwurf}
+              disabled={isGeneratingEntwurf || !aenderungsbefehle}
+              className="px-6 py-3 bg-slate-600 text-white rounded-lg hover:bg-slate-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors font-medium"
+            >
+              {isGeneratingEntwurf ? 'Generiere...' : 'Gesetzesentwurf erstellen'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+          <div className="flex items-center space-x-2">
+            <span className="text-red-500">⚠️</span>
+            <span className="text-red-700 font-medium">Fehler:</span>
+          </div>
+          <p className="text-red-600 mt-1">{error}</p>
+        </div>
+      )}
+
 
       {/* Generated Entwurf Display */}
       {state.generatedEntwurf && (
