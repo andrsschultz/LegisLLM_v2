@@ -37,11 +37,16 @@ async def amend_law(
         # Get the original wording from XML
         data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
         xml_file = os.path.join(data_dir, f"{jurabk}.xml")
+        
+        # Parse section number from enbez (handle formats like "§ 3", "§ 3 Abs. 1", etc.)
         section_num = enbez.replace("§", "").strip()
+        if " Abs." in section_num:
+            # Extract just the section number before "Abs."
+            section_num = section_num.split(" Abs.")[0].strip()
 
         originalWording = ""
         try:
-            originalWording = extract_section_from_law(xml_file, section_num)
+            originalWording = extract_section_from_law(xml_file, section_num, P)
         except Exception as e:
             print(f"Error extracting wording for {jurabk} {enbez} P{P}: {e}")
             originalWording = f"Fehler beim Laden des Wortlauts für {jurabk} {enbez}"

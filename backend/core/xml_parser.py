@@ -3,16 +3,23 @@ import xml.etree.ElementTree as ET
 
 
 # Function to extract specific section from a law
-def extract_section_from_law(xml_file: str, section_num: str) -> str:
+def extract_section_from_law(xml_file: str, section_num: str, paragraph_num: str = None) -> str:
     """
     Extract a specific section from an XML law file.
+    If paragraph_num is provided, extract only that paragraph from the section.
     """
-    print(f"\n==== EXTRACT SECTION FROM LAW: Section {section_num} from {xml_file} ====")
+    print_msg = f"Section {section_num}"
+    if paragraph_num:
+        print_msg += f" Paragraph {paragraph_num}"
+    print(f"\n==== EXTRACT SECTION FROM LAW: {print_msg} from {xml_file} ====")
     try:
         # Extract law_code from xml_file path
         law_code = os.path.basename(xml_file).replace('.xml', '')
         
-        print(f"Extracting section {section_num} from {xml_file} (law code: {law_code})")
+        extract_msg = f"Extracting section {section_num}"
+        if paragraph_num:
+            extract_msg += f" paragraph {paragraph_num}"
+        print(f"{extract_msg} from {xml_file} (law code: {law_code})")
         
         # Check if file exists
         if not os.path.exists(xml_file):
@@ -24,6 +31,61 @@ def extract_section_from_law(xml_file: str, section_num: str) -> str:
         root = tree.getroot()
         
         print(f"Root tag: {root.tag}")
+        
+        # Extract specific paragraph from norm element
+        def extract_paragraph_from_norm(norm_elem, paragraph_num, section_num):
+            print(f"Extracting paragraph {paragraph_num} from norm element...")
+            
+            # Extract enbez (section number) and title for context
+            enbez_elem = norm_elem.find(".//enbez")
+            enbez = enbez_elem.text if enbez_elem is not None else ""
+            
+            titel_elem = norm_elem.find(".//titel")
+            title = titel_elem.text if titel_elem is not None else ""
+            
+            # Don't include section header for paragraph extraction
+            formatted_text = ""
+            
+            # Find Content element
+            content_elem = norm_elem.find(".//Content")
+            if content_elem is not None:
+                print(f"  Found Content element, looking for paragraph ({paragraph_num})")
+                
+                # Look for paragraph markers - handle different formats
+                paragraph_found = False
+                
+                # First try traditional paragraph format: (1), (2), etc.
+                for p_elem in content_elem.findall(".//P"):
+                    p_text = ET.tostring(p_elem, encoding='unicode', method='text').strip()
+                    
+                    # Check for traditional paragraph format like "(1)", "(2)"
+                    traditional_patterns = [f"({paragraph_num})", f"({paragraph_num}) "]
+                    
+                    for pattern in traditional_patterns:
+                        if p_text.startswith(pattern):
+                            print(f"  Found traditional paragraph {paragraph_num}")
+                            formatted_text += p_text
+                            paragraph_found = True
+                            break
+                    
+                    if paragraph_found:
+                        break
+                
+                # Don't try numbered list format - if no traditional paragraphs found, 
+                # fall back to whole norm content
+                
+                if not paragraph_found:
+                    print(f"  Paragraph {paragraph_num} not found in section {section_num}, returning whole norm content")
+                    # Return the whole norm content (excluding header)
+                    full_content = ET.tostring(content_elem, encoding='unicode', method='text').strip()
+                    formatted_text += full_content
+                    
+            else:
+                print("  No Content element found")
+                return f"§ {section_num} Abs. {paragraph_num} - Inhalt nicht verfügbar."
+            
+            print(f"Finished extracting paragraph {paragraph_num}. Text length: {len(formatted_text)} characters")
+            return formatted_text
         
         # Format norm from dokumente XML structure
         def format_norm(norm_elem):
@@ -88,7 +150,12 @@ def extract_section_from_law(xml_file: str, section_num: str) -> str:
         # Extract text from matching norms
         if matching_norms:
             print(f"Found {len(matching_norms)} matching norms for section {section_num}")
-            norm_text = format_norm(matching_norms[0])
+            if paragraph_num:
+                # Extract specific paragraph
+                norm_text = extract_paragraph_from_norm(matching_norms[0], paragraph_num, section_num)
+            else:
+                # Extract entire section
+                norm_text = format_norm(matching_norms[0])
             return norm_text
         else:
             print(f"No matching norms found for section {section_num}")
