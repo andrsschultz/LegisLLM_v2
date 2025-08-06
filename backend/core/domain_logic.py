@@ -377,7 +377,7 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
 
         Regelungskontext: {relevant_norms_text}
 
-        Setze die Regelungsalternative um. Gebe die zu ändernden Norm(en) in ihrer geänderten Fassung zurück. Hebe Änderungen mit [ ] hervor. Wichtig: Gebe den Wortlaut der gesamten Norm mitsamt Änderungen wieder.
+        Setze die Regelungsalternative um. Gib sowohl den ursprünglichen als auch den geänderten Wortlaut für jede betroffene Norm zurück. 
     
         Verwende dabei juristisch präzise Formulierungen und berücksichtige die gängigen Prinzipien der Legistik.
 
@@ -390,7 +390,8 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
                         "jurabk": "<Abkürzung des Gesetzes>",   // z. B. "EStG"
                         "enbez": "<Paragraf>",                  // z. B. "§ 21"
                         "P": "<Absatz>",                        // z. B. "1"
-                        "wording": "<geänderter Normtext mit [] Hervorhebungen>"
+                        "originalWording": "<ursprünglicher Normtext ohne Hervorhebungen>",
+                        "amendedWording": "<geänderter Normtext>"
                     }}
                 }}
             ]

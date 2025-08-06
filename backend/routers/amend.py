@@ -4,8 +4,6 @@ from ..core.models import AmendRequest, AmendEntry, AmendResponse, NormEntry
 from ..core.domain_logic import generate_final_amendment
 from ..core.config import ModelEnum
 from ..core.auth import verify_api_key
-import os
-from ..core.xml_parser import extract_section_from_law
 
 router = APIRouter()
 
@@ -29,41 +27,23 @@ async def amend_law(
     
     entries = []
     for entry in raw_entries:
-        jurabk = entry.get("amendedNorm", {}).get("jurabk", "")
-        enbez = entry.get("amendedNorm", {}).get("enbez")
-        P = entry.get("amendedNorm", {}).get("P")
-        amendedWording = entry.get("amendedNorm", {}).get("wording")
-
-        # Get the original wording from XML
-        data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
-        xml_file = os.path.join(data_dir, f"{jurabk}.xml")
+        # Extract from amendedNorm section which now contains both original and amended wording
+        amended_norm = entry.get("amendedNorm", {})
         
-        # Parse section number from enbez (handle formats like "§ 3", "§ 3 Abs. 1", etc.)
-        section_num = enbez.replace("§", "").strip()
-        if " Abs." in section_num:
-            # Extract just the section number before "Abs."
-            section_num = section_num.split(" Abs.")[0].strip()
-
-        originalWording = ""
-        try:
-            originalWording = extract_section_from_law(xml_file, section_num, P)
-        except Exception as e:
-            print(f"Error extracting wording for {jurabk} {enbez} P{P}: {e}")
-            originalWording = f"Fehler beim Laden des Wortlauts für {jurabk} {enbez}"
-
+        # Create AmendEntry using the LLM-provided original and amended text
         entries.append(
             AmendEntry(
                 originalNorm=NormEntry(
-                    jurabk=jurabk,
-                    enbez=enbez,
-                    P=P,
-                    wording=originalWording
+                    jurabk=amended_norm.get("jurabk", ""),
+                    enbez=amended_norm.get("enbez"),
+                    P=amended_norm.get("P"),
+                    wording=amended_norm.get("originalWording", "")
                 ),
                 amendedNorm=NormEntry(
-                    jurabk=jurabk,
-                    enbez=enbez,
-                    P=P,
-                    wording=amendedWording
+                    jurabk=amended_norm.get("jurabk", ""),
+                    enbez=amended_norm.get("enbez"),
+                    P=amended_norm.get("P"),
+                    wording=amended_norm.get("amendedWording", "")
                 )
             )
         )
