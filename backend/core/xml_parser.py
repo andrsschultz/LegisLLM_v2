@@ -1,5 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
+import re
+from typing import Dict, Optional
 
 
 # Function to extract specific section from a law
@@ -360,4 +362,275 @@ def extract_table_of_contents(xml_file: str) -> str:
         print(f"Error extracting TOC: {str(e)}")
         print(traceback.format_exc())
         return f"Fehler beim Parsen der Inhaltsübersicht: {str(e)}"
+
+
+def extract_law_metadata(xml_file: str) -> Dict[str, Optional[str]]:
+    """
+    Extract metadata from an XML law file header for use in Gesetzesentwurf generation.
+    
+    Args:
+        xml_file: Path to the XML file
+        
+    Returns:
+        Dictionary containing:
+        - zitiername: Full law name (e.g., "Einkommensteuergesetz")
+        - ausfertigungsdatum: Original publication date (e.g., "16. Oktober 1934") 
+        - urspruengliche_fundstelle: Original publication reference (e.g., "RGBl I 1934, 1005")
+        - letzte_aenderung_artikel: Latest amendment article number (e.g., "2")
+        - letzte_aenderung_datum: Latest amendment date (e.g., "23. Dezember 2024")
+        - letzte_aenderung_fundstelle: Latest amendment publication reference (e.g., "BGBl I Nr. 449")
+        - jurabk: Law abbreviation (e.g., "EStG")
+    """
+    print(f"\n==== EXTRACT LAW METADATA FROM: {xml_file} ====")
+    
+    try:
+        # Extract law_code from xml_file path
+        law_code = os.path.basename(xml_file).replace('.xml', '')
+        
+        print(f"Extracting metadata from {xml_file} (law code: {law_code})")
+        
+        # Check if file exists
+        if not os.path.exists(xml_file):
+            print(f"ERROR: XML file not found: {xml_file}")
+            return {"error": f"XML-Datei für {law_code} nicht gefunden"}
+        
+        print("Parsing XML file...")
+        tree = ET.parse(xml_file)
+        root = tree.getroot()
+        
+        print(f"Root tag: {root.tag}")
+        
+        # Find the first norm with metadata
+        metadata_norm = None
+        for norm in root.findall(".//norm"):
+            metadaten_elem = norm.find("metadaten")
+            if metadaten_elem is not None:
+                metadata_norm = metadaten_elem
+                print("Found norm with metadata")
+                break
+        
+        if metadata_norm is None:
+            print("No metadata found")
+            return {"error": f"Metadaten in {law_code} nicht gefunden"}
+        
+        # Initialize result dictionary
+        result = {
+            "zitiername": None,
+            "ausfertigungsdatum": None,
+            "urspruengliche_fundstelle": None,
+            "letzte_aenderung_artikel": None,
+            "letzte_aenderung_datum": None,
+            "letzte_aenderung_fundstelle": None,
+            "jurabk": None
+        }
+        
+        # Extract jurabk (law abbreviation)
+        jurabk_elem = metadata_norm.find("jurabk")
+        if jurabk_elem is not None and jurabk_elem.text:
+            result["jurabk"] = jurabk_elem.text.strip()
+            print(f"Found jurabk: {result['jurabk']}")
+        
+        # Extract langue (full law name)
+        langue_elem = metadata_norm.find("langue")
+        if langue_elem is not None and langue_elem.text:
+            result["zitiername"] = langue_elem.text.strip()
+            print(f"Found zitiername: {result['zitiername']}")
+        
+        # Extract ausfertigung-datum (original publication date)
+        ausfertigung_elem = metadata_norm.find("ausfertigung-datum")
+        if ausfertigung_elem is not None and ausfertigung_elem.text:
+            # Convert date format from 1934-10-16 to "16. Oktober 1934"
+            date_str = ausfertigung_elem.text.strip()
+            try:
+                from datetime import datetime
+                date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+                months = ["", "Januar", "Februar", "März", "April", "Mai", "Juni", 
+                         "Juli", "August", "September", "Oktober", "November", "Dezember"]
+                formatted_date = f"{date_obj.day}. {months[date_obj.month]} {date_obj.year}"
+                result["ausfertigungsdatum"] = formatted_date
+                print(f"Found ausfertigungsdatum: {result['ausfertigungsdatum']}")
+            except ValueError:
+                # If parsing fails, use original string
+                result["ausfertigungsdatum"] = date_str
+                print(f"Could not parse date, using original: {date_str}")
+        
+        # Extract fundstelle (original publication reference)
+        fundstelle_elem = metadata_norm.find("fundstelle")
+        if fundstelle_elem is not None:
+            periodikum_elem = fundstelle_elem.find("periodikum")
+            zitstelle_elem = fundstelle_elem.find("zitstelle")
+            
+            if periodikum_elem is not None and zitstelle_elem is not None:
+                periodikum = periodikum_elem.text.strip() if periodikum_elem.text else ""
+                zitstelle = zitstelle_elem.text.strip() if zitstelle_elem.text else ""
+                
+                # Convert "RGBl I" to "BGBl. I" format and combine with citation
+                if periodikum and zitstelle:
+                    # Handle different periodikum formats
+                    if "RGBl" in periodikum:
+                        # Convert RGBl I to BGBl. I format
+                        periodikum = periodikum.replace("RGBl", "BGBl.")
+                    elif "BGBl" in periodikum and "." not in periodikum:
+                        # Add period if missing: BGBl I -> BGBl. I
+                        periodikum = periodikum.replace("BGBl", "BGBl.")
+                    
+                    result["urspruengliche_fundstelle"] = f"{periodikum} S. {zitstelle}"
+                    print(f"Found urspruengliche_fundstelle: {result['urspruengliche_fundstelle']}")
+        
+        # Extract latest amendment info from standangabe
+        # First prioritize "Stand" type, then fall back to "Neuf" type
+        stand_found = False
+        
+        for standangabe in metadata_norm.findall("standangabe"):
+            standtyp_elem = standangabe.find("standtyp")
+            standkommentar_elem = standangabe.find("standkommentar")
+            
+            if (standtyp_elem is not None and standkommentar_elem is not None and standkommentar_elem.text):
+                standtyp = standtyp_elem.text.strip()
+                comment_text = standkommentar_elem.text.strip()
+                print(f"Found {standtyp} comment: {comment_text}")
+                
+                # Handle different types of standangabe - prioritize "Stand" over "Neuf"
+                if standtyp == "Stand" and not stand_found:
+                    # Parse "zuletzt geändert durch Art. 2 G v. 23.12.2024 I Nr. 449"
+                    article_match = re.search(r"Art\.\s*(\d+)", comment_text)
+                    date_match = re.search(r"v\.\s*(\d{1,2})\.(\d{1,2})\.(\d{4})", comment_text)
+                    fundstelle_match = re.search(r"I\s+(Nr\.\s*\d+|S\.\s*\d+)", comment_text)
+                    
+                    if article_match:
+                        result["letzte_aenderung_artikel"] = article_match.group(1)
+                        print(f"Found letzte_aenderung_artikel: {result['letzte_aenderung_artikel']}")
+                    
+                    if date_match:
+                        day, month, year = date_match.groups()
+                        try:
+                            from datetime import datetime
+                            date_obj = datetime(int(year), int(month), int(day))
+                            months = ["", "Januar", "Februar", "März", "April", "Mai", "Juni", 
+                                     "Juli", "August", "September", "Oktober", "November", "Dezember"]
+                            formatted_date = f"{date_obj.day}. {months[date_obj.month]} {date_obj.year}"
+                            result["letzte_aenderung_datum"] = formatted_date
+                            print(f"Found letzte_aenderung_datum: {result['letzte_aenderung_datum']}")
+                        except (ValueError, IndexError):
+                            result["letzte_aenderung_datum"] = f"{day}.{month}.{year}"
+                            print(f"Could not format date, using: {result['letzte_aenderung_datum']}")
+                    
+                    if fundstelle_match:
+                        fundstelle_part = fundstelle_match.group(1)
+                        result["letzte_aenderung_fundstelle"] = f"BGBl. I {fundstelle_part}"
+                        print(f"Found letzte_aenderung_fundstelle: {result['letzte_aenderung_fundstelle']}")
+                    
+                    stand_found = True  # Mark that we found a Stand type
+                    break  # Use first "Stand" type standangabe found
+        
+        # If no "Stand" type found, look for "Neuf" type as fallback
+        if not stand_found:
+            for standangabe in metadata_norm.findall("standangabe"):
+                standtyp_elem = standangabe.find("standtyp")
+                standkommentar_elem = standangabe.find("standkommentar")
+                
+                if (standtyp_elem is not None and standkommentar_elem is not None and standkommentar_elem.text):
+                    standtyp = standtyp_elem.text.strip()
+                    comment_text = standkommentar_elem.text.strip()
+                    
+                    if standtyp == "Neuf":
+                        # Parse "Neugefasst durch Bek. v. 23.1.2025 I Nr. 24"
+                        date_match = re.search(r"v\.\s*(\d{1,2})\.(\d{1,2})\.(\d{4})", comment_text)
+                        fundstelle_match = re.search(r"I\s+(Nr\.\s*\d+|S\.\s*\d+)", comment_text)
+                        
+                        # For Neufassung, there's no article number, so we use "Bek." (Bekanntmachung)
+                        result["letzte_aenderung_artikel"] = "Bek."
+                        print(f"Found Neufassung, using Bek. as artikel")
+                        
+                        if date_match:
+                            day, month, year = date_match.groups()
+                            try:
+                                from datetime import datetime
+                                date_obj = datetime(int(year), int(month), int(day))
+                                months = ["", "Januar", "Februar", "März", "April", "Mai", "Juni", 
+                                         "Juli", "August", "September", "Oktober", "November", "Dezember"]
+                                formatted_date = f"{date_obj.day}. {months[date_obj.month]} {date_obj.year}"
+                                result["letzte_aenderung_datum"] = formatted_date
+                                print(f"Found letzte_aenderung_datum: {result['letzte_aenderung_datum']}")
+                            except (ValueError, IndexError):
+                                result["letzte_aenderung_datum"] = f"{day}.{month}.{year}"
+                                print(f"Could not format date, using: {result['letzte_aenderung_datum']}")
+                        
+                        if fundstelle_match:
+                            fundstelle_part = fundstelle_match.group(1)
+                            result["letzte_aenderung_fundstelle"] = f"BGBl. I {fundstelle_part}"
+                            print(f"Found letzte_aenderung_fundstelle: {result['letzte_aenderung_fundstelle']}")
+                        
+                        break  # Use first "Neuf" type standangabe found
+        
+        print(f"Successfully extracted metadata for {law_code}")
+        return result
+        
+    except Exception as e:
+        print(f"ERROR in extract_law_metadata: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+        return {"error": f"Fehler beim Parsen der Metadaten: {str(e)}"}
+
+
+def extract_raw_metadaten_xml(xml_file: str) -> Dict[str, Optional[str]]:
+    """
+    Extract raw metadaten XML from an XML law file for LLM processing.
+    
+    Args:
+        xml_file: Path to the XML file
+        
+    Returns:
+        Dictionary containing:
+        - jurabk: Law abbreviation (e.g., "EStG")  
+        - raw_metadaten_xml: Raw XML string of the <metadaten> element
+    """
+    print(f"\n==== EXTRACT RAW METADATEN XML FROM: {xml_file} ====")
+    
+    try:
+        # Extract law_code from xml_file path
+        law_code = os.path.basename(xml_file).replace('.xml', '')
+        
+        print(f"Extracting raw metadata XML from {xml_file} (law code: {law_code})")
+        
+        # Check if file exists
+        if not os.path.exists(xml_file):
+            print(f"ERROR: XML file not found: {xml_file}")
+            return {"error": f"XML-Datei für {law_code} nicht gefunden"}
+        
+        print("Parsing XML file...")
+        tree = ET.parse(xml_file)
+        root = tree.getroot()
+        
+        print(f"Root tag: {root.tag}")
+        
+        # Find the first norm with metadata
+        for norm in root.findall(".//norm"):
+            metadaten_elem = norm.find("metadaten")
+            if metadaten_elem is not None:
+                print("Found metadaten element")
+                
+                # Convert metadaten element to raw XML string
+                raw_xml = ET.tostring(metadaten_elem, encoding='unicode', method='xml')
+                
+                # Extract jurabk for identification
+                jurabk_elem = metadaten_elem.find("jurabk")
+                jurabk = jurabk_elem.text.strip() if jurabk_elem is not None and jurabk_elem.text else law_code
+                
+                print(f"Successfully extracted raw metadata XML for {jurabk}")
+                print(f"Raw XML length: {len(raw_xml)} characters")
+                
+                return {
+                    "jurabk": jurabk,
+                    "raw_metadaten_xml": raw_xml
+                }
+        
+        print("No metadaten element found")
+        return {"error": f"Metadaten in {law_code} nicht gefunden"}
+        
+    except Exception as e:
+        print(f"ERROR in extract_raw_metadaten_xml: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+        return {"error": f"Fehler beim Extrahieren der Metadaten: {str(e)}"}
 

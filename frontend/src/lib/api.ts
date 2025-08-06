@@ -1,4 +1,4 @@
-import { NormEntry, ProposalEntry, EvaluatedProposal, DeepEvaluation, Model, ApiResponse } from '@/types';
+import { NormEntry, ProposalEntry, EvaluatedProposal, DeepEvaluation, Model, ApiResponse, AmendmentEntry } from '@/types';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
@@ -305,7 +305,8 @@ class ApiClient {
     taskDescription: string,
     aenderungsbefehle: string,
     apiKey: string,
-    model: string
+    model: string,
+    finalAmendments?: AmendmentEntry[]
   ): Promise<{ response: string }> {
     const endpoint = `${BACKEND_URL}/generate_entwurf`;
     
@@ -316,6 +317,7 @@ class ApiClient {
         body: JSON.stringify({
           task_description: taskDescription,
           aenderungsbefehle: aenderungsbefehle,
+          final_amendments: finalAmendments || null,
         }),
       });
 

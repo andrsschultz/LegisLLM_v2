@@ -22,20 +22,24 @@ Der Bundestag hat mit Zustimmung des Bundesrates das folgende Gesetz beschlossen
 
 **Inhaltsübersicht über alle Artikel**
 
-Artikel 1 {Überschrift des Artikels}
-Artikel 2 Inkrafttreten
+[FÜR JEDES GEÄNDERTE GESETZ EINEN ARTIKEL ERSTELLEN]
+Artikel [N] Inkrafttreten
 
 _____________
 
-**Artikel 1**
+[FÜR JEDES GEÄNDERTE GESETZ SEPARATEN ARTIKEL ERSTELLEN:]
+
+**Artikel [Nummer]**
 
 **Änderung des {Zitiername des zu ändernden Gesetzes}**
 
-Das {Vollzitat des zu ändernden Gesetzes}, wird wie folgt geändert:
+Das {Vollzitat des zu ändernden Gesetzes} wird wie folgt geändert:
 
-[HIER DIE ÄNDERUNGSBEFEHLE EINFÜGEN]
+[HIER NUR DIE ÄNDERUNGSBEFEHLE FÜR DIESES GESETZ EINFÜGEN]
 
-**Artikel 2**
+[WEITEREN ARTIKEL FÜR NÄCHSTES GESETZ FALLS VORHANDEN]
+
+**Artikel [Letzte Nummer]**
 
 **Inkrafttreten**
 
@@ -47,15 +51,26 @@ Dieses Gesetz tritt am Tag nach der Verkündung in Kraft.
 
 **Struktur:** {Zitiername} vom {Ausfertigungsdatum} (BGBl. I S. {Seitenzahl}), das zuletzt durch Artikel {Artikelnummer} des Gesetzes vom {Datum} (BGBl. I S. {Seitenzahl}) geändert worden ist
 
-**Beispiel:** "Bundesnaturschutzgesetz vom 29. Juli 2009 (BGBl. I S. 2542), das zuletzt durch Artikel 3 des Gesetzes vom 8. Dezember 2022 (BGBl. I S. 2542) geändert worden ist"
+Hinweis: Erwähnen die Metadaten den Passus "in der Fassung der Bekanntmachung vom ..." so ist dieser vorrangig der Erstfassung des Gesetzes vorzuziehen.
+
+**Beispiele:** 
+
+"Bundesnaturschutzgesetz vom 29. Juli 2009 (BGBl. I S. 2542), das zuletzt durch Artikel 3 des Gesetzes vom 8. Dezember 2022 (BGBl. I S. 2542) geändert worden ist"
+
+"Gewerbesteuergesetz in der Fassung der Bekanntmachung vom 15. Oktober 2002 (BGBl. I S. 4167), das zuletzt durch Artikel 4 des Gesetzes vom 28. Februar 2025 (BGBl. 2025 I Nr. 69) geändert worden ist"
 
 ## ANWEISUNG
 
-1. Bestimme aus den Änderungsbefehlen das zu ändernde Stammgesetz
-2. Erstelle ein realistisches Vollzitat für dieses Gesetz  
-3. Wähle einen passenden Gesetzestittel (z.B. "Gesetzes zur Änderung des [Stammgesetz]")
-4. Setze als federführendes Ministerium das passende Ressort ein
-5. Füge die Änderungsbefehle unverändert in Artikel 1 ein
-6. Verwende deutsche Anführungszeichen „..." für alle Gesetzestexte
+1. Bestimme aus den Änderungsbefehlen ALLE zu ändernden Stammgesetze
+2. Gruppiere die Änderungsbefehle nach Gesetzen (AO, EStG, UStG, etc.)
+3. Parse die RAW METADATEN XML für jedes Gesetz
+4. Erstelle für JEDES Gesetz einen separaten Artikel mit korrektem Vollzitat auf den Gesetzesmetadaten
+5. Wähle einen passenden Gesetzestittel (z.B. "Gesetzes zur Änderung der Abgabenordnung und des Einkommensteuergesetzes")
+6. Setze als federführendes Ministerium das passende Ressort ein
+7. Verwende deutsche Anführungszeichen „..." für alle Gesetzestexte
+
+**WICHTIG:**
+- Jedes Gesetz bekommt einen eigenen Artikel (Artikel 1, Artikel 2, etc.)
+- Letzter Artikel ist immer "Inkrafttreten"
 
 **Erstelle den vollständigen Gesetzesentwurf - keine weiteren Erklärungen.**

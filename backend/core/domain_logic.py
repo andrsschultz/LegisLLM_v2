@@ -756,12 +756,39 @@ async def generate_aenderungsbefehle(task_description: str, final_amendments: Li
     return response
 
 
-async def generate_gesetzesentwurf_content(task_description: str, aenderungsbefehle: str, api_key: str, model: str) -> str:
+async def generate_gesetzesentwurf_content(task_description: str, aenderungsbefehle: str, api_key: str, model: str, final_amendments: Optional[List] = None) -> str:
     """Generate Gesetzesentwurf content from Änderungsbefehle using LLM."""
     print("\n==== GENERATE GESETZESENTWURF CONTENT ====")
     print(f"Task description: {task_description}")
     print(f"Änderungsbefehle length: {len(aenderungsbefehle)} characters")
     print(f"Model: {model}")
+    
+    # Extract metadata for all affected laws
+    law_metadata = {}
+    if final_amendments:
+        print("Extracting metadata for affected laws...")
+        data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+        
+        # Collect unique law abbreviations
+        law_codes = set()
+        for amendment in final_amendments:
+            if hasattr(amendment, 'originalNorm') and amendment.originalNorm and amendment.originalNorm.jurabk:
+                law_codes.add(amendment.originalNorm.jurabk)
+            elif hasattr(amendment, 'amendedNorm') and amendment.amendedNorm and amendment.amendedNorm.jurabk:
+                law_codes.add(amendment.amendedNorm.jurabk)
+        
+        print(f"Found law codes: {law_codes}")
+        
+        # Extract raw metadata XML for each law
+        from .xml_parser import extract_raw_metadaten_xml
+        for law_code in law_codes:
+            xml_file = os.path.join(data_dir, f"{law_code}.xml")
+            metadata = extract_raw_metadaten_xml(xml_file)
+            if "error" not in metadata:
+                law_metadata[law_code] = metadata
+                print(f"Successfully extracted raw metadata XML for {law_code}")
+            else:
+                print(f"Failed to extract metadata for {law_code}: {metadata.get('error')}")
     
     # Load template from file
     templates_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
@@ -773,10 +800,70 @@ async def generate_gesetzesentwurf_content(task_description: str, aenderungsbefe
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error loading Gesetzesentwurf template: {str(e)}")
     
-    # Replace placeholder with Änderungsbefehle
+    # Format law metadata and group amendments by law
+    metadata_text = ""
+    grouped_changes = {}
+    
+    if final_amendments and law_metadata:
+        # Group amendments by law
+        for amendment in final_amendments:
+            law_code = None
+            if hasattr(amendment, 'originalNorm') and amendment.originalNorm and amendment.originalNorm.jurabk:
+                law_code = amendment.originalNorm.jurabk
+            elif hasattr(amendment, 'amendedNorm') and amendment.amendedNorm and amendment.amendedNorm.jurabk:
+                law_code = amendment.amendedNorm.jurabk
+            
+            if law_code:
+                if law_code not in grouped_changes:
+                    grouped_changes[law_code] = []
+                grouped_changes[law_code].append(amendment)
+        
+        # Create structured metadata and change information with raw XML
+        metadata_text = "\n\n**GESETZESMETADATEN (RAW XML) UND STRUKTURIERTE ÄNDERUNGEN:**\n"
+        
+        for law_code, metadata in law_metadata.items():
+            if metadata.get("raw_metadaten_xml"):
+                jurabk = metadata.get("jurabk", law_code)
+                metadata_text += f"\n**{law_code} ({jurabk}):**\n"
+                
+                # Add raw XML metadata for LLM to parse
+                metadata_text += "RAW METADATEN XML:\n"
+                metadata_text += f"```xml\n{metadata['raw_metadaten_xml']}\n```\n"
+                
+                # Add grouped changes for this law
+                if law_code in grouped_changes:
+                    metadata_text += f"ÄNDERUNGEN FÜR DIESES GESETZ:\n"
+                    for i, amendment in enumerate(grouped_changes[law_code], 1):
+                        if hasattr(amendment, 'originalNorm') and amendment.originalNorm:
+                            norm_ref = f"{amendment.originalNorm.enbez}"
+                            if amendment.originalNorm.P:
+                                norm_ref += f" Abs. {amendment.originalNorm.P}"
+                            metadata_text += f"  {i}. {norm_ref}\n"
+                metadata_text += "\n"
+        
+        # Add current date information
+        from datetime import datetime
+        current_date = datetime.now()
+        german_months = ["", "Januar", "Februar", "März", "April", "Mai", "Juni", 
+                        "Juli", "August", "September", "Oktober", "November", "Dezember"]
+        formatted_date = f"{current_date.day}. {german_months[current_date.month]} {current_date.year}"
+        
+        metadata_text += f"**AKTUELLES DATUM:**\n"
+        metadata_text += f"Heute: {formatted_date}\n"
+        metadata_text += f"Verwende dieses Datum für '**Vom {formatted_date}**' im Gesetzesentwurf\n\n"
+        
+        metadata_text += "**WICHTIGE ANWEISUNGEN:**\n"
+        metadata_text += f"- Es werden {len(law_metadata)} Gesetze geändert: {', '.join(law_metadata.keys())}\n"
+        metadata_text += "- Erstelle für JEDES Gesetz einen separaten Artikel\n"
+        metadata_text += "- Parse die RAW METADATEN XML oben und erstelle daraus die korrekten Vollzitate\n"
+        metadata_text += "- Verwende die XML-Daten für: Zitiername, Ausfertigungsdatum, Fundstelle, letzte Änderung\n"
+        metadata_text += "- Gruppiere die Änderungsbefehle nach Gesetzen in den entsprechenden Artikeln\n"
+        metadata_text += f"- Ersetze '**Vom ...**' durch '**Vom {formatted_date}**'\n"
+    
+    # Replace placeholders
     gesetzesentwurf_prompt = gesetzesentwurf_template.replace(
         '[HIER WERDEN DIE ÄNDERUNGSBEFEHLE EINGEFÜGT]',
-        aenderungsbefehle
+        aenderungsbefehle + metadata_text
     )
     
     # Query LLM for Gesetzesentwurf generation

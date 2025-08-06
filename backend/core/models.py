@@ -167,6 +167,7 @@ class AenderungsbefehlResponse(BaseModel):
 class GesetzesentwurfRequest(BaseModel):
     task_description: str
     aenderungsbefehle: str
+    final_amendments: List[AmendEntry] | None = None
     model_config = {
         "json_schema_extra": {
             "examples": [

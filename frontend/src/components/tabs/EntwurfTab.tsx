@@ -90,7 +90,8 @@ export default function EntwurfTab() {
         state.taskDescription,
         aenderungsbefehle,
         apiKey,
-        state.selectedModel
+        state.selectedModel,
+        state.finalAmendment || undefined
       );
 
       if (entwurfResponse.response) {

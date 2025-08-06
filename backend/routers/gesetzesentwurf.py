@@ -47,7 +47,8 @@ async def generate_gesetzesentwurf_content_endpoint(
             task_description=request.task_description,
             aenderungsbefehle=request.aenderungsbefehle,
             api_key=api_key,
-            model=model
+            model=model,
+            final_amendments=request.final_amendments
         )
         
         return GesetzesentwurfResponse(response=response)
