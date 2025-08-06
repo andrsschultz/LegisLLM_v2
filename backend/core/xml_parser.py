@@ -7,6 +7,7 @@ def extract_section_from_law(xml_file: str, section_num: str, paragraph_num: str
     """
     Extract a specific section from an XML law file.
     If paragraph_num is provided, extract only that paragraph from the section.
+    If paragraph_num is "Überschrift", extract only the section heading/title.
     """
     print_msg = f"Section {section_num}"
     if paragraph_num:
@@ -150,7 +151,15 @@ def extract_section_from_law(xml_file: str, section_num: str, paragraph_num: str
         # Extract text from matching norms
         if matching_norms:
             print(f"Found {len(matching_norms)} matching norms for section {section_num}")
-            if paragraph_num:
+            if paragraph_num == "Überschrift":
+                # Extract only the heading/title
+                titel_elem = matching_norms[0].find(".//titel")
+                if titel_elem is not None:
+                    norm_text = titel_elem.text if titel_elem.text else f"§ {section_num} - Überschrift nicht verfügbar"
+                else:
+                    norm_text = f"§ {section_num} - Überschrift nicht verfügbar"
+                print(f"Extracted heading: {norm_text}")
+            elif paragraph_num:
                 # Extract specific paragraph
                 norm_text = extract_paragraph_from_norm(matching_norms[0], paragraph_num, section_num)
             else:

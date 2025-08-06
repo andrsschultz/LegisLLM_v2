@@ -116,6 +116,8 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
         ]
         }}
 
+        Wenn du die Überschrift änderst, gebe für "P" den Wert "Überschrift" zurück.
+
         Die JSON Liste soll sämtliche Regelungsalternativen enthalten, die für die Maßnahme in Betracht kommen. Es können auch mehr als zwei Regelungsalternativen in Betracht kommen.
 
         Jede Regelungsalternative muss innerhalb des "affectedNorms" Eintrag sämtliche von ihr betroffenen Rechtsnormen enthalten. Dies umfasst alle Rechtsnormen welche unmittelbar durch die Regelungsalternative geändert werden sowie sämtliche Rechtsnormen welche als Folge der Umsetzung der Regelungsalternative mittelbar geändert werden müssen.
