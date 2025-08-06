@@ -377,7 +377,7 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
 
         Regelungskontext: {relevant_norms_text}
 
-        Setze die Regelungsalternative um. Gib sowohl den ursprünglichen als auch den geänderten Wortlaut für jede betroffene Norm zurück. 
+        Setze die Regelungsalternative um. Gib sowohl den ursprünglichen als auch den geänderten Wortlaut für jede betroffene Norm zurück. Gebe nur den Teil des Wortlauts zurück, der sich geändert hat, z.B. den Absatz, die Überschrift oder den gesamten Paragraphen. Geänderter und ursprünglicher Wortlaut müssen kongruent sein. Wenn davor und danach Normtext steht, markiere diesen mit "(...)". Entfällt der Wortlaut gebe als geändert Wortlaut "entfällt" an.
     
         Verwende dabei juristisch präzise Formulierungen und berücksichtige die gängigen Prinzipien der Legistik.
 
@@ -390,8 +390,8 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
                         "jurabk": "<Abkürzung des Gesetzes>",   // z. B. "EStG"
                         "enbez": "<Paragraf>",                  // z. B. "§ 21"
                         "P": "<Absatz>",                        // z. B. "1"
-                        "originalWording": "<ursprünglicher Normtext ohne Hervorhebungen>",
-                        "amendedWording": "<geänderter Normtext>"
+                        "originalWording": "<ursprünglicher Wortlaut>"
+                        "amendedWording": "<geänderter Wortlaut>"
                     }}
                 }}
             ]
