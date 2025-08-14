@@ -3,11 +3,32 @@ import { NormEntry, ProposalEntry, EvaluatedProposal, DeepEvaluation, Model, Api
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
 class ApiClient {
+  private abortControllers: Map<string, AbortController> = new Map();
+
   private getHeaders(apiKey: string): Record<string, string> {
     return {
       'Content-Type': 'application/json',
       'X-API-Key': apiKey,
     };
+  }
+
+  cancelRequest(requestId: string): boolean {
+    const controller = this.abortControllers.get(requestId);
+    if (controller) {
+      controller.abort();
+      this.abortControllers.delete(requestId);
+      return true;
+    }
+    return false;
+  }
+
+  private createAbortableRequest(requestId: string): AbortController {
+    // Cancel any existing request with the same ID
+    this.cancelRequest(requestId);
+    
+    const controller = new AbortController();
+    this.abortControllers.set(requestId, controller);
+    return controller;
   }
 
   private async logApiCall(endpoint: string, statusCode: number, responseLength: number = 0) {
@@ -61,6 +82,8 @@ class ApiClient {
     model: string,
     multistepReasoning: boolean = false
   ): Promise<NormEntry[]> {
+    const requestId = 'identify-norms';
+    const controller = this.createAbortableRequest(requestId);
     const endpoint = multistepReasoning 
       ? `${BACKEND_URL}/identify_multistep` 
       : `${BACKEND_URL}/identify`;
@@ -70,6 +93,7 @@ class ApiClient {
         method: 'POST',
         headers: this.getHeaders(apiKey),
         body: JSON.stringify({ task_description: taskDescription }),
+        signal: controller.signal,
       });
 
       await this.logApiCall(endpoint, response.status, 0);
@@ -85,9 +109,14 @@ class ApiClient {
       await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
       
       return data.entries || [];
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        throw new Error('REQUEST_CANCELLED');
+      }
       console.error('Error identifying relevant norms:', error);
       throw error;
+    } finally {
+      this.abortControllers.delete(requestId);
     }
   }
 
@@ -97,6 +126,8 @@ class ApiClient {
     apiKey: string,
     model: string
   ): Promise<ProposalEntry[]> {
+    const requestId = 'generate-proposals';
+    const controller = this.createAbortableRequest(requestId);
     const endpoint = `${BACKEND_URL}/generate_proposals`;
     
     try {
@@ -107,6 +138,7 @@ class ApiClient {
           task_description: taskDescription,
           relevant_norms: relevantNorms,
         }),
+        signal: controller.signal,
       });
 
       await this.logApiCall(endpoint, response.status, 0);
@@ -122,9 +154,14 @@ class ApiClient {
       await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
       
       return data.entries || [];
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        throw new Error('REQUEST_CANCELLED');
+      }
       console.error('Error generating proposals:', error);
       throw error;
+    } finally {
+      this.abortControllers.delete(requestId);
     }
   }
 
@@ -135,6 +172,8 @@ class ApiClient {
     apiKey: string,
     model: string
   ): Promise<EvaluatedProposal[]> {
+    const requestId = 'evaluate-proposals';
+    const controller = this.createAbortableRequest(requestId);
     const endpoint = `${BACKEND_URL}/evaluate_proposals`;
     
     try {
@@ -146,6 +185,7 @@ class ApiClient {
           relevant_norms: relevantNorms,
           amendment_proposals: amendmentProposals,
         }),
+        signal: controller.signal,
       });
 
       await this.logApiCall(endpoint, response.status, 0);
@@ -161,9 +201,14 @@ class ApiClient {
       await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
       
       return data.entries || [];
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        throw new Error('REQUEST_CANCELLED');
+      }
       console.error('Error evaluating proposals:', error);
       throw error;
+    } finally {
+      this.abortControllers.delete(requestId);
     }
   }
 
@@ -174,6 +219,8 @@ class ApiClient {
     apiKey: string,
     model: string
   ): Promise<DeepEvaluation | null> {
+    const requestId = 'deep-evaluate';
+    const controller = this.createAbortableRequest(requestId);
     const endpoint = `${BACKEND_URL}/deep_evaluate_proposals`;
     
     try {
@@ -185,6 +232,7 @@ class ApiClient {
           relevant_norms: relevantNorms,
           amendment_proposal: amendmentProposal,
         }),
+        signal: controller.signal,
       });
 
       await this.logApiCall(endpoint, response.status, 0);
@@ -200,9 +248,14 @@ class ApiClient {
       await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
       
       return data.entries && data.entries.length > 0 ? data.entries[0] : null;
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        throw new Error('REQUEST_CANCELLED');
+      }
       console.error('Error performing deep evaluation:', error);
       throw error;
+    } finally {
+      this.abortControllers.delete(requestId);
     }
   }
 
@@ -215,6 +268,8 @@ class ApiClient {
     customAdjustments?: string,
     originalProposals?: ProposalEntry[]
   ): Promise<{ originalNorm: NormEntry; amendedNorm: NormEntry }[]> {
+    const requestId = 'final-amendment';
+    const controller = this.createAbortableRequest(requestId);
     const endpoint = `${BACKEND_URL}/amend`;
     
     // Convert proposal to the expected format
@@ -243,6 +298,7 @@ class ApiClient {
           relevant_norms: relevantNorms,
           amendment_proposal: proposalEntry,
         }),
+        signal: controller.signal,
       });
 
       await this.logApiCall(endpoint, response.status, 0);
@@ -258,9 +314,14 @@ class ApiClient {
       await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
       
       return data.entries || [];
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        throw new Error('REQUEST_CANCELLED');
+      }
       console.error('Error generating final amendment:', error);
       throw error;
+    } finally {
+      this.abortControllers.delete(requestId);
     }
   }
 
@@ -270,6 +331,8 @@ class ApiClient {
     apiKey: string,
     model: string
   ): Promise<{ response: string }> {
+    const requestId = 'aenderungsbefehle';
+    const controller = this.createAbortableRequest(requestId);
     const endpoint = `${BACKEND_URL}/generate_aenderungsbefehle`;
     
     try {
@@ -280,6 +343,7 @@ class ApiClient {
           task_description: taskDescription,
           final_amendments: finalAmendments,
         }),
+        signal: controller.signal,
       });
 
       await this.logApiCall(endpoint, response.status, 0);
@@ -295,9 +359,14 @@ class ApiClient {
       await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
       
       return data;
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        throw new Error('REQUEST_CANCELLED');
+      }
       console.error('Error generating Änderungsbefehle:', error);
       throw error;
+    } finally {
+      this.abortControllers.delete(requestId);
     }
   }
 
@@ -308,6 +377,8 @@ class ApiClient {
     model: string,
     finalAmendments?: AmendmentEntry[]
   ): Promise<{ response: string }> {
+    const requestId = 'entwurf';
+    const controller = this.createAbortableRequest(requestId);
     const endpoint = `${BACKEND_URL}/generate_entwurf`;
     
     try {
@@ -319,6 +390,7 @@ class ApiClient {
           aenderungsbefehle: aenderungsbefehle,
           final_amendments: finalAmendments || null,
         }),
+        signal: controller.signal,
       });
 
       await this.logApiCall(endpoint, response.status, 0);
@@ -334,9 +406,14 @@ class ApiClient {
       await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
       
       return data;
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        throw new Error('REQUEST_CANCELLED');
+      }
       console.error('Error generating Entwurf content:', error);
       throw error;
+    } finally {
+      this.abortControllers.delete(requestId);
     }
   }
 }

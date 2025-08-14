@@ -1,12 +1,22 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { AppState, NormEntry, ProposalEntry, EvaluatedProposal, Model, AmendmentEntry } from '@/types';
+import { AppState, NormEntry, ProposalEntry, EvaluatedProposal, Model, AmendmentEntry, LoadingStates } from '@/types';
 
 interface AppAction {
   type: string;
   payload?: any;
 }
+
+const initialLoadingStates: LoadingStates = {
+  identifyNorms: false,
+  generateProposals: false,
+  evaluateProposals: false,
+  deepEvaluate: false,
+  finalAmendment: false,
+  aenderungsbefehle: false,
+  entwurf: false,
+};
 
 const initialState: AppState = {
   taskDescription: '',
@@ -20,6 +30,7 @@ const initialState: AppState = {
   currentTab: 0,
   multistepReasoning: false,
   logs: [],
+  loadingStates: initialLoadingStates,
 };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -51,6 +62,14 @@ function appReducer(state: AppState, action: AppAction): AppState {
       };
     case 'CLEAR_LOGS':
       return { ...state, logs: [] };
+    case 'SET_LOADING_STATE':
+      return {
+        ...state,
+        loadingStates: {
+          ...state.loadingStates,
+          [action.payload.key]: action.payload.value,
+        },
+      };
     case 'RESET_STATE':
       return initialState;
     default:
@@ -73,6 +92,7 @@ interface AppContextType {
   addLog: (message: string) => void;
   clearLogs: () => void;
   resetState: () => void;
+  setLoadingState: (key: keyof LoadingStates, value: boolean) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -108,6 +128,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'CLEAR_LOGS' }),
     resetState: () => 
       dispatch({ type: 'RESET_STATE' }),
+    setLoadingState: (key: keyof LoadingStates, value: boolean) => 
+      dispatch({ type: 'SET_LOADING_STATE', payload: { key, value } }),
   };
 
   return (

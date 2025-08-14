@@ -59,10 +59,16 @@ export default function EntwurfTab() {
       setAenderungsbefehle(generatedAenderungsbefehle);
       addLog('Änderungsbefehle erfolgreich generiert');
 
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler beim Generieren der Änderungsbefehle';
-      setError(errorMessage);
-      addLog(`Fehler: ${errorMessage}`);
+    } catch (err: any) {
+      if (err.message === 'REQUEST_CANCELLED') {
+        const errorMessage = 'Anfrage wurde abgebrochen.';
+        setError(errorMessage);
+        addLog(`Request cancelled: ${errorMessage}`);
+      } else {
+        const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler beim Generieren der Änderungsbefehle';
+        setError(errorMessage);
+        addLog(`Fehler: ${errorMessage}`);
+      }
     } finally {
       setIsGeneratingAenderungsbefehle(false);
     }
@@ -101,12 +107,36 @@ export default function EntwurfTab() {
         throw new Error('Keine Antwort vom Server für Gesetzesentwurf erhalten');
       }
 
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler beim Generieren des Gesetzesentwurfs';
-      setError(errorMessage);
-      addLog(`Fehler: ${errorMessage}`);
+    } catch (err: any) {
+      if (err.message === 'REQUEST_CANCELLED') {
+        const errorMessage = 'Anfrage wurde abgebrochen.';
+        setError(errorMessage);
+        addLog(`Request cancelled: ${errorMessage}`);
+      } else {
+        const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler beim Generieren des Gesetzesentwurfs';
+        setError(errorMessage);
+        addLog(`Fehler: ${errorMessage}`);
+      }
     } finally {
       setIsGeneratingEntwurf(false);
+    }
+  };
+
+  const handleCancelAenderungsbefehle = () => {
+    const cancelled = apiClient.cancelRequest('aenderungsbefehle');
+    if (cancelled) {
+      setIsGeneratingAenderungsbefehle(false);
+      setError('Anfrage wurde abgebrochen.');
+      addLog('Änderungsbefehle request cancelled by user');
+    }
+  };
+
+  const handleCancelEntwurf = () => {
+    const cancelled = apiClient.cancelRequest('entwurf');
+    if (cancelled) {
+      setIsGeneratingEntwurf(false);
+      setError('Anfrage wurde abgebrochen.');
+      addLog('Entwurf request cancelled by user');
     }
   };
 
@@ -160,13 +190,23 @@ export default function EntwurfTab() {
               Erstelle strukturierte Änderungsbefehle basierend auf den finalisierten Änderungen.
             </p>
           </div>
-          <button
-            onClick={generateAenderungsbefehle}
-            disabled={isGeneratingAenderungsbefehle || !state.finalAmendment || !state.selectedModel || !state.taskDescription}
-            className="px-6 py-3 bg-slate-600 text-white rounded-lg hover:bg-slate-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors font-medium"
-          >
-            {isGeneratingAenderungsbefehle ? 'Generiere...' : 'Änderungsbefehle erstellen'}
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={generateAenderungsbefehle}
+              disabled={isGeneratingAenderungsbefehle || !state.finalAmendment || !state.selectedModel || !state.taskDescription}
+              className="px-6 py-3 bg-slate-600 text-white rounded-lg hover:bg-slate-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors font-medium"
+            >
+              {isGeneratingAenderungsbefehle ? 'Generiere...' : 'Änderungsbefehle erstellen'}
+            </button>
+            {isGeneratingAenderungsbefehle && (
+              <button
+                onClick={handleCancelAenderungsbefehle}
+                className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 font-medium"
+              >
+                Abbrechen
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -204,13 +244,23 @@ export default function EntwurfTab() {
                 Erstelle einen vollständigen Gesetzesentwurf basierend auf den generierten Änderungsbefehlen.
               </p>
             </div>
-            <button
-              onClick={generateGesetzesentwurf}
-              disabled={isGeneratingEntwurf || !aenderungsbefehle}
-              className="px-6 py-3 bg-slate-600 text-white rounded-lg hover:bg-slate-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors font-medium"
-            >
-              {isGeneratingEntwurf ? 'Generiere...' : 'Gesetzesentwurf erstellen'}
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={generateGesetzesentwurf}
+                disabled={isGeneratingEntwurf || !aenderungsbefehle}
+                className="px-6 py-3 bg-slate-600 text-white rounded-lg hover:bg-slate-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                {isGeneratingEntwurf ? 'Generiere...' : 'Gesetzesentwurf erstellen'}
+              </button>
+              {isGeneratingEntwurf && (
+                <button
+                  onClick={handleCancelEntwurf}
+                  className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 font-medium"
+                >
+                  Abbrechen
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

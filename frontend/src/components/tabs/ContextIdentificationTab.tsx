@@ -45,7 +45,11 @@ export default function ContextIdentificationTab() {
     } catch (error) {
       console.error('Error identifying context:', error);
       
-      if (error instanceof Error && error.message === 'SERVER_ERROR') {
+      if (error instanceof Error && error.message === 'REQUEST_CANCELLED') {
+        const errorMessage = 'Anfrage wurde abgebrochen.';
+        setError(errorMessage);
+        addLog(`Request cancelled: ${errorMessage}`);
+      } else if (error instanceof Error && error.message === 'SERVER_ERROR') {
         const errorMessage = 'Serverfehler: Es ist ein interner Serverfehler aufgetreten. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support.';
         setError(errorMessage);
         addLog(`Error identifying norms: ${errorMessage}`);
@@ -56,6 +60,15 @@ export default function ContextIdentificationTab() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancelRequest = () => {
+    const cancelled = apiClient.cancelRequest('identify-norms');
+    if (cancelled) {
+      setLoading(false);
+      setError('Anfrage wurde abgebrochen.');
+      addLog('Request cancelled by user');
     }
   };
 
@@ -118,21 +131,31 @@ export default function ContextIdentificationTab() {
         </div>
       )}
 
-      {/* Action Button */}
-      <button
-        onClick={handleIdentifyContext}
-        disabled={loading || !state.taskDescription}
-        className="px-8 py-3 bg-orange-300 text-gray-800 rounded-xl hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all duration-200 font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? (
-          <div className="flex items-center space-x-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-            <span>Ermittle maßgeblichen Regelungskontext...</span>
-          </div>
-        ) : (
-          'Regelungskontext ermitteln'
+      {/* Action Buttons */}
+      <div className="flex gap-4">
+        <button
+          onClick={handleIdentifyContext}
+          disabled={loading || !state.taskDescription}
+          className="px-8 py-3 bg-orange-300 text-gray-800 rounded-xl hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all duration-200 font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+              <span>Ermittle maßgeblichen Regelungskontext...</span>
+            </div>
+          ) : (
+            'Regelungskontext ermitteln'
+          )}
+        </button>
+        {loading && (
+          <button
+            onClick={handleCancelRequest}
+            className="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 font-semibold shadow-lg"
+          >
+            Abbrechen
+          </button>
         )}
-      </button>
+      </div>
 
       {/* Results */}
       {state.relevantNorms && state.relevantNorms.length > 0 && (

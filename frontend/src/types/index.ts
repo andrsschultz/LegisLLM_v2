@@ -62,6 +62,16 @@ export interface AmendmentEntry {
   amendedNorm: NormEntry;
 }
 
+export interface LoadingStates {
+  identifyNorms: boolean;
+  generateProposals: boolean;
+  evaluateProposals: boolean;
+  deepEvaluate: boolean;
+  finalAmendment: boolean;
+  aenderungsbefehle: boolean;
+  entwurf: boolean;
+}
+
 export interface AppState {
   taskDescription: string;
   selectedModel: string;
@@ -74,4 +84,5 @@ export interface AppState {
   currentTab: number;
   multistepReasoning: boolean;
   logs: string[];
+  loadingStates: LoadingStates;
 }
