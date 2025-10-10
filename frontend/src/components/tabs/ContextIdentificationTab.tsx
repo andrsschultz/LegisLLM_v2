@@ -179,9 +179,23 @@ export default function ContextIdentificationTab() {
               Volltext der relevanten Rechtsnormen
             </label>
             <textarea
-              value={state.relevantNorms.map(norm => 
-                `${norm.jurabk} ${norm.enbez}${norm.P ? ` Abs. ${norm.P}` : ''}:\n${norm.wording || ''}\n\n`
-              ).join('')}
+              value={(() => {
+                // Deduplicate by jurabk + enbez to avoid showing same section text multiple times
+                const seen = new Set<string>();
+                const uniqueNorms: typeof state.relevantNorms = [];
+
+                state.relevantNorms.forEach(norm => {
+                  const key = `${norm.jurabk}|${norm.enbez}`;
+                  if (!seen.has(key)) {
+                    seen.add(key);
+                    uniqueNorms.push(norm);
+                  }
+                });
+
+                return uniqueNorms.map(norm =>
+                  `${norm.jurabk} ${norm.enbez}:\n${norm.wording || ''}\n\n`
+                ).join('');
+              })()}
               readOnly
               rows={8}
               className="block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm font-mono"

@@ -23,29 +23,44 @@ async def identify_norms(
     )
 
     # Convert raw entries to NormEntry objects with wording
+    # Deduplicate by jurabk + enbez to avoid extracting the same section multiple times
     norm_entries = []
     data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
-    
+
+    # Track already extracted sections to avoid duplicates
+    extracted_sections = {}
+
     for entry in raw_entries:
         jurabk = entry["jurabk"]
         enbez = entry["enbez"]
         P = entry.get("P")
-        
-        # Construct XML file path
-        xml_file = os.path.join(data_dir, f"{jurabk}.xml")
-        
-        # Extract section number from enbez (e.g., "§ 21" -> "21")
-        section_num = enbez.replace("§", "").strip()
-        
-        # Get the wording from XML
-        wording = ""
-        try:
-            # Extract the entire section
-            wording = extract_section_from_law(xml_file, section_num)
-        except Exception as e:
-            print(f"Error extracting wording for {jurabk} {enbez} P{P}: {e}")
-            wording = f"Fehler beim Laden des Wortlauts für {jurabk} {enbez}"
-        
+
+        # Create unique key for section
+        section_key = f"{jurabk}|{enbez}"
+
+        # Check if we already extracted this section
+        if section_key in extracted_sections:
+            # Reuse the already extracted wording
+            wording = extracted_sections[section_key]
+        else:
+            # Construct XML file path
+            xml_file = os.path.join(data_dir, f"{jurabk}.xml")
+
+            # Extract section number from enbez (e.g., "§ 21" -> "21")
+            section_num = enbez.replace("§", "").strip()
+
+            # Get the wording from XML
+            wording = ""
+            try:
+                # Extract the entire section
+                wording = extract_section_from_law(xml_file, section_num)
+                # Cache the extracted wording
+                extracted_sections[section_key] = wording
+            except Exception as e:
+                print(f"Error extracting wording for {jurabk} {enbez} P{P}: {e}")
+                wording = f"Fehler beim Laden des Wortlauts für {jurabk} {enbez}"
+                extracted_sections[section_key] = wording
+
         # Create NormEntry object
         norm_entry = NormEntry(
             jurabk=jurabk,
