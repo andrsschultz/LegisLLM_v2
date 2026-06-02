@@ -99,7 +99,7 @@ async def query_deepinfra(prompt: str, api_key: str, model: str) -> str:
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.7,
-        "max_tokens": 2048
+        "max_tokens": 16384
     }
     
     # Use OpenAI-compatible endpoint
@@ -118,8 +118,17 @@ async def query_deepinfra(prompt: str, api_key: str, model: str) -> str:
                 
                 # Extract content from OpenAI-compatible response format
                 if "choices" in result and len(result["choices"]) > 0:
-                    generated_text = result["choices"][0]["message"]["content"]
-                    
+                    choice = result["choices"][0]
+
+                    if choice.get("finish_reason") == "length":
+                        print("ERROR: Response truncated (finish_reason: length)")
+                        raise Exception(
+                            "Die Antwort des Sprachmodells wurde abgeschnitten (Token-Limit erreicht). "
+                            "Bitte versuchen Sie es erneut oder wählen Sie ein Modell mit höherem Token-Limit."
+                        )
+
+                    generated_text = choice["message"]["content"]
+
                     generated_text = _normalize_deepinfra_content(generated_text)
                     return generated_text or ""
 

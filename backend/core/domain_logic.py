@@ -84,8 +84,9 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
 
         Maßnahme: {task_description}
 
-        Die Maßnahme soll durch Änderung eines oder mehrerer bereits bestehender Stammgesetze umgesetzt werden. 
-        Entwickle abstrakte Regelungsalternativen vor dem gegebenen Regelungskontext.
+        Die Maßnahme soll durch Änderung eines oder mehrerer bereits bestehender Stammgesetze umgesetzt werden.
+
+        Entwickle verschiedene Regelungsalternativen, mit denen die Maßnahme umgesetzt werden könnte. Jede Regelungsalternative stellt einen eigenständigen, in sich vollständigen Umsetzungsweg dar. Die Alternativen sollen sich inhaltlich voneinander unterscheiden — z.B. durch unterschiedliche Regelungstechnik, unterschiedlichen Regelungsort oder unterschiedlichen Regelungsumfang. Es geht nicht darum, die Maßnahme in Teilaspekte zu zerlegen, sondern um echte Alternativen, die jeweils für sich genommen die gesamte Maßnahme vollständig umsetzen.
 
         Regelungskontext: {relevant_norms_text}
 
@@ -95,31 +96,13 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
         "entries": [
             {{
             "proposalTitle": "Kurze, prägnante Bezeichnung der Alternative",
-            "description": "Detaillierte Beschreibung der Alternative mit Begründung.",
+            "description": "Detaillierte Beschreibung der Alternative mit Begründung. Erläutere, worin sich diese Alternative von den anderen unterscheidet.",
             "affectedNorms": [
                 {{
-                "jurabk": "<Abkürzung des Gesetzes>", 
-                "enbez": "<§‑Angabe>",             
+                "jurabk": "<Abkürzung des Gesetzes>",
+                "enbez": "<§‑Angabe>",
                 "P": "<Absatz>",
-                "amendmentDescription": "<Abstrakte Beschreibung, welche Änderung notwendig zur Umsetzung der Regelungsalternative ist>"        
-                }},
-                {{
-                "jurabk": "<Abkürzung des Gesetzes>", 
-                "enbez": "<§‑Angabe>",                
-                "P": "<Absatz>",
-                "amendmentDescription": "<Abstrakte Beschreibung, welche Änderung notwendig zur Umsetzung der Regelungsalternative ist>"          
-                }}
-            ]
-            }},
-            {{
-            "proposalTitle": "Kurze, prägnante Bezeichnung der Alternative",
-            "description": "Detaillierte Beschreibung der Alternative mit Begründung",
-            "affectedNorms": [
-                {{
-                "jurabk": "<Abkürzung des Gesetzes>",   
-                "enbez": "<§‑Angabe>",                  
-                "P": "<Absatz>",
-                "amendmentDescription": "<Abstrakte Beschreibung, welche Änderung notwendig zur Umsetzung der Regelungsalternative ist>"           
+                "amendmentDescription": "<Abstrakte Beschreibung, welche Änderung notwendig zur Umsetzung der Regelungsalternative ist>"
                 }}
             ]
             }}
@@ -128,9 +111,10 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
 
         Wenn du die Überschrift änderst, gebe für "P" den Wert "Überschrift" zurück.
 
-        Die JSON Liste soll sämtliche Regelungsalternativen enthalten, die für die Maßnahme in Betracht kommen. Es können auch mehr als zwei Regelungsalternativen in Betracht kommen.
-
-        Jede Regelungsalternative muss innerhalb des "affectedNorms" Eintrag sämtliche von ihr betroffenen Rechtsnormen enthalten. Dies umfasst alle Rechtsnormen welche unmittelbar durch die Regelungsalternative geändert werden sowie sämtliche Rechtsnormen welche als Folge der Umsetzung der Regelungsalternative mittelbar geändert werden müssen.
+        Wichtige Regeln:
+        - Jede Regelungsalternative muss die Maßnahme **vollständig** umsetzen. Das bedeutet: Jede Alternative muss in ihrem "affectedNorms"-Eintrag **sämtliche** Teiländerungen enthalten, die für die vollständige Umsetzung der Maßnahme erforderlich sind — sowohl unmittelbar betroffene als auch mittelbar anzupassende Normen (Folgeänderungen).
+        - Stelle keine Alternative dar, die nur einen Teilaspekt der Maßnahme abdeckt. Jede Alternative muss für sich allein zur vollständigen Umsetzung genügen.
+        - Es können zwei oder mehr Alternativen in Betracht kommen.
 
         Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
