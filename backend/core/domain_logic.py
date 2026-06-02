@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from .llm_service import query_llm
 from .models import NormEntry, ProposalEntry, AmendEntry
 from .xml_parser import extract_table_of_contents, extract_section_from_law
-from .utils import clean_json_string
+from .utils import clean_json_string, format_norm_reference, resolve_law_xml_path, get_available_laws
 
 
 #TBD: Functions always use OpenAI, but should use DeepInfra if specified
@@ -15,7 +15,9 @@ async def identify_relevant_norms(task_description: str, api_key: str, model: st
     """Identify the relevant legal norms for the given task."""
     print("\n==== IDENTIFY RELEVANT NORMS ====")
     print(f"Task description length: {len(task_description)} characters")
-    
+
+    available_laws = ", ".join(get_available_laws())
+
     prompt = f"""
         Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
 
@@ -23,21 +25,24 @@ async def identify_relevant_norms(task_description: str, api_key: str, model: st
 
         Die Maßnahme soll durch Änderung eines oder mehrerer bereits bestehender Stammgesetze umgesetzt werde. Bestimme in einem ersten Schritt sämtliche für eine Änderung in Betracht kommende Rechtsnormen. Achte darauf, sämtliche von der Änderungsmaßnahme möglicherweise betroffenen Rechtsnormen einzubeziehen. Nehme noch keine Änderung vor.
 
+        Verwende ausschließlich Gesetze aus der folgenden Liste verfügbarer Bundesgesetze:
+        {available_laws}
+
         Gib als Antwort ausschließlich eine JSON-Liste zurück, welche wie folgt formatiert ist:
 
         {{
             "entries": [
                 {{
                 "jurabk": "<Abkürzung des Gesetzes>",   // z. B. "EStG"
-                "enbez": "<§‑Angabe>",                  // z. B. "§ 21"
-                "P": "<Absatz>"               // z. B. "2a"
+                "enbez": "<§‑Angabe>"                  // z. B. "§ 21"
                 }}
             ]
         }}
 
+        Gib in diesem ersten Schritt nur die Vorschrift auf Paragraphenebene an. Nenne noch keine Absätze.
+
         Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
-    
 
     print("Querying LLM to identify relevant norms...")
     raw_response = await query_llm(prompt, api_key, model or "gpt-4")
@@ -67,7 +72,10 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
     print("\n==== DEVELOP AMENDMENT PROPOSALS ====")
     
     # Convert relevant_norms to readable text format
-    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}: {norm.wording}" for norm in relevant_norms])
+    relevant_norms_text = "\n".join([
+        f"- {format_norm_reference(norm.jurabk, norm.enbez, norm.P)}: {norm.wording}"
+        for norm in relevant_norms
+    ])
     
     prompt = f"""
         Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
@@ -154,14 +162,17 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
     print(f"Number of amendment proposals: {len(amendment_proposals)}")
 
     # Convert relevant_norms to readable text format
-    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}: {norm.wording}" for norm in relevant_norms])
+    relevant_norms_text = "\n".join([
+        f"- {format_norm_reference(norm.jurabk, norm.enbez, norm.P)}: {norm.wording}"
+        for norm in relevant_norms
+    ])
     
     # Convert amendment_proposals to readable text format
     amendment_proposals_text = "\n\n".join([
         f"""{i+1}. **{proposal.proposalTitle}**
     **Beschreibung**: {proposal.description}
     **Betroffene Rechtsnormen**:\n""" + "\n".join([
-            f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}  \n  Änderungsbeschreibung: {norm.amendmentDescription}"
+            f"- {format_norm_reference(norm.jurabk, norm.enbez, norm.P)}  \n  Änderungsbeschreibung: {norm.amendmentDescription}"
             for norm in proposal.affectedNorms
         ])
         for i, proposal in enumerate(amendment_proposals)
@@ -229,14 +240,17 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
     print(f"Task description length: {len(task_description)} characters")
 
     # Convert relevant_norms to readable text format
-    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}: {norm.wording}" for norm in relevant_norms])
+    relevant_norms_text = "\n".join([
+        f"- {format_norm_reference(norm.jurabk, norm.enbez, norm.P)}: {norm.wording}"
+        for norm in relevant_norms
+    ])
 
     # Convert amendment_proposals to readable text format
     amendment_proposals_text = "\n\n".join([
         f"""**{amendment_proposal.proposalTitle}**
     **Beschreibung**: {amendment_proposal.description}
     **Betroffene Rechtsnormen**:\n""" + "\n".join([
-            f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}  \n  Änderungsbeschreibung: {norm.amendmentDescription}"
+            f"- {format_norm_reference(norm.jurabk, norm.enbez, norm.P)}  \n  Änderungsbeschreibung: {norm.amendmentDescription}"
             for norm in amendment_proposal.affectedNorms
         ])
     ])
@@ -352,14 +366,17 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
     print(f"Task description length: {len(task_description)} characters")
 
     # Convert relevant_norms to readable text format
-    relevant_norms_text = "\n".join([f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}: {norm.wording}" for norm in relevant_norms])
+    relevant_norms_text = "\n".join([
+        f"- {format_norm_reference(norm.jurabk, norm.enbez, norm.P)}: {norm.wording}"
+        for norm in relevant_norms
+    ])
     
     # Convert amendment_proposals to readable text format
     amendment_proposals_text = "\n\n".join([
         f"""**{amendment_proposal.proposalTitle}**
     **Beschreibung**: {amendment_proposal.description}
     **Betroffene Rechtsnormen**:\n""" + "\n".join([
-            f"- {norm.jurabk} {norm.enbez} Abs. {norm.P}  \n  Änderungsbeschreibung: {norm.amendmentDescription}"
+            f"- {format_norm_reference(norm.jurabk, norm.enbez, norm.P)}  \n  Änderungsbeschreibung: {norm.amendmentDescription}"
             for norm in amendment_proposal.affectedNorms
         ])
     ])
@@ -438,6 +455,8 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
     # Step 1: Identify potentially affected laws
     print("Step 1: Querying LLM to identify potentially affected laws...")
 
+    available_laws = ", ".join(get_available_laws())
+
     prompt_step_1 = f"""
         Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
 
@@ -445,7 +464,10 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
 
         Die Maßnahme soll durch Änderung eines oder mehrerer bereits bestehender Stammgesetze umgesetzt werde. Bestimme in einem ersten Schritt sämtliche für eine Änderung in Betracht kommende Rechtsnormen. Achte darauf, sämtliche von der Änderungsmaßnahme möglicherweise betroffenen Rechtsnormen einzubeziehen. Nehme noch keine Änderung vor.
 
-        Gebe mir im ersten Schritt NUR den Namen möglicherweise betroffenener Gesetze wieder (z.B. BGB, EStG, StGB, EStDV)
+        Gebe mir im ersten Schritt NUR den Namen möglicherweise betroffenener Gesetze wieder.
+
+        Verwende ausschließlich Gesetze aus der folgenden Liste verfügbarer Bundesgesetze:
+        {available_laws}
 
         Gib als Antwort ausschließlich eine JSON-Liste zurück, welche wie folgt formatiert ist:
 
@@ -496,7 +518,10 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
 
     for entry in norm_entries:
 
-        xml_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", f"{entry.jurabk}.xml")
+        xml_file_path = resolve_law_xml_path(
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"),
+            entry.jurabk
+        )
         law_toc = extract_table_of_contents(xml_file=xml_file_path)
 
         # Step 2: For each law, identify relevant paragraphs
@@ -586,7 +611,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
             # Reuse the already extracted wording
             wording = extracted_sections[section_key]
         else:
-            xml_file = os.path.join(data_dir, f"{jurabk}.xml")
+            xml_file = resolve_law_xml_path(data_dir, jurabk)
             section_num = enbez.replace("§", "").strip() if enbez else ""
 
             wording = ""
@@ -706,7 +731,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
             wording = extracted_sections_step5[section_key]
         else:
             # Construct XML file path
-            xml_file = os.path.join(data_dir, f"{jurabk}.xml")
+            xml_file = resolve_law_xml_path(data_dir, jurabk)
 
             # Extract section number from enbez (e.g., "§ 21" -> "21")
             section_num = enbez.replace("§", "").strip() if enbez else ""
@@ -900,11 +925,6 @@ async def generate_gesetzesentwurf_content(task_description: str, aenderungsbefe
     
     print(f"Response received. Length: {len(response)} characters")
     return response
-
-
-
-
-
 
 
 

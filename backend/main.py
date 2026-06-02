@@ -11,6 +11,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",  # Local development
         "http://localhost:3001",  # Local development alternate port
+        "http://127.0.0.1:3000",  # Local development via loopback IP
+        "http://127.0.0.1:3001",  # Local development alternate port via loopback IP
         "https://legisllm.onrender.com",  # Frontend domain
         "https://legisllm-frontend.onrender.com",  # Alternative frontend domain
         "https://www.legisllm.de",  # Main domain
