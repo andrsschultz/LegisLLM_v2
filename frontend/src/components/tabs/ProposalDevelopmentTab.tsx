@@ -4,17 +4,21 @@ import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { apiClient } from '@/lib/api';
 import { getApiKeyForModel } from '@/lib/apiKeyUtils';
+import ThinkingIndicator from '@/components/ThinkingIndicator';
+import { useThinkingSteps, THINKING_STEPS } from '@/hooks/useThinkingSteps';
 
 export default function ProposalDevelopmentTab() {
-  const { 
-    state, 
-    setAmendmentProposals, 
+  const {
+    state,
+    setAmendmentProposals,
     setCurrentTab,
-    addLog 
+    addLog
   } = useApp();
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [thinkingText, setThinkingText] = useState('');
+  const thinking = useThinkingSteps();
 
   const getApiKey = (): string => {
     return getApiKeyForModel(state.selectedModel, state.availableModels);
@@ -34,21 +38,26 @@ export default function ProposalDevelopmentTab() {
 
     setLoading(true);
     setError(null);
+    setThinkingText('');
     addLog('==== STEP 3: DEVELOP AMENDMENT PROPOSALS ====');
-    
+    thinking.startThinking(THINKING_STEPS.generateProposals);
+
     try {
       const proposals = await apiClient.generateProposals(
         state.taskDescription,
         state.relevantNorms,
         apiKey,
-        state.selectedModel
+        state.selectedModel,
+        { onThinking: (token: string) => setThinkingText(prev => prev + token) }
       );
-      
+
+      thinking.completeAll();
       setAmendmentProposals(proposals);
       addLog(`Successfully generated ${proposals.length} amendment proposals`);
     } catch (error) {
+      thinking.completeAll();
       console.error('Error developing alternatives:', error);
-      
+
       if (error instanceof Error && error.message === 'REQUEST_CANCELLED') {
         const errorMessage = 'Anfrage wurde abgebrochen.';
         setError(errorMessage);
@@ -71,6 +80,7 @@ export default function ProposalDevelopmentTab() {
     const cancelled = apiClient.cancelRequest('generate-proposals');
     if (cancelled) {
       setLoading(false);
+      thinking.completeAll();
       setError('Anfrage wurde abgebrochen.');
       addLog('Request cancelled by user');
     }
@@ -87,7 +97,7 @@ export default function ProposalDevelopmentTab() {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">3. Entwicklung abstrakter Regelungsalternativen</h2>
-      
+
       {/* Reference Section */}
       <details className="bg-gray-50 rounded-lg p-4">
         <summary className="cursor-pointer font-medium text-gray-700 hover:text-gray-900">
@@ -157,11 +167,19 @@ export default function ProposalDevelopmentTab() {
         )}
       </div>
 
+      {/* Thinking Indicator */}
+      <ThinkingIndicator
+        steps={thinking.steps}
+        isActive={thinking.isActive}
+        startedAt={thinking.startedAt}
+        thinkingText={thinkingText}
+      />
+
       {/* Results */}
       {state.amendmentProposals && state.amendmentProposals.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">Vorgeschlagene Änderungen:</h3>
-          
+
           {state.amendmentProposals.map((proposal, index) => (
             <details key={index} className="bg-white border border-gray-200 rounded-lg">
               <summary className="cursor-pointer p-4 font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
@@ -184,7 +202,7 @@ export default function ProposalDevelopmentTab() {
                         {norm.enbez} {norm.jurabk}{norm.P ? ` Abs. ${norm.P}` : ''}
                         {norm.amendmentDescription && (
                           <div className="ml-4 mt-1 text-sm text-gray-500">
-                              ↳ {norm.amendmentDescription}
+                              {norm.amendmentDescription}
                           </div>
                         )}
                       </li>

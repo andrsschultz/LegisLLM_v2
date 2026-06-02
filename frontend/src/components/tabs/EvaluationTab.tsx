@@ -5,21 +5,27 @@ import { useApp } from '@/contexts/AppContext';
 import { apiClient } from '@/lib/api';
 import { DeepEvaluation, ProposalEntry } from '@/types';
 import { getApiKeyForModel } from '@/lib/apiKeyUtils';
+import ThinkingIndicator from '@/components/ThinkingIndicator';
+import { useThinkingSteps, THINKING_STEPS } from '@/hooks/useThinkingSteps';
 
 export default function EvaluationTab() {
-  const { 
-    state, 
-    setEvaluatedProposals, 
+  const {
+    state,
+    setEvaluatedProposals,
     setCurrentTab,
-    addLog 
+    addLog
   } = useApp();
-  
+
   const [loading, setLoading] = useState(false);
   const [deepEvalLoading, setDeepEvalLoading] = useState(false);
   const [selectedProposalIndex, setSelectedProposalIndex] = useState(0);
   const [deepEvaluation, setDeepEvaluation] = useState<DeepEvaluation | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deepEvalError, setDeepEvalError] = useState<string | null>(null);
+  const [evalThinkingText, setEvalThinkingText] = useState('');
+  const [deepThinkingText, setDeepThinkingText] = useState('');
+  const evalThinking = useThinkingSteps();
+  const deepThinking = useThinkingSteps();
 
   const getApiKey = (): string => {
     return getApiKeyForModel(state.selectedModel, state.availableModels);
@@ -39,20 +45,25 @@ export default function EvaluationTab() {
 
     setLoading(true);
     setError(null);
+    setEvalThinkingText('');
     addLog('==== STEP 4: EVALUATE PROPOSALS ====');
-    
+    evalThinking.startThinking(THINKING_STEPS.evaluateProposals);
+
     try {
       const evaluatedProposals = await apiClient.evaluateProposals(
         state.taskDescription,
         state.relevantNorms,
         state.amendmentProposals,
         apiKey,
-        state.selectedModel
+        state.selectedModel,
+        { onThinking: (token: string) => setEvalThinkingText(prev => prev + token) }
       );
-      
+
+      evalThinking.completeAll();
       setEvaluatedProposals(evaluatedProposals);
       addLog(`Successfully evaluated ${evaluatedProposals.length} proposals`);
     } catch (error) {
+      evalThinking.completeAll();
       console.error('Error evaluating proposals:', error);
       
       if (error instanceof Error && error.message === 'REQUEST_CANCELLED') {
@@ -84,20 +95,25 @@ export default function EvaluationTab() {
 
     setDeepEvalLoading(true);
     setDeepEvalError(null);
+    setDeepThinkingText('');
     addLog('==== PERFORM DEEP EVALUATION ====');
-    
+    deepThinking.startThinking(THINKING_STEPS.deepEvaluate);
+
     try {
       const deepEval = await apiClient.deepEvaluateProposal(
         state.taskDescription,
         state.relevantNorms,
         selectedProposal,
         apiKey,
-        state.selectedModel
+        state.selectedModel,
+        { onThinking: (token: string) => setDeepThinkingText(prev => prev + token) }
       );
-      
+
+      deepThinking.completeAll();
       setDeepEvaluation(deepEval);
       addLog('Successfully completed deep evaluation');
     } catch (error) {
+      deepThinking.completeAll();
       console.error('Error performing deep evaluation:', error);
       
       if (error instanceof Error && error.message === 'REQUEST_CANCELLED') {
@@ -122,6 +138,7 @@ export default function EvaluationTab() {
     const cancelled = apiClient.cancelRequest('evaluate-proposals');
     if (cancelled) {
       setLoading(false);
+      evalThinking.completeAll();
       setError('Anfrage wurde abgebrochen.');
       addLog('Evaluation request cancelled by user');
     }
@@ -131,6 +148,7 @@ export default function EvaluationTab() {
     const cancelled = apiClient.cancelRequest('deep-evaluate');
     if (cancelled) {
       setDeepEvalLoading(false);
+      deepThinking.completeAll();
       setDeepEvalError('Anfrage wurde abgebrochen.');
       addLog('Deep evaluation request cancelled by user');
     }
@@ -216,6 +234,14 @@ export default function EvaluationTab() {
           </button>
         )}
       </div>
+
+      {/* Evaluation Thinking Indicator */}
+      <ThinkingIndicator
+        steps={evalThinking.steps}
+        isActive={evalThinking.isActive}
+        startedAt={evalThinking.startedAt}
+        thinkingText={evalThinkingText}
+      />
 
       {/* Evaluated Proposals Results */}
       {state.evaluatedProposals && state.evaluatedProposals.length > 0 && (
@@ -323,6 +349,16 @@ export default function EvaluationTab() {
                   Abbrechen
                 </button>
               )}
+            </div>
+
+            {/* Deep Evaluation Thinking Indicator */}
+            <div className="mt-4">
+              <ThinkingIndicator
+                steps={deepThinking.steps}
+                isActive={deepThinking.isActive}
+                startedAt={deepThinking.startedAt}
+                thinkingText={deepThinkingText}
+              />
             </div>
 
             {/* Deep Evaluation Results */}

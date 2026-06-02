@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { apiClient } from '@/lib/api';
 import { getApiKeyForModel } from '@/lib/apiKeyUtils';
+import ThinkingIndicator from '@/components/ThinkingIndicator';
+import { useThinkingSteps, THINKING_STEPS } from '@/hooks/useThinkingSteps';
 
 export default function EntwurfTab() {
   const { state, setGeneratedEntwurf, addLog } = useApp();
@@ -12,6 +14,10 @@ export default function EntwurfTab() {
   const [aenderungsbefehle, setAenderungsbefehle] = useState<string>('');
   const [isGeneratingAenderungsbefehle, setIsGeneratingAenderungsbefehle] = useState(false);
   const [isGeneratingEntwurf, setIsGeneratingEntwurf] = useState(false);
+  const [abThinkingText, setAbThinkingText] = useState('');
+  const [entwurfThinkingText, setEntwurfThinkingText] = useState('');
+  const abThinking = useThinkingSteps();
+  const entwurfThinking = useThinkingSteps();
 
   const downloadGesetzesentwurf = () => {
     if (!state.generatedEntwurf) return;
@@ -40,6 +46,8 @@ export default function EntwurfTab() {
 
     setIsGeneratingAenderungsbefehle(true);
     setError(null);
+    setAbThinkingText('');
+    abThinking.startThinking(THINKING_STEPS.aenderungsbefehle);
 
     try {
       addLog('Generiere Änderungsbefehle...');
@@ -48,18 +56,21 @@ export default function EntwurfTab() {
         state.taskDescription,
         state.finalAmendment,
         apiKey,
-        state.selectedModel
+        state.selectedModel,
+        { onThinking: (token: string) => setAbThinkingText(prev => prev + token) }
       );
 
       if (!aenderungsbefehlResponse.response) {
         throw new Error('Keine Änderungsbefehle vom Server erhalten');
       }
 
+      abThinking.completeAll();
       const generatedAenderungsbefehle = aenderungsbefehlResponse.response;
       setAenderungsbefehle(generatedAenderungsbefehle);
       addLog('Änderungsbefehle erfolgreich generiert');
 
     } catch (err: any) {
+      abThinking.completeAll();
       if (err.message === 'REQUEST_CANCELLED') {
         const errorMessage = 'Anfrage wurde abgebrochen.';
         setError(errorMessage);
@@ -88,6 +99,8 @@ export default function EntwurfTab() {
 
     setIsGeneratingEntwurf(true);
     setError(null);
+    setEntwurfThinkingText('');
+    entwurfThinking.startThinking(THINKING_STEPS.entwurf);
 
     try {
       addLog('Erstelle Gesetzesentwurf...');
@@ -97,10 +110,12 @@ export default function EntwurfTab() {
         aenderungsbefehle,
         apiKey,
         state.selectedModel,
-        state.finalAmendment || undefined
+        state.finalAmendment || undefined,
+        { onThinking: (token: string) => setEntwurfThinkingText(prev => prev + token) }
       );
 
       if (entwurfResponse.response) {
+        entwurfThinking.completeAll();
         setGeneratedEntwurf(entwurfResponse.response);
         addLog('Gesetzesentwurf erfolgreich generiert');
       } else {
@@ -108,6 +123,7 @@ export default function EntwurfTab() {
       }
 
     } catch (err: any) {
+      entwurfThinking.completeAll();
       if (err.message === 'REQUEST_CANCELLED') {
         const errorMessage = 'Anfrage wurde abgebrochen.';
         setError(errorMessage);
@@ -126,6 +142,7 @@ export default function EntwurfTab() {
     const cancelled = apiClient.cancelRequest('aenderungsbefehle');
     if (cancelled) {
       setIsGeneratingAenderungsbefehle(false);
+      abThinking.completeAll();
       setError('Anfrage wurde abgebrochen.');
       addLog('Änderungsbefehle request cancelled by user');
     }
@@ -135,6 +152,7 @@ export default function EntwurfTab() {
     const cancelled = apiClient.cancelRequest('entwurf');
     if (cancelled) {
       setIsGeneratingEntwurf(false);
+      entwurfThinking.completeAll();
       setError('Anfrage wurde abgebrochen.');
       addLog('Entwurf request cancelled by user');
     }
@@ -210,6 +228,14 @@ export default function EntwurfTab() {
         </div>
       </div>
 
+      {/* Änderungsbefehle Thinking Indicator */}
+      <ThinkingIndicator
+        steps={abThinking.steps}
+        isActive={abThinking.isActive}
+        startedAt={abThinking.startedAt}
+        thinkingText={abThinkingText}
+      />
+
       {/* Generated Änderungsbefehle Display */}
       {aenderungsbefehle && (
         <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
@@ -264,6 +290,14 @@ export default function EntwurfTab() {
           </div>
         </div>
       )}
+
+      {/* Entwurf Thinking Indicator */}
+      <ThinkingIndicator
+        steps={entwurfThinking.steps}
+        isActive={entwurfThinking.isActive}
+        startedAt={entwurfThinking.startedAt}
+        thinkingText={entwurfThinkingText}
+      />
 
       {/* Error Display */}
       {error && (

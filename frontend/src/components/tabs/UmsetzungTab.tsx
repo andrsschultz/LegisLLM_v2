@@ -6,21 +6,25 @@ import { apiClient } from '@/lib/api';
 import { ProposalEntry, EvaluatedProposal, AmendmentEntry } from '@/types';
 import { getApiKeyForModel } from '@/lib/apiKeyUtils';
 import AmendmentSplitView from '@/components/AmendmentSplitView';
+import ThinkingIndicator from '@/components/ThinkingIndicator';
+import { useThinkingSteps, THINKING_STEPS } from '@/hooks/useThinkingSteps';
 
 export default function UmsetzungTab() {
-  const { 
-    state, 
+  const {
+    state,
     setFinalAmendment,
     setCurrentTab,
-    addLog 
+    addLog
   } = useApp();
-  
+
   const [loading, setLoading] = useState(false);
   const [selectedProposalIndex, setSelectedProposalIndex] = useState(0);
   const [customAdjustments, setCustomAdjustments] = useState('');
   const [manualNorm, setManualNorm] = useState('');
   const [manualProposal, setManualProposal] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [thinkingText, setThinkingText] = useState('');
+  const thinking = useThinkingSteps();
 
   const getApiKey = (): string => {
     return getApiKeyForModel(state.selectedModel, state.availableModels);
@@ -35,8 +39,10 @@ export default function UmsetzungTab() {
 
     setLoading(true);
     setError(null);
+    setThinkingText('');
     addLog('==== GENERATE FINAL AMENDMENT ====');
-    
+    thinking.startThinking(THINKING_STEPS.finalAmendment);
+
     try {
       const finalAmendments = await apiClient.generateFinalAmendment(
         state.taskDescription,
@@ -45,12 +51,15 @@ export default function UmsetzungTab() {
         apiKey,
         state.selectedModel,
         customAdjustments || undefined,
-        state.amendmentProposals || undefined
+        state.amendmentProposals || undefined,
+        { onThinking: (token: string) => setThinkingText(prev => prev + token) }
       );
       
+      thinking.completeAll();
       setFinalAmendment(finalAmendments);
       addLog(`Final amendment generated. ${finalAmendments.length} amendment entries created`);
     } catch (error) {
+      thinking.completeAll();
       console.error('Error generating final amendment:', error);
       
       if (error instanceof Error && error.message === 'REQUEST_CANCELLED') {
@@ -117,6 +126,7 @@ ${'='.repeat(50)}
     const cancelled = apiClient.cancelRequest('final-amendment');
     if (cancelled) {
       setLoading(false);
+      thinking.completeAll();
       setError('Anfrage wurde abgebrochen.');
       addLog('Final amendment request cancelled by user');
     }
@@ -378,6 +388,14 @@ ${'='.repeat(50)}
           </div>
         </div>
       )}
+
+      {/* Thinking Indicator */}
+      <ThinkingIndicator
+        steps={thinking.steps}
+        isActive={thinking.isActive}
+        startedAt={thinking.startedAt}
+        thinkingText={thinkingText}
+      />
 
       {/* Final Amendment Result */}
       {state.finalAmendment && state.finalAmendment.length > 0 && (

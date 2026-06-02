@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { apiClient } from '@/lib/api';
 import { getApiKeyForModel } from '@/lib/apiKeyUtils';
+import ThinkingIndicator from '@/components/ThinkingIndicator';
+import { useThinkingSteps, THINKING_STEPS } from '@/hooks/useThinkingSteps';
 
 export default function ContextIdentificationTab() {
   const {
@@ -21,6 +23,8 @@ export default function ContextIdentificationTab() {
   const [availableLaws, setAvailableLaws] = useState<string[]>([]);
   const [lawsExpanded, setLawsExpanded] = useState(false);
   const [lawsSearch, setLawsSearch] = useState('');
+  const [thinkingText, setThinkingText] = useState('');
+  const thinking = useThinkingSteps();
 
   useEffect(() => {
     apiClient.fetchLaws().then(data => {
@@ -41,22 +45,40 @@ export default function ContextIdentificationTab() {
 
     setLoading(true);
     setError(null);
+    setThinkingText('');
     addLog('==== STEP 2: IDENTIFY RELEVANT NORMS ====');
-    
+
+    const stepDefs = state.multistepReasoning
+      ? THINKING_STEPS.identifyNormsMultistep
+      : THINKING_STEPS.identifyNorms;
+    thinking.startThinking(stepDefs);
+
     try {
+      const callbacks = {
+        onThinking: (token: string) => setThinkingText(prev => prev + token),
+        ...(state.multistepReasoning && {
+          onStep: (stepIndex: number, _message: string) => {
+            thinking.setActiveStep(stepIndex);
+          },
+        }),
+      };
+
       const norms = await apiClient.identifyRelevantNorms(
         state.taskDescription,
         apiKey,
         state.selectedModel,
         state.multistepReasoning,
-        state.selectedLaws
+        state.selectedLaws,
+        callbacks
       );
-      
+
+      thinking.completeAll();
       setRelevantNorms(norms);
       addLog(`Successfully identified ${norms.length} relevant norms`);
     } catch (error) {
+      thinking.completeAll();
       console.error('Error identifying context:', error);
-      
+
       if (error instanceof Error && error.message === 'REQUEST_CANCELLED') {
         const errorMessage = 'Anfrage wurde abgebrochen.';
         setError(errorMessage);
@@ -250,6 +272,14 @@ export default function ContextIdentificationTab() {
           </button>
         )}
       </div>
+
+      {/* Thinking Indicator */}
+      <ThinkingIndicator
+        steps={thinking.steps}
+        isActive={thinking.isActive}
+        startedAt={thinking.startedAt}
+        thinkingText={thinkingText}
+      />
 
       {/* Results */}
       {state.relevantNorms && state.relevantNorms.length > 0 && (

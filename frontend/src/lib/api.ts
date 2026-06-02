@@ -2,6 +2,11 @@ import { NormEntry, ProposalEntry, EvaluatedProposal, DeepEvaluation, Model, Api
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
+export interface StreamCallbacks {
+  onThinking?: (token: string) => void;
+  onStep?: (stepIndex: number, message: string) => void;
+}
+
 class ApiClient {
   private abortControllers: Map<string, AbortController> = new Map();
 
@@ -23,9 +28,7 @@ class ApiClient {
   }
 
   private createAbortableRequest(requestId: string): AbortController {
-    // Cancel any existing request with the same ID
     this.cancelRequest(requestId);
-    
     const controller = new AbortController();
     this.abortControllers.set(requestId, controller);
     return controller;
@@ -38,19 +41,144 @@ class ApiClient {
     console.log(`Response length: ${responseLength} characters`);
   }
 
+  /**
+   * Generic SSE consumer. Parses thinking, step, result, and error events.
+   * Returns the result data from the "result" event.
+   */
+  private async consumeSSE<T>(
+    response: Response,
+    callbacks?: StreamCallbacks,
+  ): Promise<T> {
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error('No response body');
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let result: T | null = null;
+    let errorMessage: string | null = null;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      let currentEvent = '';
+      let currentData = '';
+
+      for (const line of lines) {
+        if (line.startsWith('event: ')) {
+          currentEvent = line.slice(7).trim();
+        } else if (line.startsWith('data: ')) {
+          currentData = line.slice(6);
+        } else if (line === '' && currentEvent && currentData) {
+          try {
+            const parsed = JSON.parse(currentData);
+            if (currentEvent === 'thinking' && callbacks?.onThinking) {
+              callbacks.onThinking(parsed.token);
+            } else if (currentEvent === 'step' && callbacks?.onStep) {
+              callbacks.onStep(parsed.step, parsed.message);
+            } else if (currentEvent === 'result') {
+              result = (parsed.entries ?? parsed.response ?? parsed) as T;
+            } else if (currentEvent === 'error') {
+              errorMessage = parsed.message;
+            }
+          } catch (e) {
+            console.error('Error parsing SSE event:', e);
+          }
+          currentEvent = '';
+          currentData = '';
+        }
+      }
+    }
+
+    if (errorMessage) throw new Error(errorMessage);
+    if (result === null) throw new Error('No result received from stream');
+    return result;
+  }
+
+  /**
+   * Execute a streaming POST request and consume SSE events.
+   */
+  private async streamRequest<T>(
+    requestId: string,
+    streamEndpoint: string,
+    body: Record<string, unknown>,
+    apiKey: string,
+    model: string,
+    callbacks?: StreamCallbacks,
+  ): Promise<T> {
+    const controller = this.createAbortableRequest(requestId);
+    const url = `${BACKEND_URL}/stream/${streamEndpoint}?model=${encodeURIComponent(model)}`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: this.getHeaders(apiKey),
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        if (response.status === 500) throw new Error('SERVER_ERROR');
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await this.consumeSSE<T>(response, callbacks);
+    } catch (error: any) {
+      if (error.name === 'AbortError') throw new Error('REQUEST_CANCELLED');
+      throw error;
+    } finally {
+      this.abortControllers.delete(requestId);
+    }
+  }
+
+  /**
+   * Execute a standard (non-streaming) POST request.
+   */
+  private async standardRequest<T>(
+    requestId: string,
+    endpoint: string,
+    body: Record<string, unknown>,
+    apiKey: string,
+    model: string,
+  ): Promise<T> {
+    const controller = this.createAbortableRequest(requestId);
+    const url = `${BACKEND_URL}/${endpoint}?model=${encodeURIComponent(model)}`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: this.getHeaders(apiKey),
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        if (response.status === 500) throw new Error('SERVER_ERROR');
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error: any) {
+      if (error.name === 'AbortError') throw new Error('REQUEST_CANCELLED');
+      throw error;
+    } finally {
+      this.abortControllers.delete(requestId);
+    }
+  }
+
   async fetchModels(apiKey: string): Promise<{ models: Model[]; default: string | null }> {
     try {
       const response = await fetch(`${BACKEND_URL}/models`, {
         headers: this.getHeaders(apiKey),
       });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
-      return {
-        models: data.models || [],
-        default: data.default || null,
-      };
+      return { models: data.models || [], default: data.default || null };
     } catch (error) {
       console.error('Error fetching models:', error);
       return { models: [], default: null };
@@ -62,14 +190,9 @@ class ApiClient {
       const response = await fetch(`${BACKEND_URL}/models/organized`, {
         headers: this.getHeaders(apiKey),
       });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
-      return {
-        organized: data.organized || {},
-        default: data.default || null,
-      };
+      return { organized: data.organized || {}, default: data.default || null };
     } catch (error) {
       console.error('Error fetching organized models:', error);
       return { organized: {}, default: null };
@@ -92,94 +215,37 @@ class ApiClient {
     apiKey: string,
     model: string,
     multistepReasoning: boolean = false,
-    selectedLaws: string[] = []
+    selectedLaws: string[] = [],
+    callbacks?: StreamCallbacks,
   ): Promise<NormEntry[]> {
-    const requestId = 'identify-norms';
-    const controller = this.createAbortableRequest(requestId);
-    const endpoint = multistepReasoning
-      ? `${BACKEND_URL}/identify_multistep`
-      : `${BACKEND_URL}/identify`;
-
     const body: Record<string, unknown> = { task_description: taskDescription };
-    if (selectedLaws.length > 0) {
-      body.selected_laws = selectedLaws;
+    if (selectedLaws.length > 0) body.selected_laws = selectedLaws;
+
+    if (callbacks?.onThinking) {
+      const endpoint = multistepReasoning ? 'identify_multistep' : 'identify';
+      return this.streamRequest<NormEntry[]>('identify-norms', endpoint, body, apiKey, model, callbacks);
     }
 
-    try {
-      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
-        method: 'POST',
-        headers: this.getHeaders(apiKey),
-        body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-
-      await this.logApiCall(endpoint, response.status, 0);
-
-      if (!response.ok) {
-        if (response.status === 500) {
-          throw new Error('SERVER_ERROR');
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: ApiResponse<NormEntry> = await response.json();
-      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
-      
-      return data.entries || [];
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        throw new Error('REQUEST_CANCELLED');
-      }
-      console.error('Error identifying relevant norms:', error);
-      throw error;
-    } finally {
-      this.abortControllers.delete(requestId);
-    }
+    const endpoint = multistepReasoning ? 'identify_multistep' : 'identify';
+    const data = await this.standardRequest<ApiResponse<NormEntry>>('identify-norms', endpoint, body, apiKey, model);
+    return data.entries || [];
   }
 
   async generateProposals(
     taskDescription: string,
     relevantNorms: NormEntry[],
     apiKey: string,
-    model: string
+    model: string,
+    callbacks?: StreamCallbacks,
   ): Promise<ProposalEntry[]> {
-    const requestId = 'generate-proposals';
-    const controller = this.createAbortableRequest(requestId);
-    const endpoint = `${BACKEND_URL}/generate_proposals`;
-    
-    try {
-      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
-        method: 'POST',
-        headers: this.getHeaders(apiKey),
-        body: JSON.stringify({
-          task_description: taskDescription,
-          relevant_norms: relevantNorms,
-        }),
-        signal: controller.signal,
-      });
+    const body = { task_description: taskDescription, relevant_norms: relevantNorms };
 
-      await this.logApiCall(endpoint, response.status, 0);
-
-      if (!response.ok) {
-        if (response.status === 500) {
-          throw new Error('SERVER_ERROR');
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: ApiResponse<ProposalEntry> = await response.json();
-      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
-      
-      return data.entries || [];
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        throw new Error('REQUEST_CANCELLED');
-      }
-      console.error('Error generating proposals:', error);
-      throw error;
-    } finally {
-      this.abortControllers.delete(requestId);
+    if (callbacks?.onThinking) {
+      return this.streamRequest<ProposalEntry[]>('generate-proposals', 'generate_proposals', body, apiKey, model, callbacks);
     }
+
+    const data = await this.standardRequest<ApiResponse<ProposalEntry>>('generate-proposals', 'generate_proposals', body, apiKey, model);
+    return data.entries || [];
   }
 
   async evaluateProposals(
@@ -187,46 +253,21 @@ class ApiClient {
     relevantNorms: NormEntry[],
     amendmentProposals: ProposalEntry[],
     apiKey: string,
-    model: string
+    model: string,
+    callbacks?: StreamCallbacks,
   ): Promise<EvaluatedProposal[]> {
-    const requestId = 'evaluate-proposals';
-    const controller = this.createAbortableRequest(requestId);
-    const endpoint = `${BACKEND_URL}/evaluate_proposals`;
-    
-    try {
-      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
-        method: 'POST',
-        headers: this.getHeaders(apiKey),
-        body: JSON.stringify({
-          task_description: taskDescription,
-          relevant_norms: relevantNorms,
-          amendment_proposals: amendmentProposals,
-        }),
-        signal: controller.signal,
-      });
+    const body = {
+      task_description: taskDescription,
+      relevant_norms: relevantNorms,
+      amendment_proposals: amendmentProposals,
+    };
 
-      await this.logApiCall(endpoint, response.status, 0);
-
-      if (!response.ok) {
-        if (response.status === 500) {
-          throw new Error('SERVER_ERROR');
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: ApiResponse<EvaluatedProposal> = await response.json();
-      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
-      
-      return data.entries || [];
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        throw new Error('REQUEST_CANCELLED');
-      }
-      console.error('Error evaluating proposals:', error);
-      throw error;
-    } finally {
-      this.abortControllers.delete(requestId);
+    if (callbacks?.onThinking) {
+      return this.streamRequest<EvaluatedProposal[]>('evaluate-proposals', 'evaluate_proposals', body, apiKey, model, callbacks);
     }
+
+    const data = await this.standardRequest<ApiResponse<EvaluatedProposal>>('evaluate-proposals', 'evaluate_proposals', body, apiKey, model);
+    return data.entries || [];
   }
 
   async deepEvaluateProposal(
@@ -234,46 +275,22 @@ class ApiClient {
     relevantNorms: NormEntry[],
     amendmentProposal: ProposalEntry,
     apiKey: string,
-    model: string
+    model: string,
+    callbacks?: StreamCallbacks,
   ): Promise<DeepEvaluation | null> {
-    const requestId = 'deep-evaluate';
-    const controller = this.createAbortableRequest(requestId);
-    const endpoint = `${BACKEND_URL}/deep_evaluate_proposals`;
-    
-    try {
-      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
-        method: 'POST',
-        headers: this.getHeaders(apiKey),
-        body: JSON.stringify({
-          task_description: taskDescription,
-          relevant_norms: relevantNorms,
-          amendment_proposal: amendmentProposal,
-        }),
-        signal: controller.signal,
-      });
+    const body = {
+      task_description: taskDescription,
+      relevant_norms: relevantNorms,
+      amendment_proposal: amendmentProposal,
+    };
 
-      await this.logApiCall(endpoint, response.status, 0);
-
-      if (!response.ok) {
-        if (response.status === 500) {
-          throw new Error('SERVER_ERROR');
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: ApiResponse<DeepEvaluation> = await response.json();
-      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
-      
-      return data.entries && data.entries.length > 0 ? data.entries[0] : null;
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        throw new Error('REQUEST_CANCELLED');
-      }
-      console.error('Error performing deep evaluation:', error);
-      throw error;
-    } finally {
-      this.abortControllers.delete(requestId);
+    if (callbacks?.onThinking) {
+      const entries = await this.streamRequest<DeepEvaluation[]>('deep-evaluate', 'deep_evaluate_proposals', body, apiKey, model, callbacks);
+      return entries && entries.length > 0 ? entries[0] : null;
     }
+
+    const data = await this.standardRequest<ApiResponse<DeepEvaluation>>('deep-evaluate', 'deep_evaluate_proposals', body, apiKey, model);
+    return data.entries && data.entries.length > 0 ? data.entries[0] : null;
   }
 
   async generateFinalAmendment(
@@ -283,108 +300,51 @@ class ApiClient {
     apiKey: string,
     model: string,
     customAdjustments?: string,
-    originalProposals?: ProposalEntry[]
+    originalProposals?: ProposalEntry[],
+    callbacks?: StreamCallbacks,
   ): Promise<{ originalNorm: NormEntry; amendedNorm: NormEntry }[]> {
-    const requestId = 'final-amendment';
-    const controller = this.createAbortableRequest(requestId);
-    const endpoint = `${BACKEND_URL}/amend`;
-    
-    // Convert proposal to the expected format
     let description = '';
     if ('description' in selectedProposal) {
       description = selectedProposal.description;
     } else if (originalProposals) {
-      // Find the original proposal by title to get the description
       const originalProposal = originalProposals.find(p => p.proposalTitle === selectedProposal.proposalTitle);
       description = originalProposal?.description || '';
     }
-    
-    const proposalEntry = {
-      proposalTitle: selectedProposal.proposalTitle,
-      description: description,
-      affectedNorms: selectedProposal.affectedNorms,
+
+    const body = {
+      task_description: taskDescription,
+      custom_instructions: customAdjustments,
+      relevant_norms: relevantNorms,
+      amendment_proposal: {
+        proposalTitle: selectedProposal.proposalTitle,
+        description,
+        affectedNorms: selectedProposal.affectedNorms,
+      },
     };
-    
-    try {
-      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
-        method: 'POST',
-        headers: this.getHeaders(apiKey),
-        body: JSON.stringify({
-          task_description: taskDescription,
-          custom_instructions: customAdjustments,
-          relevant_norms: relevantNorms,
-          amendment_proposal: proposalEntry,
-        }),
-        signal: controller.signal,
-      });
 
-      await this.logApiCall(endpoint, response.status, 0);
-
-      if (!response.ok) {
-        if (response.status === 500) {
-          throw new Error('SERVER_ERROR');
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: ApiResponse<{ originalNorm: NormEntry; amendedNorm: NormEntry }> = await response.json();
-      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
-      
-      return data.entries || [];
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        throw new Error('REQUEST_CANCELLED');
-      }
-      console.error('Error generating final amendment:', error);
-      throw error;
-    } finally {
-      this.abortControllers.delete(requestId);
+    if (callbacks?.onThinking) {
+      return this.streamRequest<{ originalNorm: NormEntry; amendedNorm: NormEntry }[]>('final-amendment', 'amend', body, apiKey, model, callbacks);
     }
+
+    const data = await this.standardRequest<ApiResponse<{ originalNorm: NormEntry; amendedNorm: NormEntry }>>('final-amendment', 'amend', body, apiKey, model);
+    return data.entries || [];
   }
 
   async generateAenderungsbefehle(
     taskDescription: string,
     finalAmendments: { originalNorm: any; amendedNorm: any }[],
     apiKey: string,
-    model: string
+    model: string,
+    callbacks?: StreamCallbacks,
   ): Promise<{ response: string }> {
-    const requestId = 'aenderungsbefehle';
-    const controller = this.createAbortableRequest(requestId);
-    const endpoint = `${BACKEND_URL}/generate_aenderungsbefehle`;
-    
-    try {
-      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
-        method: 'POST',
-        headers: this.getHeaders(apiKey),
-        body: JSON.stringify({
-          task_description: taskDescription,
-          final_amendments: finalAmendments,
-        }),
-        signal: controller.signal,
-      });
+    const body = { task_description: taskDescription, final_amendments: finalAmendments };
 
-      await this.logApiCall(endpoint, response.status, 0);
-
-      if (!response.ok) {
-        if (response.status === 500) {
-          throw new Error('SERVER_ERROR');
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
-      
-      return data;
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        throw new Error('REQUEST_CANCELLED');
-      }
-      console.error('Error generating Änderungsbefehle:', error);
-      throw error;
-    } finally {
-      this.abortControllers.delete(requestId);
+    if (callbacks?.onThinking) {
+      const response = await this.streamRequest<string>('aenderungsbefehle', 'generate_aenderungsbefehle', body, apiKey, model, callbacks);
+      return { response };
     }
+
+    return this.standardRequest<{ response: string }>('aenderungsbefehle', 'generate_aenderungsbefehle', body, apiKey, model);
   }
 
   async generateEntwurfContent(
@@ -392,46 +352,21 @@ class ApiClient {
     aenderungsbefehle: string,
     apiKey: string,
     model: string,
-    finalAmendments?: AmendmentEntry[]
+    finalAmendments?: AmendmentEntry[],
+    callbacks?: StreamCallbacks,
   ): Promise<{ response: string }> {
-    const requestId = 'entwurf';
-    const controller = this.createAbortableRequest(requestId);
-    const endpoint = `${BACKEND_URL}/generate_entwurf`;
-    
-    try {
-      const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
-        method: 'POST',
-        headers: this.getHeaders(apiKey),
-        body: JSON.stringify({
-          task_description: taskDescription,
-          aenderungsbefehle: aenderungsbefehle,
-          final_amendments: finalAmendments || null,
-        }),
-        signal: controller.signal,
-      });
+    const body = {
+      task_description: taskDescription,
+      aenderungsbefehle,
+      final_amendments: finalAmendments || null,
+    };
 
-      await this.logApiCall(endpoint, response.status, 0);
-
-      if (!response.ok) {
-        if (response.status === 500) {
-          throw new Error('SERVER_ERROR');
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      await this.logApiCall(endpoint, response.status, JSON.stringify(data).length);
-      
-      return data;
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        throw new Error('REQUEST_CANCELLED');
-      }
-      console.error('Error generating Entwurf content:', error);
-      throw error;
-    } finally {
-      this.abortControllers.delete(requestId);
+    if (callbacks?.onThinking) {
+      const response = await this.streamRequest<string>('entwurf', 'generate_entwurf', body, apiKey, model, callbacks);
+      return { response };
     }
+
+    return this.standardRequest<{ response: string }>('entwurf', 'generate_entwurf', body, apiKey, model);
   }
 }
 
