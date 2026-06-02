@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class NormEntry(BaseModel):
@@ -10,12 +10,14 @@ class NormEntry(BaseModel):
     amendmentDescription: str | None = None
 
 class NormRequest(BaseModel):
-    task_description: str 
+    task_description: str
+    selected_laws: Optional[List[str]] = None
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
-                    "task_description": "Einführung einer Freigrenze für Einnahmen aus Vermietung und Verpachtung"
+                    "task_description": "Einführung einer Freigrenze für Einnahmen aus Vermietung und Verpachtung",
+                    "selected_laws": ["EStG", "AO 1977"]
                 }
             ]
         }

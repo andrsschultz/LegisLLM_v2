@@ -10,16 +10,18 @@ from .utils import clean_json_string, format_norm_reference, resolve_law_xml_pat
 
 #TBD: Functions always use OpenAI, but should use DeepInfra if specified
 
-async def identify_relevant_norms(task_description: str, api_key: str, model: str) -> List:
-    
+async def identify_relevant_norms(task_description: str, api_key: str, model: str, selected_laws: Optional[List[str]] = None) -> List:
+
     """Identify the relevant legal norms for the given task."""
     print("\n==== IDENTIFY RELEVANT NORMS ====")
     print(f"Task description length: {len(task_description)} characters")
 
-    available_laws = ", ".join(get_available_laws())
+    all_laws = get_available_laws()
+    laws_to_use = selected_laws if selected_laws else all_laws
+    available_laws = ", ".join(laws_to_use)
 
     prompt = f"""
-        Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
+        Du bist Legist in einem Bundesministerium und sollst einen Gesetzesentwurf anfertigen.
 
         Maßnahme:  {task_description}
 
@@ -78,7 +80,7 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
     ])
     
     prompt = f"""
-        Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
+        Du bist Legist in einem Bundesministerium und sollst einen Gesetzesentwurf anfertigen.
 
         Maßnahme: {task_description}
 
@@ -180,7 +182,7 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
 
 
     prompt = f"""
-        Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
+        Du bist Legist in einem Bundesministerium und sollst einen Gesetzesentwurf anfertigen.
 
         Maßnahme: {task_description}
 
@@ -256,7 +258,7 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
     ])
 
     prompt = f"""
-        Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
+        Du bist Legist in einem Bundesministerium und sollst einen Gesetzesentwurf anfertigen.
 
         Maßnahme: {task_description}
 
@@ -382,7 +384,7 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
     ])
 
     prompt = f"""
-        Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
+        Du bist Legist in einem Bundesministerium und sollst einen Gesetzesentwurf anfertigen.
 
         Maßnahme: {task_description}
 
@@ -442,8 +444,8 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
 
 
 
-async def identify_relevant_norms_multistep(task_description: str, api_key: str, model: str) -> List[NormEntry]:
-    
+async def identify_relevant_norms_multistep(task_description: str, api_key: str, model: str, selected_laws: Optional[List[str]] = None) -> List[NormEntry]:
+
     """Identify the relevant legal norms for the given task."""
     print("\n==== IDENTIFY RELEVANT NORMS ====")
     print(f"Task description length: {len(task_description)} characters")
@@ -451,14 +453,16 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
     norm_entries: List[NormEntry] = []
 
     print("Content of norm_entries:", norm_entries)
-	
+
     # Step 1: Identify potentially affected laws
     print("Step 1: Querying LLM to identify potentially affected laws...")
 
-    available_laws = ", ".join(get_available_laws())
+    all_laws = get_available_laws()
+    laws_to_use = selected_laws if selected_laws else all_laws
+    available_laws = ", ".join(laws_to_use)
 
     prompt_step_1 = f"""
-        Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
+        Du bist Legist in einem Bundesministerium und sollst einen Gesetzesentwurf anfertigen.
 
         Maßnahme:  {task_description}
 
@@ -527,7 +531,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
         # Step 2: For each law, identify relevant paragraphs
 
         prompt_step_2 = f"""
-        Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
+        Du bist Legist in einem Bundesministerium und sollst einen Gesetzesentwurf anfertigen.
 
         Maßnahme:  {task_description}
 
@@ -642,7 +646,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
 
         # Step 4: Identify relevant paragraphs in the wording
         prompt_step_4 = f"""
-            Du bist Legist im Bundesfinanzministerium und sollst einen Gesetzesentwurf anfertigen.
+            Du bist Legist in einem Bundesministerium und sollst einen Gesetzesentwurf anfertigen.
 
             Maßnahme:  {task_description}
 

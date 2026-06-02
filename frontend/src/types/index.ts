@@ -81,6 +81,7 @@ export interface AppState {
   evaluatedProposals: EvaluatedProposal[] | null;
   finalAmendment: AmendmentEntry[] | null;
   generatedEntwurf: string | null;
+  selectedLaws: string[];
   currentTab: number;
   multistepReasoning: boolean;
   logs: string[];

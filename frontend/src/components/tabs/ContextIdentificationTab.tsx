@@ -1,22 +1,32 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { apiClient } from '@/lib/api';
 import { getApiKeyForModel } from '@/lib/apiKeyUtils';
 
 export default function ContextIdentificationTab() {
-  const { 
-    state, 
-    setRelevantNorms, 
-    setCurrentTab, 
+  const {
+    state,
+    setRelevantNorms,
+    setCurrentTab,
     setMultistepReasoning,
-    addLog 
+    setSelectedLaws,
+    addLog
   } = useApp();
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedNorm, setExpandedNorm] = useState<number | null>(null);
+  const [availableLaws, setAvailableLaws] = useState<string[]>([]);
+  const [lawsExpanded, setLawsExpanded] = useState(false);
+  const [lawsSearch, setLawsSearch] = useState('');
+
+  useEffect(() => {
+    apiClient.fetchLaws().then(data => {
+      if (data.laws) setAvailableLaws(data.laws);
+    });
+  }, []);
 
   const getApiKey = (): string => {
     return getApiKeyForModel(state.selectedModel, state.availableModels);
@@ -38,7 +48,8 @@ export default function ContextIdentificationTab() {
         state.taskDescription,
         apiKey,
         state.selectedModel,
-        state.multistepReasoning
+        state.multistepReasoning,
+        state.selectedLaws
       );
       
       setRelevantNorms(norms);

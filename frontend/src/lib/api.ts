@@ -91,19 +91,25 @@ class ApiClient {
     taskDescription: string,
     apiKey: string,
     model: string,
-    multistepReasoning: boolean = false
+    multistepReasoning: boolean = false,
+    selectedLaws: string[] = []
   ): Promise<NormEntry[]> {
     const requestId = 'identify-norms';
     const controller = this.createAbortableRequest(requestId);
-    const endpoint = multistepReasoning 
-      ? `${BACKEND_URL}/identify_multistep` 
+    const endpoint = multistepReasoning
+      ? `${BACKEND_URL}/identify_multistep`
       : `${BACKEND_URL}/identify`;
-    
+
+    const body: Record<string, unknown> = { task_description: taskDescription };
+    if (selectedLaws.length > 0) {
+      body.selected_laws = selectedLaws;
+    }
+
     try {
       const response = await fetch(`${endpoint}?model=${encodeURIComponent(model)}`, {
         method: 'POST',
         headers: this.getHeaders(apiKey),
-        body: JSON.stringify({ task_description: taskDescription }),
+        body: JSON.stringify(body),
         signal: controller.signal,
       });
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { AppState, NormEntry, ProposalEntry, EvaluatedProposal, Model, AmendmentEntry, LoadingStates } from '@/types';
 
 interface AppAction {
@@ -18,6 +18,25 @@ const initialLoadingStates: LoadingStates = {
   entwurf: false,
 };
 
+function loadSelectedLaws(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const stored = window.localStorage.getItem('selectedLaws');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistSelectedLaws(laws: string[]) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem('selectedLaws', JSON.stringify(laws));
+  } catch {
+    // ignore
+  }
+}
+
 const initialState: AppState = {
   taskDescription: '',
   selectedModel: '',
@@ -27,6 +46,7 @@ const initialState: AppState = {
   evaluatedProposals: null,
   finalAmendment: null,
   generatedEntwurf: null,
+  selectedLaws: [],
   currentTab: 0,
   multistepReasoning: false,
   logs: [],
@@ -53,6 +73,9 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, generatedEntwurf: action.payload };
     case 'SET_CURRENT_TAB':
       return { ...state, currentTab: action.payload };
+    case 'SET_SELECTED_LAWS':
+      persistSelectedLaws(action.payload);
+      return { ...state, selectedLaws: action.payload };
     case 'SET_MULTISTEP_REASONING':
       return { ...state, multistepReasoning: action.payload };
     case 'ADD_LOG':
@@ -88,6 +111,7 @@ interface AppContextType {
   setFinalAmendment: (amendment: AmendmentEntry[]) => void;
   setGeneratedEntwurf: (entwurf: string) => void;
   setCurrentTab: (tab: number) => void;
+  setSelectedLaws: (laws: string[]) => void;
   setMultistepReasoning: (enabled: boolean) => void;
   addLog: (message: string) => void;
   clearLogs: () => void;
@@ -99,6 +123,14 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
+
+  // Restore selectedLaws from localStorage on mount
+  useEffect(() => {
+    const stored = loadSelectedLaws();
+    if (stored.length > 0) {
+      dispatch({ type: 'SET_SELECTED_LAWS', payload: stored });
+    }
+  }, []);
 
   const contextValue: AppContextType = {
     state,
@@ -120,7 +152,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_GENERATED_ENTWURF', payload: entwurf }),
     setCurrentTab: (tab: number) => 
       dispatch({ type: 'SET_CURRENT_TAB', payload: tab }),
-    setMultistepReasoning: (enabled: boolean) => 
+    setSelectedLaws: (laws: string[]) =>
+      dispatch({ type: 'SET_SELECTED_LAWS', payload: laws }),
+    setMultistepReasoning: (enabled: boolean) =>
       dispatch({ type: 'SET_MULTISTEP_REASONING', payload: enabled }),
     addLog: (message: string) => 
       dispatch({ type: 'ADD_LOG', payload: message }),
