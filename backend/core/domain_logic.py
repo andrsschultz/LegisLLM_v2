@@ -1,6 +1,6 @@
 import json
 import os
-from typing import List, Optional
+from typing import List, Optional, Callable, Awaitable
 from fastapi import HTTPException
 from .llm_service import query_llm
 from .models import NormEntry, ProposalEntry, AmendEntry
@@ -8,9 +8,7 @@ from .xml_parser import extract_table_of_contents, extract_section_from_law
 from .utils import clean_json_string, format_norm_reference, resolve_law_xml_path, get_available_laws
 
 
-#TBD: Functions always use OpenAI, but should use DeepInfra if specified
-
-async def identify_relevant_norms(task_description: str, api_key: str, model: str, selected_laws: Optional[List[str]] = None) -> List:
+async def identify_relevant_norms(task_description: str, api_key: str, model: str, selected_laws: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
 
     """Identify the relevant legal norms for the given task."""
     print("\n==== IDENTIFY RELEVANT NORMS ====")
@@ -47,7 +45,7 @@ async def identify_relevant_norms(task_description: str, api_key: str, model: st
     """
 
     print("Querying LLM to identify relevant norms...")
-    raw_response = await query_llm(prompt, api_key, model or "gpt-4")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-4", on_thinking=on_thinking)
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -68,7 +66,7 @@ async def identify_relevant_norms(task_description: str, api_key: str, model: st
     
 
 
-async def develop_amendment_proposals(task_description: str, relevant_norms: List[NormEntry], api_key: str, model: str) -> List:
+async def develop_amendment_proposals(task_description: str, relevant_norms: List[NormEntry], api_key: str, model: str, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
     
     """Develop amendment proposals for the relevant legal norms."""
     print("\n==== DEVELOP AMENDMENT PROPOSALS ====")
@@ -120,7 +118,7 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
     """
 
     print("Querying LLM to develop amendment proposals...")
-    raw_response = await query_llm(prompt, api_key, model or "gpt-4")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-4", on_thinking=on_thinking)
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -140,7 +138,7 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
         )
     
 
-async def evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposals: List[ProposalEntry], api_key: str, model: str) -> List:
+async def evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposals: List[ProposalEntry], api_key: str, model: str, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
     
     """Evaluate the amendment proposals."""
     print("\n==== EVALUATE PROPOSALS ====")
@@ -198,10 +196,10 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
     """
 
     print("Querying LLM to evaluate proposals...")
-    raw_response = await query_llm(prompt, api_key, model or "gpt-4")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-4", on_thinking=on_thinking)
 
     print(f"Response received. Length: {len(raw_response)} characters")
-    
+
     try:
         # Clean the response using the new helper function
         cleaned_response = clean_json_string(raw_response)
@@ -217,9 +215,9 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
             detail=f"Failed to parse LLM response. The AI model returned an invalid JSON format. Please try again."
         )
 
-    
 
-async def deep_evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposal: ProposalEntry, api_key: str, model: str) -> List:
+
+async def deep_evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposal: ProposalEntry, api_key: str, model: str, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
     
     """Deep Evaluate the amendment proposals against juridical, technical, and dogmatic criteria."""
     print("\n==== DEEP EVALUATE PROPOSALS ====")
@@ -324,11 +322,11 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
         Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
 
-    print("Querying LLM to evaluate proposals...")
-    raw_response = await query_llm(prompt, api_key, model or "gpt-4")
+    print("Querying LLM to deep evaluate proposals...")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-4", on_thinking=on_thinking)
 
     print(f"Response received. Length: {len(raw_response)} characters")
-    
+
     try:
         # Clean the response using the new helper function
         cleaned_response = clean_json_string(raw_response)
@@ -346,7 +344,7 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
 
 
 
-async def generate_final_amendment(task_description: str, amendment_proposal: ProposalEntry, relevant_norms: List[NormEntry], api_key: str,  model: str, custom_instructions: str | None = None) -> List:
+async def generate_final_amendment(task_description: str, amendment_proposal: ProposalEntry, relevant_norms: List[NormEntry], api_key: str,  model: str, custom_instructions: str | None = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
     """Generate the final amendment text based on the selected proposal and any custom adjustments."""
     print("\n==== GENERATE FINAL AMENDMENT ====")
     print(f"Task description length: {len(task_description)} characters")
@@ -404,7 +402,7 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
     """
 
     print("Querying LLM to generate final amendment...")
-    raw_response = await query_llm(prompt, api_key, model or "gpt-4")
+    raw_response = await query_llm(prompt, api_key, model or "gpt-4", on_thinking=on_thinking)
 
     print(f"Response received. Length: {len(raw_response)} characters")
     
@@ -428,7 +426,7 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
 
 
 
-async def identify_relevant_norms_multistep(task_description: str, api_key: str, model: str, selected_laws: Optional[List[str]] = None) -> List[NormEntry]:
+async def identify_relevant_norms_multistep(task_description: str, api_key: str, model: str, selected_laws: Optional[List[str]] = None, on_step: Optional[callable] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List[NormEntry]:
 
     """Identify the relevant legal norms for the given task."""
     print("\n==== IDENTIFY RELEVANT NORMS ====")
@@ -439,6 +437,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
     print("Content of norm_entries:", norm_entries)
 
     # Step 1: Identify potentially affected laws
+    if on_step: await on_step(0, "Identifiziere betroffene Gesetze...")
     print("Step 1: Querying LLM to identify potentially affected laws...")
 
     all_laws = get_available_laws()
@@ -471,7 +470,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
 
     """
 
-    raw_response_step1 = await query_llm(prompt_step_1, api_key, model or "gpt-4")
+    raw_response_step1 = await query_llm(prompt_step_1, api_key, model or "gpt-4", on_thinking=on_thinking)
 	
     print(f"Step 1 response received. Length: {len(raw_response_step1)} characters")
     
@@ -513,6 +512,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
         law_toc = extract_table_of_contents(xml_file=xml_file_path)
 
         # Step 2: For each law, identify relevant paragraphs
+        if on_step: await on_step(1, f"Bestimme relevante Paragraphen in {entry.jurabk}...")
 
         prompt_step_2 = f"""
         Du bist Legist in einem Bundesministerium und sollst einen Gesetzesentwurf anfertigen.
@@ -542,7 +542,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
 
         """
 
-        raw_response_step2 = await query_llm(prompt_step_2, api_key, model or "gpt-4")
+        raw_response_step2 = await query_llm(prompt_step_2, api_key, model or "gpt-4", on_thinking=on_thinking)
         
         print(f"Step 2 response received. Length: {len(raw_response_step2)} characters")
         
@@ -579,6 +579,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
 
     print("Content of norm_entries:", norm_entries)
 
+    if on_step: await on_step(2, "Lade Normtexte...")
     print("Step 3: Add wordings for each norm entry")
 
     # Define data directory path
@@ -627,6 +628,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
     temp_norm_entries = []
 
     for entry in norm_entries:
+        if on_step: await on_step(3, f"Identifiziere relevante Absätze in {entry.enbez} {entry.jurabk}...")
 
         # Step 4: Identify relevant paragraphs in the wording
         prompt_step_4 = f"""
@@ -661,7 +663,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
 
         print(prompt_step_4)
 
-        raw_response_step4 = await query_llm(prompt_step_4, api_key, model or "gpt-4")
+        raw_response_step4 = await query_llm(prompt_step_4, api_key, model or "gpt-4", on_thinking=on_thinking)
         
         print(f"Step 4 response received. Length: {len(raw_response_step4)} characters")
         
@@ -699,6 +701,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
     print(f"Step 4: Successfully identified {len(norm_entries)} laws with paragraphs and wordings")
 
 
+    if on_step: await on_step(4, "Finalisiere Ergebnisse...")
     # Step 5: Reattach wording for each norm entry, manual reattachment to save api costs, reaattach wording of whole section each time to keep context
     temp_norm_entries = []
 
@@ -757,7 +760,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
     return norm_entries
 
 
-async def generate_aenderungsbefehle(task_description: str, final_amendments: List[AmendEntry], api_key: str, model: str) -> str:
+async def generate_aenderungsbefehle(task_description: str, final_amendments: List[AmendEntry], api_key: str, model: str, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> str:
     """Generate Änderungsbefehle from final amendments using LLM."""
     print("\n==== GENERATE ÄNDERUNGSBEFEHLE ====")
     print(f"Task description: {task_description}")
@@ -791,13 +794,13 @@ async def generate_aenderungsbefehle(task_description: str, final_amendments: Li
     
     # Query LLM for Änderungsbefehle generation
     print("Querying LLM to generate Änderungsbefehle...")
-    response = await query_llm(aenderungsbefehl_prompt, api_key, model)
+    response = await query_llm(aenderungsbefehl_prompt, api_key, model, on_thinking=on_thinking)
     
     print(f"Response received. Length: {len(response)} characters")
     return response
 
 
-async def generate_gesetzesentwurf_content(task_description: str, aenderungsbefehle: str, api_key: str, model: str, final_amendments: Optional[List] = None) -> str:
+async def generate_gesetzesentwurf_content(task_description: str, aenderungsbefehle: str, api_key: str, model: str, final_amendments: Optional[List] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> str:
     """Generate Gesetzesentwurf content from Änderungsbefehle using LLM."""
     print("\n==== GENERATE GESETZESENTWURF CONTENT ====")
     print(f"Task description: {task_description}")
@@ -909,7 +912,7 @@ async def generate_gesetzesentwurf_content(task_description: str, aenderungsbefe
     
     # Query LLM for Gesetzesentwurf generation
     print("Querying LLM to generate Gesetzesentwurf...")
-    response = await query_llm(gesetzesentwurf_prompt, api_key, model)
+    response = await query_llm(gesetzesentwurf_prompt, api_key, model, on_thinking=on_thinking)
     
     print(f"Response received. Length: {len(response)} characters")
     return response

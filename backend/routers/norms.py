@@ -1,5 +1,8 @@
 from fastapi import APIRouter, Query, Depends
+from fastapi.responses import StreamingResponse
 from typing import Optional
+import asyncio
+import json
 import os
 import subprocess
 from pathlib import Path
@@ -9,6 +12,7 @@ from ..core.models import NormRequest, NormEntry, NormResponse
 from ..core.config import ModelEnum
 from ..core.auth import verify_api_key
 from ..core.utils import resolve_law_xml_path, get_available_laws
+from ..core.sse import sse_step, sse_result, sse_error
 
 router = APIRouter()
 
@@ -119,3 +123,58 @@ async def identify_norms_multistep(
     )
 
     return {"entries": norm_entries}
+
+
+@router.post("/identify_multistep_stream")
+async def identify_norms_multistep_stream(
+    request: NormRequest,
+    api_key: str = Depends(verify_api_key),
+    model: str = Query(..., description="LLM model to use for norm identification with streaming progress.")
+):
+    """SSE streaming version of identify_multistep that sends progress events."""
+    step_queue: asyncio.Queue = asyncio.Queue()
+
+    async def on_step(step_index: int, message: str):
+        await step_queue.put((step_index, message))
+
+    async def generate():
+        task = asyncio.create_task(
+            identify_relevant_norms_multistep(
+                task_description=request.task_description,
+                api_key=api_key,
+                model=model,
+                selected_laws=request.selected_laws,
+                on_step=on_step,
+            )
+        )
+
+        # Stream progress events while waiting for the task to complete
+        while not task.done():
+            try:
+                step_index, message = await asyncio.wait_for(step_queue.get(), timeout=0.5)
+                yield sse_step(step_index, message)
+            except asyncio.TimeoutError:
+                continue
+
+        # Drain remaining events
+        while not step_queue.empty():
+            step_index, message = await step_queue.get()
+            yield sse_step(step_index, message)
+
+        # Send result or error
+        try:
+            norm_entries = task.result()
+            entries_data = [entry.model_dump() for entry in norm_entries]
+            yield sse_result({"entries": entries_data})
+        except Exception as e:
+            yield sse_error(str(e))
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
