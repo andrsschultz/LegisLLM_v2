@@ -106,6 +106,88 @@ export default function ContextIdentificationTab() {
         </div>
       </details>
 
+      {/* Law Pre-Selection */}
+      {availableLaws.length > 0 && (
+        <div className="bg-gray-50 rounded-lg border border-gray-200">
+          <button
+            onClick={() => setLawsExpanded(!lawsExpanded)}
+            className="w-full p-4 flex items-center justify-between text-left"
+          >
+            <div>
+              <span className="font-medium text-gray-700">Vorauswahl der Gesetze</span>
+              <span className="ml-2 text-sm text-gray-500">
+                {state.selectedLaws.length > 0
+                  ? `(${state.selectedLaws.length} ausgewählt)`
+                  : `(alle ${availableLaws.length.toLocaleString('de-DE')} Gesetze)`}
+              </span>
+            </div>
+            <svg
+              className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${lawsExpanded ? 'rotate-180' : ''}`}
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {lawsExpanded && (
+            <div className="px-4 pb-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <input
+                  type="text"
+                  placeholder="Gesetz suchen…"
+                  value={lawsSearch}
+                  onChange={e => setLawsSearch(e.target.value)}
+                  className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                />
+                {state.selectedLaws.length > 0 && (
+                  <button
+                    onClick={() => setSelectedLaws([])}
+                    className="text-xs text-gray-500 hover:text-gray-700 whitespace-nowrap"
+                  >
+                    Auswahl aufheben
+                  </button>
+                )}
+              </div>
+              <div className="max-h-48 overflow-y-auto space-y-0.5 scrollbar-thin scrollbar-thumb-gray-300">
+                {availableLaws
+                  .filter(l => l.toLowerCase().includes(lawsSearch.toLowerCase()))
+                  .map(law => (
+                    <label
+                      key={law}
+                      className="flex items-center gap-2 text-sm text-gray-700 py-1 px-2 rounded hover:bg-gray-100 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={state.selectedLaws.includes(law)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedLaws([...state.selectedLaws, law]);
+                          } else {
+                            setSelectedLaws(state.selectedLaws.filter(l => l !== law));
+                          }
+                        }}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="font-mono text-xs">{law}</span>
+                    </label>
+                  ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Warning when no pre-selection with large law set */}
+      {state.selectedLaws.length === 0 && availableLaws.length > 50 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <p className="text-sm text-amber-700">
+            <strong>Hinweis:</strong> Ohne Vorauswahl werden alle {availableLaws.length.toLocaleString('de-DE')} Gesetze an das Sprachmodell übergeben.
+            Dies kann zu höheren Kosten, längeren Antwortzeiten und ungenaueren Ergebnissen führen.
+            Eine Vorauswahl der relevanten Gesetze wird empfohlen.
+          </p>
+        </div>
+      )}
+
       {/* Multistep Reasoning Option */}
       <div className="space-y-2">
         <label className="flex items-center space-x-2">
