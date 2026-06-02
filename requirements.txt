@@ -1,7 +1,6 @@
 fastapi
 uvicorn[standard]
 pydantic-settings
-openai
 requests
 httpx
 streamlit
