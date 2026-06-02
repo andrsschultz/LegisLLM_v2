@@ -21,7 +21,7 @@ function getBrowserStorage(): Storage | null {
   return null;
 }
 
-export function getStoredApiKey(key: 'openai_api_key' | 'deepinfra_api_key'): string {
+export function getStoredApiKey(key: 'deepinfra_api_key'): string {
   const storage = getBrowserStorage();
   if (!storage) {
     return '';
@@ -35,7 +35,7 @@ export function getStoredApiKey(key: 'openai_api_key' | 'deepinfra_api_key'): st
 }
 
 export function setStoredApiKey(
-  key: 'openai_api_key' | 'deepinfra_api_key',
+  key: 'deepinfra_api_key',
   value: string
 ): void {
   const storage = getBrowserStorage();
@@ -51,22 +51,14 @@ export function setStoredApiKey(
 }
 
 /**
- * Get the appropriate API key based on the selected model and available models
+ * Get the API key for the selected model (always DeepInfra)
  */
 export function getApiKeyForModel(selectedModelId: string, availableModels: Model[]): string {
-  const selectedModel = availableModels.find(m => m.id === selectedModelId);
-  const provider = selectedModel?.provider?.toLowerCase();
-  
-  if (provider === 'deepinfra') {
-    return getStoredApiKey('deepinfra_api_key');
-  }
-  
-  // Default to OpenAI for OpenAI models or unknown providers
-  return getStoredApiKey('openai_api_key');
+  return getStoredApiKey('deepinfra_api_key');
 }
 
 /**
- * Check if any required API key is available for the selected model
+ * Check if the required API key is available
  */
 export function hasRequiredApiKey(selectedModelId: string, availableModels: Model[]): boolean {
   const apiKey = getApiKeyForModel(selectedModelId, availableModels);

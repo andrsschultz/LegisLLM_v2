@@ -20,11 +20,10 @@ export default function Layout({ children }: LayoutProps) {
   // Check for API keys and auto-open sidebar if none found
   useEffect(() => {
     const checkApiKeys = () => {
-      const openaiKey = getStoredApiKey('openai_api_key');
       const deepinfraKey = getStoredApiKey('deepinfra_api_key');
-      
-      // If no API keys are found, auto-open the sidebar
-      if (!openaiKey && !deepinfraKey) {
+
+      // If no API key is found, auto-open the sidebar
+      if (!deepinfraKey) {
         setIsSidebarCollapsed(false);
       }
     };
