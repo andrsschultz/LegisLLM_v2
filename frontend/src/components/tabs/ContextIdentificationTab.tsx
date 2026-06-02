@@ -16,6 +16,7 @@ export default function ContextIdentificationTab() {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expandedNorm, setExpandedNorm] = useState<number | null>(null);
 
   const getApiKey = (): string => {
     return getApiKeyForModel(state.selectedModel, state.availableModels);
@@ -165,7 +166,11 @@ export default function ContextIdentificationTab() {
           {/* Norm Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {state.relevantNorms.map((norm, index) => (
-              <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div
+                key={index}
+                onClick={() => setExpandedNorm(expandedNorm === index ? null : index)}
+                className="bg-blue-50 border border-blue-200 rounded-lg p-3 cursor-pointer hover:bg-blue-100 transition-colors duration-150"
+              >
                 <p className="font-medium text-blue-900">
                   {norm.jurabk} {norm.enbez} {norm.P ? `Abs. ${norm.P}` : ''}
                 </p>
@@ -173,34 +178,18 @@ export default function ContextIdentificationTab() {
             ))}
           </div>
 
-          {/* Full Text */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Volltext der relevanten Rechtsnormen
-            </label>
-            <textarea
-              value={(() => {
-                // Deduplicate by jurabk + enbez to avoid showing same section text multiple times
-                const seen = new Set<string>();
-                const uniqueNorms: typeof state.relevantNorms = [];
-
-                state.relevantNorms.forEach(norm => {
-                  const key = `${norm.jurabk}|${norm.enbez}`;
-                  if (!seen.has(key)) {
-                    seen.add(key);
-                    uniqueNorms.push(norm);
-                  }
-                });
-
-                return uniqueNorms.map(norm =>
-                  `${norm.jurabk} ${norm.enbez}:\n${norm.wording || ''}\n\n`
-                ).join('');
-              })()}
-              readOnly
-              rows={8}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm font-mono"
-            />
-          </div>
+          {/* Expanded Norm Full Text */}
+          {expandedNorm !== null && state.relevantNorms[expandedNorm] && (
+            <div className="bg-gray-50 border border-gray-300 rounded-lg p-4">
+              <h4 className="font-semibold text-gray-900 mb-2">
+                {state.relevantNorms[expandedNorm].jurabk} {state.relevantNorms[expandedNorm].enbez}
+                {state.relevantNorms[expandedNorm].P ? ` Abs. ${state.relevantNorms[expandedNorm].P}` : ''}
+              </h4>
+              <pre className="whitespace-pre-wrap text-sm font-mono text-gray-700">
+                {state.relevantNorms[expandedNorm].wording || 'Kein Volltext verfügbar.'}
+              </pre>
+            </div>
+          )}
         </div>
       )}
 
