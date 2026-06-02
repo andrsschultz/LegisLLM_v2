@@ -57,7 +57,7 @@ export function AmendmentSplitView({ amendments }: AmendmentSplitViewProps) {
             {/* Header with norm identification */}
             <div className="bg-gray-100 px-4 py-2 border-b border-gray-300">
               <h4 className="font-semibold text-gray-800">
-                {amendment.originalNorm.jurabk} {amendment.originalNorm.enbez}
+                {amendment.originalNorm.enbez} {amendment.originalNorm.jurabk}
                 {amendment.originalNorm.P && ` Abs. ${amendment.originalNorm.P}`}
               </h4>
             </div>

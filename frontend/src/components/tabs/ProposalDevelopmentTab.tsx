@@ -104,7 +104,7 @@ export default function ProposalDevelopmentTab() {
               <ul className="text-gray-600 list-disc list-inside">
                 {state.relevantNorms.map((norm, index) => (
                   <li key={index}>
-                    {norm.jurabk} {norm.enbez}{norm.P ? ` Abs. ${norm.P}` : ''}
+                    {norm.enbez} {norm.jurabk}{norm.P ? ` Abs. ${norm.P}` : ''}
                   </li>
                 ))}
               </ul>
@@ -181,7 +181,7 @@ export default function ProposalDevelopmentTab() {
                   <ul className="text-gray-600 list-disc list-inside">
                     {proposal.affectedNorms.map((norm, normIndex) => (
                       <li key={normIndex}>
-                        {norm.jurabk} {norm.enbez}{norm.P ? ` Abs. ${norm.P}` : ''}
+                        {norm.enbez} {norm.jurabk}{norm.P ? ` Abs. ${norm.P}` : ''}
                         {norm.amendmentDescription && (
                           <div className="ml-4 mt-1 text-sm text-gray-500">
                               ↳ {norm.amendmentDescription}

@@ -172,7 +172,7 @@ export default function ContextIdentificationTab() {
                 className="bg-blue-50 border border-blue-200 rounded-lg p-3 cursor-pointer hover:bg-blue-100 transition-colors duration-150"
               >
                 <p className="font-medium text-blue-900">
-                  {norm.jurabk} {norm.enbez} {norm.P ? `Abs. ${norm.P}` : ''}
+                  {norm.enbez} {norm.jurabk} {norm.P ? `Abs. ${norm.P}` : ''}
                 </p>
               </div>
             ))}
@@ -182,7 +182,7 @@ export default function ContextIdentificationTab() {
           {expandedNorm !== null && state.relevantNorms[expandedNorm] && (
             <div className="bg-gray-50 border border-gray-300 rounded-lg p-4">
               <h4 className="font-semibold text-gray-900 mb-2">
-                {state.relevantNorms[expandedNorm].jurabk} {state.relevantNorms[expandedNorm].enbez}
+                {state.relevantNorms[expandedNorm].enbez} {state.relevantNorms[expandedNorm].jurabk}
                 {state.relevantNorms[expandedNorm].P ? ` Abs. ${state.relevantNorms[expandedNorm].P}` : ''}
               </h4>
               <pre className="whitespace-pre-wrap text-sm font-mono text-gray-700">

@@ -89,7 +89,7 @@ export default function UmsetzungTab() {
   const downloadAmendments = (amendments: AmendmentEntry[], filename: string) => {
     // Create a formatted text version of the amendments
     const formattedText = amendments.map((amendment) => {
-      const normId = `${amendment.originalNorm.jurabk} ${amendment.originalNorm.enbez}${amendment.originalNorm.P ? ` Abs. ${amendment.originalNorm.P}` : ''}`;
+      const normId = `${amendment.originalNorm.enbez} ${amendment.originalNorm.jurabk}${amendment.originalNorm.P ? ` Abs. ${amendment.originalNorm.P}` : ''}`;
       
       return `
 === ${normId} ===
@@ -258,7 +258,7 @@ ${'='.repeat(50)}
             <p className="text-gray-600">
               <strong>Betroffene Rechtsnormen:</strong> {
                 state.amendmentProposals![selectedProposalIndex]?.affectedNorms.map(norm => 
-                  `${norm.jurabk} ${norm.enbez}`
+                  `${norm.enbez} ${norm.jurabk}`
                 ).join(', ')
               }
             </p>

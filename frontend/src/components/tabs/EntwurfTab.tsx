@@ -167,7 +167,7 @@ export default function EntwurfTab() {
             {state.finalAmendment.map((amendment, index) => (
               <div key={index} className="bg-white rounded-lg p-4 border border-slate-200">
                 <div className="font-medium text-slate-800">
-                  {amendment.originalNorm.jurabk} {amendment.originalNorm.enbez}
+                  {amendment.originalNorm.enbez} {amendment.originalNorm.jurabk}
                   {amendment.originalNorm.P && ` Absatz ${amendment.originalNorm.P}`}
                 </div>
                 <div className="text-sm text-slate-600 mt-1">

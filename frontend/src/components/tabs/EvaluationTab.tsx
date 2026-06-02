@@ -233,7 +233,7 @@ export default function EvaluationTab() {
                   <ul className="text-gray-600 list-disc list-inside">
                     {proposal.affectedNorms.map((norm, normIndex) => (
                       <li key={normIndex}>
-                        {norm.jurabk} {norm.enbez}{norm.P ? ` Abs. ${norm.P}` : ''}
+                        {norm.enbez} {norm.jurabk}{norm.P ? ` Abs. ${norm.P}` : ''}
                         {norm.amendmentDescription && (
                           <div className="ml-4 mt-1 text-sm text-gray-500">
                               ↳ {norm.amendmentDescription}
@@ -348,7 +348,7 @@ export default function EvaluationTab() {
                       <p className="font-medium text-gray-700">Querverweise:</p>
                       <ul className="text-gray-600 list-disc list-inside">
                         {deepEvaluation.juristischeBeurteilung.Querverweise.map((ref, index) => (
-                          <li key={index}>{ref.jurabk} {ref.enbez}</li>
+                          <li key={index}>{ref.enbez} {ref.jurabk}</li>
                         ))}
                       </ul>
                     </div>
