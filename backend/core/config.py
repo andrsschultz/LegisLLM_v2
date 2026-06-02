@@ -161,6 +161,17 @@ def get_model(model_override: Optional[ModelEnum] = None) -> str:
 
 def is_deepinfra_model(model: str) -> bool:
     """Check if the given model is a DeepInfra model."""
+    normalized_model = (model or "").strip()
+    if not normalized_model:
+        return False
+
+    # DeepInfra model IDs are typically provider-qualified (for example
+    # "meta-llama/Llama-4-Scout-17B-16E-Instruct"), while OpenAI model IDs are not.
+    # This keeps provider routing stable even when the server-side cached model list
+    # is stale or based on a different API key than the user's selected model.
+    if "/" in normalized_model:
+        return True
+
     # Get current list of DeepInfra models (cached)
     deepinfra_models = set(get_deepinfra_models())
     
@@ -173,7 +184,7 @@ def is_deepinfra_model(model: str) -> bool:
         ModelEnum.DEEPSEEK_V3_0324.value,
     }
     
-    return model in deepinfra_models or model in enum_models
+    return normalized_model in deepinfra_models or normalized_model in enum_models
 
 def get_all_available_models() -> Dict[str, List[str]]:
     """Get all available models grouped by provider.
