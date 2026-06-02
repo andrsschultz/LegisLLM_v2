@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { apiClient } from '@/lib/api';
+import { getStoredApiKey, setStoredApiKey } from '@/lib/apiKeyUtils';
 import { Model } from '@/types';
 
 interface OrganizedModels {
@@ -25,16 +26,14 @@ export default function ModelSelector() {
 
   useEffect(() => {
     loadModels();
-    // Load API keys from localStorage on client side
-    setOpenaiApiKey(localStorage.getItem('openai_api_key') || '');
-    setDeepinfraApiKey(localStorage.getItem('deepinfra_api_key') || '');
+    setOpenaiApiKey(getStoredApiKey('openai_api_key'));
+    setDeepinfraApiKey(getStoredApiKey('deepinfra_api_key'));
   }, []);
 
   const loadModels = async () => {
     try {
-      // Get API keys from localStorage
-      const storedOpenaiKey = localStorage.getItem('openai_api_key') || '';
-      const storedDeepinfraKey = localStorage.getItem('deepinfra_api_key') || '';
+      const storedOpenaiKey = getStoredApiKey('openai_api_key');
+      const storedDeepinfraKey = getStoredApiKey('deepinfra_api_key');
       
       let organizedModels: any = { openai: { recommended: [], additional: [] }, deepinfra: { recommended: [], additional: [] } };
       let allModels: any[] = [];
@@ -85,10 +84,10 @@ export default function ModelSelector() {
   const handleApiKeyChange = (key: string, value: string, type: 'openai' | 'deepinfra') => {
     if (type === 'openai') {
       setOpenaiApiKey(value);
-      localStorage.setItem('openai_api_key', value);
+      setStoredApiKey('openai_api_key', value);
     } else {
       setDeepinfraApiKey(value);
-      localStorage.setItem('deepinfra_api_key', value);
+      setStoredApiKey('deepinfra_api_key', value);
     }
     
     // Reload models when API key changes

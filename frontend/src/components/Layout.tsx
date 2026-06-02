@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import TabBar from './TabBar';
+import { getStoredApiKey } from '@/lib/apiKeyUtils';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,8 +20,8 @@ export default function Layout({ children }: LayoutProps) {
   // Check for API keys and auto-open sidebar if none found
   useEffect(() => {
     const checkApiKeys = () => {
-      const openaiKey = localStorage.getItem('openai_api_key');
-      const deepinfraKey = localStorage.getItem('deepinfra_api_key');
+      const openaiKey = getStoredApiKey('openai_api_key');
+      const deepinfraKey = getStoredApiKey('deepinfra_api_key');
       
       // If no API keys are found, auto-open the sidebar
       if (!openaiKey && !deepinfraKey) {

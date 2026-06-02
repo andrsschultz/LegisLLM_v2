@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import ModelSelector from './ModelSelector';
+import { apiClient } from '@/lib/api';
 
 interface SidebarProps {
   isCollapsed?: boolean;
@@ -10,10 +11,19 @@ interface SidebarProps {
 
 export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
   const [internalCollapsed, setInternalCollapsed] = useState(false);
-  
+  const [lawsInfo, setLawsInfo] = useState<{ count: number; updated_at: string | null; laws: string[] } | null>(null);
+  const [lawsExpanded, setLawsExpanded] = useState(false);
+  const [lawsSearch, setLawsSearch] = useState('');
+
   // Use external state if provided, otherwise use internal state
   const collapsed = isCollapsed !== undefined ? isCollapsed : internalCollapsed;
   const toggle = useMemo(() => onToggle || (() => setInternalCollapsed(!internalCollapsed)), [onToggle]);
+
+  useEffect(() => {
+    apiClient.fetchLaws().then(data => {
+      if (data.count > 0) setLawsInfo(data);
+    });
+  }, []);
 
   // Close sidebar on escape key
   useEffect(() => {
@@ -106,7 +116,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
             <div className="border-t border-slate-200/60"></div>
 
             {/* App Information */}
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100/70 border border-slate-200/60 
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100/70 border border-slate-200/60
                            rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
               <div className="flex items-start mb-4">
                 <span className="text-lg mr-3 mt-0.5 flex-shrink-0">ℹ️</span>
@@ -115,13 +125,67 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                     Über diese Anwendung
                   </h2>
                   <p className="text-sm text-slate-600 leading-relaxed">
-                    Die Anwendung befindet sich in einer sehr frühen Entwicklungsphase und 
-                    dient der Demonstration. Getestet wurde die Anwendung bisher nur auf 
-                    Änderungen von Regelungen aus dem Einkommensteuergesetz.
+                    Die Anwendung befindet sich in einer sehr frühen Entwicklungsphase und
+                    dient der Demonstration.
                   </p>
                 </div>
               </div>
             </div>
+
+            {/* Available Laws */}
+            {lawsInfo && (
+              <div className="bg-gradient-to-br from-slate-50 to-slate-100/70 border border-slate-200/60
+                             rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+                <button
+                  onClick={() => setLawsExpanded(!lawsExpanded)}
+                  className="w-full p-4 sm:p-6 flex items-start justify-between text-left"
+                >
+                  <div className="flex items-start min-w-0 flex-1">
+                    <span className="text-lg mr-3 mt-0.5 flex-shrink-0">📚</span>
+                    <div className="min-w-0">
+                      <h2 className="text-lg font-semibold text-slate-800">Verfügbare Gesetze</h2>
+                      <p className="text-sm text-slate-500 mt-0.5">
+                        {lawsInfo.count.toLocaleString('de-DE')} Bundesgesetze
+                        {lawsInfo.updated_at && (
+                          <span className="block text-xs text-slate-400 mt-0.5">
+                            Stand: {new Date(lawsInfo.updated_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <svg
+                    className={`w-4 h-4 text-slate-400 flex-shrink-0 mt-1.5 transition-transform duration-200 ${lawsExpanded ? 'rotate-180' : ''}`}
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {lawsExpanded && (
+                  <div className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-3">
+                    <input
+                      type="text"
+                      placeholder="Gesetz suchen…"
+                      value={lawsSearch}
+                      onChange={e => setLawsSearch(e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg
+                                 bg-white text-slate-700 placeholder-slate-400
+                                 focus:outline-none focus:ring-2 focus:ring-slate-300"
+                    />
+                    <div className="max-h-64 overflow-y-auto space-y-0.5 scrollbar-thin scrollbar-thumb-slate-300">
+                      {lawsInfo.laws
+                        .filter(l => l.toLowerCase().includes(lawsSearch.toLowerCase()))
+                        .map(law => (
+                          <div key={law} className="text-xs text-slate-600 py-1 px-2 rounded hover:bg-slate-200/60 font-mono">
+                            {law}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             {/* Footer */}
             <div className="pt-6 pb-4 text-center space-y-2">
               <p className="text-xs text-slate-400">

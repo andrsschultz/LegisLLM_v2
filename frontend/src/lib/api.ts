@@ -76,6 +76,17 @@ class ApiClient {
     }
   }
 
+  async fetchLaws(): Promise<{ laws: string[]; count: number; updated_at: string | null }> {
+    try {
+      const response = await fetch(`${BACKEND_URL}/laws`);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching laws:', error);
+      return { laws: [], count: 0, updated_at: null };
+    }
+  }
+
   async identifyRelevantNorms(
     taskDescription: string,
     apiKey: string,
