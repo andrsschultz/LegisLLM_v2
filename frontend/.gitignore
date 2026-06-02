@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# node-localstorage (local experiment artifact)
+.node-localstorage
+.node-localstorage-shm
+.node-localstorage-wal
