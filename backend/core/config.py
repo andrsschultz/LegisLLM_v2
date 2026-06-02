@@ -32,14 +32,14 @@ DEEPINFRA_MODELS = [
 
 
 class ModelEnum(str, Enum):
-    CLAUDE_SONNET_4_6 = "anthropic/claude-sonnet-4-6"
+    QWEN3_5_397B = "Qwen/Qwen3.5-397B-A17B"
 
 
 class Settings(BaseSettings):
     deepinfra_api_key: str = ""
 
     # Default model
-    default_model: ModelEnum = ModelEnum.CLAUDE_SONNET_4_6
+    default_model: ModelEnum = ModelEnum.QWEN3_5_397B
 
     class Config:
         env_file = ".env"

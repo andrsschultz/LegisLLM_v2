@@ -25,7 +25,7 @@ async def get_available_models(api_key: str = Depends(verify_api_key)):
 
     return {
         "models": models_list,
-        "default": ModelEnum.CLAUDE_SONNET_4_6.value,
+        "default": ModelEnum.QWEN3_5_397B.value,
     }
 
 
@@ -46,5 +46,5 @@ async def get_organized_available_models(api_key: str = Depends(verify_api_key))
 
     return {
         "organized": result,
-        "default": ModelEnum.CLAUDE_SONNET_4_6.value,
+        "default": ModelEnum.QWEN3_5_397B.value,
     }
