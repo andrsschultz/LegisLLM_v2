@@ -1,3 +1,5 @@
 [submodule "backend/laws"]
 	path = backend/laws
 	url = https://github.com/QuantLaw/gesetze-im-internet.git
+	branch = data
+	shallow = true
