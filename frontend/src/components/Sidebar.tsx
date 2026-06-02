@@ -116,7 +116,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
             <div className="border-t border-slate-200/60"></div>
 
             {/* App Information */}
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100/70 border border-slate-200/60
+            {/* <div className="bg-gradient-to-br from-slate-50 to-slate-100/70 border border-slate-200/60
                            rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
               <div className="flex items-start mb-4">
                 <span className="text-lg mr-3 mt-0.5 flex-shrink-0">ℹ️</span>
@@ -130,7 +130,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                   </p>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Available Laws */}
             {lawsInfo && (
