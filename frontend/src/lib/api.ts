@@ -56,6 +56,9 @@ class ApiClient {
     let buffer = '';
     let result: T | null = null;
     let errorMessage: string | null = null;
+    // Declared outside the chunk loop so state persists across TCP chunks
+    let currentEvent = '';
+    let currentData = '';
 
     while (true) {
       const { done, value } = await reader.read();
@@ -65,9 +68,6 @@ class ApiClient {
 
       const lines = buffer.split('\n');
       buffer = lines.pop() || '';
-
-      let currentEvent = '';
-      let currentData = '';
 
       for (const line of lines) {
         if (line.startsWith('event: ')) {
