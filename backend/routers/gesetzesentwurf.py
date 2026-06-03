@@ -23,9 +23,11 @@ async def generate_aenderungsbefehle_endpoint(
             task_description=request.task_description,
             final_amendments=request.final_amendments,
             api_key=api_key,
-            model=model
+            model=model,
+            guideline_ids=request.guideline_ids,
+            excluded_rule_ids=request.excluded_rule_ids
         )
-        
+
         return AenderungsbefehlResponse(response=response)
         
     except Exception as e:
@@ -48,9 +50,11 @@ async def generate_gesetzesentwurf_content_endpoint(
             aenderungsbefehle=request.aenderungsbefehle,
             api_key=api_key,
             model=model,
-            final_amendments=request.final_amendments
+            final_amendments=request.final_amendments,
+            guideline_ids=request.guideline_ids,
+            excluded_rule_ids=request.excluded_rule_ids
         )
-        
+
         return GesetzesentwurfResponse(response=response)
         
     except Exception as e:

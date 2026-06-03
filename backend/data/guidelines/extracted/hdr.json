@@ -1,0 +1,170 @@
+{
+  "id": "hdr",
+  "name": "HdR – Handbuch der Rechtsförmlichkeit",
+  "source": "Bundesministerium der Justiz (BMJ)",
+  "version": "4. Auflage, 31.10.2024",
+  "url": "https://hdr4.bmj.de/",
+  "rule_count": 20,
+  "rules": [
+    {
+      "id": "hdr-01",
+      "category": "Gliederung",
+      "rule": "Ein Gesetz ist systematisch zu gliedern: Eingangsformel, Inhaltsübersicht (bei mehr als acht Paragraphen), Allgemeiner Teil, Besonderer Teil, Schlussvorschriften.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["entwurf", "amendment"],
+      "source_section": "Kapitel 3 – Aufbau von Gesetzen"
+    },
+    {
+      "id": "hdr-02",
+      "category": "Gliederung",
+      "rule": "Paragraphen sind fortlaufend zu nummerieren. Einfügebuchstaben (z.B. § 21a) sind nur bei Ergänzungen zulässig.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["amendment", "entwurf"],
+      "source_section": "Kapitel 3 – Aufbau von Gesetzen"
+    },
+    {
+      "id": "hdr-03",
+      "category": "Verweisungen",
+      "rule": "Verweisungen auf andere Vorschriften müssen die genaue Fundstelle angeben (Gesetz, Paragraph, Absatz, Satz, Nummer).",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Kapitel 5 – Verweisungen"
+    },
+    {
+      "id": "hdr-04",
+      "category": "Verweisungen",
+      "rule": "Dynamische Verweisungen ('in der jeweils geltenden Fassung') sind nur auf Rechtsnormen des gleichen Normgebers zulässig. Statische Verweisungen müssen das Datum und die Fundstelle der verwiesenen Fassung nennen.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Kapitel 5 – Verweisungen"
+    },
+    {
+      "id": "hdr-05",
+      "category": "Verweisungen",
+      "rule": "Zirkuläre Verweisungen (A verweist auf B, B verweist auf A) sind unzulässig.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf", "evaluation"],
+      "source_section": "Kapitel 5 – Verweisungen"
+    },
+    {
+      "id": "hdr-06",
+      "category": "Zitierweise",
+      "rule": "Bundesgesetze sind mit ihrer amtlichen Kurzbezeichnung und der Fundstelle im Bundesgesetzblatt zu zitieren: 'des Einkommensteuergesetzes in der Fassung der Bekanntmachung vom [Datum] (BGBl. I S. [Seite])'.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Kapitel 5 – Zitierweisen"
+    },
+    {
+      "id": "hdr-07",
+      "category": "Zitierweise",
+      "rule": "EU-Rechtsakte sind mit vollständigem Titel, Ordnungsnummer, Datum und Amtsblatt-Fundstelle zu zitieren.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Kapitel 5 – Zitierweisen"
+    },
+    {
+      "id": "hdr-08",
+      "category": "Änderungsvorschriften",
+      "rule": "Änderungsgesetze müssen den geänderten Normtext wörtlich wiedergeben. Die Änderungsbefehle lauten: 'wird wie folgt gefasst:', 'werden die Wörter ... durch die Wörter ... ersetzt', 'wird aufgehoben', 'wird eingefügt'.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["amendment", "entwurf"],
+      "source_section": "Kapitel 7 – Änderung von Gesetzen"
+    },
+    {
+      "id": "hdr-09",
+      "category": "Änderungsvorschriften",
+      "rule": "Änderungsbefehle sind in der Reihenfolge der zu ändernden Vorschrift zu gliedern, nicht nach sachlichen Gesichtspunkten.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["amendment", "entwurf"],
+      "source_section": "Kapitel 7 – Änderung von Gesetzen"
+    },
+    {
+      "id": "hdr-10",
+      "category": "Sprache",
+      "rule": "Gesetze sind in klarer, verständlicher Sprache zu formulieren. Fachbegriffe sind nur zu verwenden, wenn sie zur Bestimmtheit der Norm erforderlich sind.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Kapitel 4 – Sprachliche Gestaltung"
+    },
+    {
+      "id": "hdr-11",
+      "category": "Sprache",
+      "rule": "Sätze sollen kurz und klar gegliedert sein. Schachtelsätze und mehrfache Einschübe sind zu vermeiden.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Kapitel 4 – Sprachliche Gestaltung"
+    },
+    {
+      "id": "hdr-12",
+      "category": "Sprache",
+      "rule": "Innerhalb eines Gesetzes sind gleiche Sachverhalte mit gleichen Begriffen zu bezeichnen. Synonyme sind zu vermeiden.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf", "evaluation"],
+      "source_section": "Kapitel 4 – Sprachliche Gestaltung"
+    },
+    {
+      "id": "hdr-13",
+      "category": "Fristen und Termine",
+      "rule": "Fristen sind eindeutig zu formulieren. Stichtagsregelungen müssen ein konkretes Datum enthalten.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Kapitel 6 – Fristen, Termine, Rückwirkung"
+    },
+    {
+      "id": "hdr-14",
+      "category": "Fristen und Termine",
+      "rule": "Rückwirkende Belastungen sind grundsätzlich unzulässig (echte Rückwirkung). Ausnahmen bedürfen einer besonderen verfassungsrechtlichen Rechtfertigung.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "evaluation", "entwurf"],
+      "source_section": "Kapitel 6 – Fristen, Termine, Rückwirkung"
+    },
+    {
+      "id": "hdr-15",
+      "category": "Übergangsvorschriften",
+      "rule": "Übergangsvorschriften sind vorzusehen, wenn eine Neuregelung in bestehende Rechtsverhältnisse eingreift. Sie regeln die Anwendbarkeit für Altfälle.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Kapitel 8 – Übergangsvorschriften"
+    },
+    {
+      "id": "hdr-16",
+      "category": "Inkrafttreten",
+      "rule": "Jedes Gesetz muss eine Inkrafttretensregelung enthalten. Der Zeitpunkt des Inkrafttretens ist eindeutig zu bestimmen.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["amendment", "entwurf"],
+      "source_section": "Kapitel 9 – Inkrafttreten und Außerkrafttreten"
+    },
+    {
+      "id": "hdr-17",
+      "category": "Bestimmtheit",
+      "rule": "Normen müssen dem verfassungsrechtlichen Bestimmtheitsgebot genügen: Der Normadressat muss erkennen können, welches Verhalten von ihm erwartet wird.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf", "evaluation"],
+      "source_section": "Kapitel 2 – Verfassungsrechtliche Anforderungen"
+    },
+    {
+      "id": "hdr-18",
+      "category": "Ermächtigungen",
+      "rule": "Verordnungsermächtigungen müssen Inhalt, Zweck und Ausmaß der Ermächtigung bestimmen (Art. 80 Abs. 1 Satz 2 GG).",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Kapitel 10 – Rechtsverordnungen"
+    },
+    {
+      "id": "hdr-19",
+      "category": "Begründung",
+      "rule": "Die Gesetzesbegründung muss den Regelungsbedarf, das Regelungsziel und die wesentlichen Erwägungen für die gewählte Lösung darlegen.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "evaluation", "entwurf"],
+      "source_section": "Kapitel 11 – Begründung"
+    },
+    {
+      "id": "hdr-20",
+      "category": "Begründung",
+      "rule": "Jede Einzelvorschrift ist in der Begründung gesondert zu erläutern (Einzelbegründung).",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "evaluation", "entwurf"],
+      "source_section": "Kapitel 11 – Begründung"
+    }
+  ]
+}

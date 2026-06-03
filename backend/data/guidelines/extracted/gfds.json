@@ -1,0 +1,106 @@
+{
+  "id": "gfds",
+  "name": "GfdS – Geschlechtergerechte Sprache",
+  "source": "Gesellschaft für deutsche Sprache e.V.",
+  "version": "Fortlaufend aktualisiert",
+  "url": "https://gfds.de/standpunkt-der-gfds-zu-einer-geschlechtergerechten-sprache/",
+  "rule_count": 12,
+  "rules": [
+    {
+      "id": "gfds-01",
+      "category": "Empfohlene Formen",
+      "rule": "Verwende Doppelnennungen/Paarformeln (z.B. 'Schülerinnen und Schüler') als höflichste und eindeutigste Form der geschlechtergerechten Sprache.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Empfohlene Methoden"
+    },
+    {
+      "id": "gfds-02",
+      "category": "Empfohlene Formen",
+      "rule": "Nutze geschlechtsneutrale Ersatzformen wie substantivierte Partizipien (z.B. 'die Teilnehmenden', 'die Studierenden'), wo sie grammatisch korrekt und inhaltlich passend sind.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Ersatzformen"
+    },
+    {
+      "id": "gfds-03",
+      "category": "Empfohlene Formen",
+      "rule": "Verwende Passivkonstruktionen, sachliche Umschreibungen, direkte Anrede oder Relativsätze mit 'wer' als geschlechtsneutrale Alternativen.",
+      "verbindlichkeit": "kann",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Ersatzformen"
+    },
+    {
+      "id": "gfds-04",
+      "category": "Empfohlene Formen",
+      "rule": "Die Schrägstrichlösung ('Lehrer/-in') ist zulässig, sofern sie grammatisch korrekt ist.",
+      "verbindlichkeit": "kann",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Schrägstrichlösung"
+    },
+    {
+      "id": "gfds-05",
+      "category": "Verbotene Formen",
+      "rule": "Verwende KEIN Gendersternchen ('Mitarbeiter*in'). Es ist orthografisch nicht standardisiert und gefährdet die Rechtssicherheit des Normtextes.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf", "evaluation"],
+      "source_section": "Nicht empfohlene Formen"
+    },
+    {
+      "id": "gfds-06",
+      "category": "Verbotene Formen",
+      "rule": "Verwende KEINEN Gender-Doppelpunkt ('Mitarbeiter:in'). Er ist orthografisch nicht standardisiert.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf", "evaluation"],
+      "source_section": "Nicht empfohlene Formen"
+    },
+    {
+      "id": "gfds-07",
+      "category": "Verbotene Formen",
+      "rule": "Verwende KEINEN Gender-Unterstrich ('Mitarbeiter_in') oder Binnenmajuskel ('LehrerInnen').",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf", "evaluation"],
+      "source_section": "Nicht empfohlene Formen"
+    },
+    {
+      "id": "gfds-08",
+      "category": "Verbotene Formen",
+      "rule": "Verwende KEINE künstlichen X-Endungen oder alternative Suffixe (z.B. 'Studierx').",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf", "evaluation"],
+      "source_section": "Nicht empfohlene Formen"
+    },
+    {
+      "id": "gfds-09",
+      "category": "Verbotene Formen",
+      "rule": "Verwende KEIN generisches Femininum als alleinige Form.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf", "evaluation"],
+      "source_section": "Nicht empfohlene Formen"
+    },
+    {
+      "id": "gfds-10",
+      "category": "Qualitätskriterien",
+      "rule": "Geschlechtergerechte Formulierungen müssen verständlich, lesbar, vorlesbar und grammatisch korrekt sein.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf", "evaluation"],
+      "source_section": "Bewertungskriterien"
+    },
+    {
+      "id": "gfds-11",
+      "category": "Qualitätskriterien",
+      "rule": "Geschlechtergerechte Sprache darf die Rechtssicherheit und Eindeutigkeit des Normtextes nicht beeinträchtigen.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "amendment", "entwurf", "evaluation"],
+      "source_section": "Bewertungskriterien"
+    },
+    {
+      "id": "gfds-12",
+      "category": "Bedingt empfohlen",
+      "rule": "Die Klammerlösung 'Fahrer(innen)' ist nur bedingt empfohlen, da sie den Eindruck erwecken kann, die weibliche Form sei nachrangig.",
+      "verbindlichkeit": "kann",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Bedingt empfohlene Formen"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "id": "ggo",
+  "name": "GGO – Gemeinsame Geschäftsordnung der Bundesministerien",
+  "source": "Bundesregierung",
+  "version": "21.07.2009 (konsolidiert)",
+  "url": "https://www.verwaltungsvorschriften-im-internet.de/bsvwvbund_21072009_O11313012.htm",
+  "rule_count": 12,
+  "rules": [
+    {
+      "id": "ggo-01",
+      "category": "Vorblatt (§ 42)",
+      "rule": "Das Vorblatt eines Gesetzentwurfs muss enthalten: Problem und Ziel, Lösung, Alternativen, Haushaltsausgaben, Erfüllungsaufwand und weitere Kosten.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["entwurf"],
+      "source_section": "§ 42 GGO"
+    },
+    {
+      "id": "ggo-02",
+      "category": "Vorblatt (§ 42)",
+      "rule": "Im Vorblatt ist die Gesetzgebungskompetenz des Bundes darzulegen.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["entwurf"],
+      "source_section": "§ 42 Abs. 4 GGO"
+    },
+    {
+      "id": "ggo-03",
+      "category": "Begründung (§ 43)",
+      "rule": "Die Begründung muss eine allgemeine Begründung und eine Einzelbegründung zu jeder Vorschrift enthalten.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["entwurf", "proposal_development"],
+      "source_section": "§ 43 GGO"
+    },
+    {
+      "id": "ggo-04",
+      "category": "Beteiligung (§ 45)",
+      "rule": "Sachlich berührte Ressorts sind frühzeitig zu beteiligen. Die Federführung liegt beim fachlich zuständigen Ressort.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["entwurf"],
+      "source_section": "§ 45 GGO"
+    },
+    {
+      "id": "ggo-05",
+      "category": "Rechtsprüfung (§ 46)",
+      "rule": "Das BMJ führt die Rechtsprüfung durch: Prüfung der Rechtsförmlichkeit, der Vereinbarkeit mit höherrangigem Recht und der systematischen Einordnung.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "§ 46 GGO"
+    },
+    {
+      "id": "ggo-06",
+      "category": "Gleichstellung (§ 2)",
+      "rule": "Die Gleichstellung von Frauen und Männern ist als durchgängiges Leitprinzip zu beachten. Eine Gender-Relevanzprüfung ist durchzuführen.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "§ 2 GGO"
+    },
+    {
+      "id": "ggo-07",
+      "category": "Rechtsförmlichkeit (§ 42 Abs. 4)",
+      "rule": "Gesetzentwürfe sind nach dem Handbuch der Rechtsförmlichkeit (HdR) zu gestalten.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["amendment", "entwurf"],
+      "source_section": "§ 42 Abs. 4 GGO"
+    },
+    {
+      "id": "ggo-08",
+      "category": "Normprüfung (§ 44)",
+      "rule": "Vor Erlass einer Regelung ist zu prüfen, ob der angestrebte Zweck nicht durch andere Maßnahmen erreicht werden kann (Erforderlichkeitsprüfung).",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "evaluation"],
+      "source_section": "§ 44 GGO"
+    },
+    {
+      "id": "ggo-09",
+      "category": "Normprüfung (§ 44)",
+      "rule": "Die Auswirkungen auf die Einnahmen und Ausgaben der öffentlichen Haushalte sind darzustellen.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "§ 44 Abs. 2 GGO"
+    },
+    {
+      "id": "ggo-10",
+      "category": "Normprüfung (§ 44)",
+      "rule": "Die Auswirkungen auf Verbraucher sind darzustellen.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "§ 44 Abs. 3 GGO"
+    },
+    {
+      "id": "ggo-11",
+      "category": "Befristung (§ 44 Abs. 6)",
+      "rule": "Es ist zu prüfen, ob die Regelung befristet werden kann.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["proposal_development", "entwurf"],
+      "source_section": "§ 44 Abs. 6 GGO"
+    },
+    {
+      "id": "ggo-12",
+      "category": "Evaluierung (§ 44 Abs. 7)",
+      "rule": "Die Regelung soll eine Evaluierungsklausel enthalten, die Zeitpunkt und Kriterien der Überprüfung festlegt.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "§ 44 Abs. 7 GGO"
+    }
+  ]
+}

@@ -52,9 +52,11 @@ export default function UmsetzungTab() {
         state.selectedModel,
         customAdjustments || undefined,
         state.amendmentProposals || undefined,
+        state.selectedGuidelines,
+        state.excludedRuleIds,
         { onThinking: (token: string) => setThinkingText(prev => prev + token) }
       );
-      
+
       thinking.completeAll();
       setFinalAmendment(finalAmendments);
       addLog(`Final amendment generated. ${finalAmendments.length} amendment entries created`);

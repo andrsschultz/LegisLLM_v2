@@ -15,10 +15,12 @@ async def generate_proposals(
 ):
     selected_model = model
     raw_entries = await develop_amendment_proposals(
-        task_description=request.task_description, 
+        task_description=request.task_description,
         relevant_norms=request.relevant_norms,
         api_key=api_key,
-        model=selected_model
+        model=selected_model,
+        guideline_ids=request.guideline_ids,
+        excluded_rule_ids=request.excluded_rule_ids
     )
     
     entries = [

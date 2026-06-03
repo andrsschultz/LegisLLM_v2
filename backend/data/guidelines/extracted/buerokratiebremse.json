@@ -1,0 +1,66 @@
+{
+  "id": "buerokratiebremse",
+  "name": "Bürokratiebremse – One in, one out",
+  "source": "Bundesregierung / Staatssekretärsausschuss",
+  "version": "Verschärfung Okt/Nov 2025",
+  "url": "https://bmds.bund.de/themen/staatsmodernisierung/buerokratierueckbau",
+  "rule_count": 7,
+  "rules": [
+    {
+      "id": "bb-01",
+      "category": "Grundregel",
+      "rule": "Jede neue laufende Belastung für die Wirtschaft muss durch Entlastung an anderer Stelle (Kompensation) ausgeglichen werden (One in, one out).",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "evaluation", "entwurf"],
+      "source_section": "Grundprinzip"
+    },
+    {
+      "id": "bb-02",
+      "category": "Ausnahmen",
+      "rule": "Ausgenommen von der Bürokratiebremse sind: (1) Eins-zu-eins-Umsetzungen von EU-Recht, (2) Umsetzung verfassungsgerichtlicher Vorgaben, (3) zeitlich streng befristete Regelungen (max. 1 Jahr Geltungsdauer).",
+      "verbindlichkeit": "muss",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "Ausnahmetatbestände"
+    },
+    {
+      "id": "bb-03",
+      "category": "Erfüllungsaufwand",
+      "rule": "Der laufende Erfüllungsaufwand für die Wirtschaft ist in jedem Regelungsvorhaben gesondert auszuweisen und mit dem Netto-Saldo zu verrechnen.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "Erfüllungsaufwand"
+    },
+    {
+      "id": "bb-04",
+      "category": "Prüfpflicht",
+      "rule": "Prüfe bei jedem neuen Regelungsvorhaben, ob es sich um eine Ausnahme handelt (EU-Umsetzung, Verfassungsgericht, Befristung) und dokumentiere dies im Vorblatt.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "Prüfverfahren"
+    },
+    {
+      "id": "bb-05",
+      "category": "Kompensation",
+      "rule": "Falls keine Ausnahme vorliegt, muss ein konkreter Kompensationsvorschlag benannt werden, der die neue Belastung ausgleicht.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["proposal_development", "entwurf"],
+      "source_section": "Kompensationsmechanismus"
+    },
+    {
+      "id": "bb-06",
+      "category": "Evaluierung",
+      "rule": "Regelungen mit erheblichem Erfüllungsaufwand sollen eine Evaluierungsklausel enthalten, die Zeitpunkt und Kriterien der Ex-post-Überprüfung festlegt.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["proposal_development", "amendment", "entwurf"],
+      "source_section": "Ex-post-Evaluierung"
+    },
+    {
+      "id": "bb-07",
+      "category": "Befristung",
+      "rule": "Prüfe, ob eine Befristung der Regelung (Sunset-Klausel) möglich und sinnvoll ist, um den Bürokratieabbau zu fördern.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["proposal_development", "evaluation", "entwurf"],
+      "source_section": "Befristungsgebot"
+    }
+  ]
+}

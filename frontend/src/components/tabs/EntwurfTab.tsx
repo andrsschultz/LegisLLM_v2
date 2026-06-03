@@ -57,6 +57,8 @@ export default function EntwurfTab() {
         state.finalAmendment,
         apiKey,
         state.selectedModel,
+        state.selectedGuidelines,
+        state.excludedRuleIds,
         { onThinking: (token: string) => setAbThinkingText(prev => prev + token) }
       );
 
@@ -111,6 +113,8 @@ export default function EntwurfTab() {
         apiKey,
         state.selectedModel,
         state.finalAmendment || undefined,
+        state.selectedGuidelines,
+        state.excludedRuleIds,
         { onThinking: (token: string) => setEntwurfThinkingText(prev => prev + token) }
       );
 

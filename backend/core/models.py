@@ -12,6 +12,8 @@ class NormEntry(BaseModel):
 class NormRequest(BaseModel):
     task_description: str
     selected_laws: Optional[List[str]] = None
+    guideline_ids: Optional[List[str]] = None
+    excluded_rule_ids: Optional[List[str]] = None
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -30,6 +32,8 @@ class NormResponse(BaseModel):
 class ProposalRequest(BaseModel):
     task_description: str
     relevant_norms: List[NormEntry]
+    guideline_ids: Optional[List[str]] = None
+    excluded_rule_ids: Optional[List[str]] = None
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -63,6 +67,8 @@ class EvaluateRequest(BaseModel):
     task_description: str
     relevant_norms: List[NormEntry]
     amendment_proposals: List[ProposalEntry]
+    guideline_ids: Optional[List[str]] = None
+    excluded_rule_ids: Optional[List[str]] = None
 
 class EvaluateEntry(BaseModel):
     proposalTitle: str
@@ -80,6 +86,8 @@ class DeepEvaluateRequest(BaseModel):
     task_description: str
     relevant_norms: List[NormEntry]
     amendment_proposal: ProposalEntry
+    guideline_ids: Optional[List[str]] = None
+    excluded_rule_ids: Optional[List[str]] = None
 
 class DeepEvaluateEntry(BaseModel):
     class JuristischeBeurteilung(BaseModel):
@@ -124,6 +132,8 @@ class AmendRequest(BaseModel):
     custom_instructions: str | None = None
     relevant_norms: List[NormEntry]
     amendment_proposal: ProposalEntry
+    guideline_ids: Optional[List[str]] = None
+    excluded_rule_ids: Optional[List[str]] = None
 
 class AmendEntry(BaseModel):
     originalNorm: NormEntry
@@ -136,6 +146,8 @@ class AmendResponse(BaseModel):
 class AenderungsbefehlRequest(BaseModel):
     task_description: str
     final_amendments: List[AmendEntry]
+    guideline_ids: Optional[List[str]] = None
+    excluded_rule_ids: Optional[List[str]] = None
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -170,6 +182,8 @@ class GesetzesentwurfRequest(BaseModel):
     task_description: str
     aenderungsbefehle: str
     final_amendments: List[AmendEntry] | None = None
+    guideline_ids: Optional[List[str]] = None
+    excluded_rule_ids: Optional[List[str]] = None
     model_config = {
         "json_schema_extra": {
             "examples": [

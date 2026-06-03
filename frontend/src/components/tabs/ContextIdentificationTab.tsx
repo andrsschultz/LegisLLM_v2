@@ -69,6 +69,8 @@ export default function ContextIdentificationTab() {
         state.selectedModel,
         state.multistepReasoning,
         state.selectedLaws,
+        state.selectedGuidelines,
+        state.excludedRuleIds,
         callbacks
       );
 

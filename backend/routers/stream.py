@@ -96,6 +96,8 @@ async def stream_identify(
                 api_key=api_key,
                 model=model,
                 selected_laws=request.selected_laws,
+                guideline_ids=request.guideline_ids,
+                excluded_rule_ids=request.excluded_rule_ids,
                 on_thinking=_make_thinking_callback(queue),
             )
         )
@@ -149,6 +151,8 @@ async def stream_identify_multistep(
                 api_key=api_key,
                 model=model,
                 selected_laws=request.selected_laws,
+                guideline_ids=request.guideline_ids,
+                excluded_rule_ids=request.excluded_rule_ids,
                 on_step=on_step,
                 on_thinking=_make_thinking_callback(queue),
             )
@@ -179,6 +183,8 @@ async def stream_generate_proposals(
                 relevant_norms=request.relevant_norms,
                 api_key=api_key,
                 model=model,
+                guideline_ids=request.guideline_ids,
+                excluded_rule_ids=request.excluded_rule_ids,
                 on_thinking=_make_thinking_callback(queue),
             )
         )
@@ -216,6 +222,8 @@ async def stream_evaluate_proposals(
                 amendment_proposals=request.amendment_proposals,
                 api_key=api_key,
                 model=model,
+                guideline_ids=request.guideline_ids,
+                excluded_rule_ids=request.excluded_rule_ids,
                 on_thinking=_make_thinking_callback(queue),
             )
         )
@@ -259,6 +267,8 @@ async def stream_deep_evaluate(
                 amendment_proposal=request.amendment_proposal,
                 api_key=api_key,
                 model=model,
+                guideline_ids=request.guideline_ids,
+                excluded_rule_ids=request.excluded_rule_ids,
                 on_thinking=_make_thinking_callback(queue),
             )
         )
@@ -323,6 +333,8 @@ async def stream_amend(
                 api_key=api_key,
                 model=model,
                 custom_instructions=request.custom_instructions or None,
+                guideline_ids=request.guideline_ids,
+                excluded_rule_ids=request.excluded_rule_ids,
                 on_thinking=_make_thinking_callback(queue),
             )
         )
@@ -368,6 +380,8 @@ async def stream_aenderungsbefehle(
                 final_amendments=request.final_amendments,
                 api_key=api_key,
                 model=model,
+                guideline_ids=request.guideline_ids,
+                excluded_rule_ids=request.excluded_rule_ids,
                 on_thinking=_make_thinking_callback(queue),
             )
         )
@@ -397,6 +411,8 @@ async def stream_entwurf(
                 api_key=api_key,
                 model=model,
                 final_amendments=request.final_amendments,
+                guideline_ids=request.guideline_ids,
+                excluded_rule_ids=request.excluded_rule_ids,
                 on_thinking=_make_thinking_callback(queue),
             )
         )

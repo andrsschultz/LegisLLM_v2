@@ -17,12 +17,14 @@ async def amend_law(
 ):
     selected_model = model
     raw_entries = await generate_final_amendment(
-        task_description=request.task_description, 
+        task_description=request.task_description,
         relevant_norms=request.relevant_norms,
         amendment_proposal=request.amendment_proposal,
         api_key=api_key,
         custom_instructions=request.custom_instructions or None,
-        model=selected_model
+        model=selected_model,
+        guideline_ids=request.guideline_ids,
+        excluded_rule_ids=request.excluded_rule_ids
     )
     
     entries = []

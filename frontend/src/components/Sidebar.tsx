@@ -3,6 +3,22 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import ModelSelector from './ModelSelector';
 import { apiClient } from '@/lib/api';
+import { useApp } from '@/contexts/AppContext';
+import { GuidelineCatalog, GuidelineRule } from '@/types';
+
+const TAB_TO_STEP: Record<number, string> = {
+  1: 'norm_identification',
+  2: 'proposal_development',
+  3: 'evaluation',
+  4: 'amendment',
+  5: 'entwurf',
+};
+
+const VERBINDLICHKEIT_LABEL: Record<string, { text: string; className: string }> = {
+  muss: { text: 'MUSS', className: 'bg-red-100 text-red-700' },
+  soll: { text: 'SOLL', className: 'bg-amber-100 text-amber-700' },
+  kann: { text: 'KANN', className: 'bg-green-100 text-green-700' },
+};
 
 interface SidebarProps {
   isCollapsed?: boolean;
@@ -10,10 +26,14 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
+  const { state, setSelectedGuidelines, setExcludedRuleIds } = useApp();
   const [internalCollapsed, setInternalCollapsed] = useState(false);
   const [lawsInfo, setLawsInfo] = useState<{ count: number; updated_at: string | null; laws: string[] } | null>(null);
   const [lawsExpanded, setLawsExpanded] = useState(false);
   const [lawsSearch, setLawsSearch] = useState('');
+  const [guidelines, setGuidelines] = useState<GuidelineCatalog[]>([]);
+  const [guidelinesExpanded, setGuidelinesExpanded] = useState(false);
+  const [expandedGuidelineRules, setExpandedGuidelineRules] = useState<Set<string>>(new Set());
 
   // Use external state if provided, otherwise use internal state
   const collapsed = isCollapsed !== undefined ? isCollapsed : internalCollapsed;
@@ -22,6 +42,9 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
   useEffect(() => {
     apiClient.fetchLaws().then(data => {
       if (data.count > 0) setLawsInfo(data);
+    });
+    apiClient.fetchGuidelines(true).then(data => {
+      if (data.length > 0) setGuidelines(data);
     });
   }, []);
 
@@ -131,6 +154,162 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                 </div>
               </div>
             </div> */}
+
+            {/* Guidelines */}
+            {guidelines.length > 0 && (() => {
+              const currentStep = TAB_TO_STEP[state.currentTab] || '';
+              return (
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100/70 border border-slate-200/60
+                               rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <button
+                    onClick={() => setGuidelinesExpanded(!guidelinesExpanded)}
+                    className="w-full p-4 sm:p-6 flex items-start justify-between text-left"
+                  >
+                    <div className="flex items-start min-w-0 flex-1">
+                      <span className="text-lg mr-3 mt-0.5 flex-shrink-0">&#x2696;&#xFE0F;</span>
+                      <div className="min-w-0">
+                        <h2 className="text-lg font-semibold text-slate-800">Leitfäden</h2>
+                        <p className="text-sm text-slate-500 mt-0.5">
+                          {state.selectedGuidelines.length > 0
+                            ? `${state.selectedGuidelines.length} von ${guidelines.length} aktiv`
+                            : `${guidelines.length} verfügbar`}
+                        </p>
+                      </div>
+                    </div>
+                    <svg
+                      className={`w-4 h-4 text-slate-400 flex-shrink-0 mt-1.5 transition-transform duration-200 ${guidelinesExpanded ? 'rotate-180' : ''}`}
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {guidelinesExpanded && (
+                    <div className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-2">
+                      {guidelines.map(g => {
+                        const isSelected = state.selectedGuidelines.includes(g.id);
+                        const isRulesExpanded = expandedGuidelineRules.has(g.id);
+                        const stepRules = (g.rules || []).filter(
+                          r => !currentStep || r.applies_to.includes(currentStep) || r.applies_to.length === 0
+                        );
+
+                        return (
+                          <div key={g.id} className={`rounded-lg transition-all duration-150 ${
+                            isSelected
+                              ? 'bg-slate-800 ring-1 ring-slate-700'
+                              : 'bg-white border border-slate-200/60'
+                          }`}>
+                            {/* Guideline toggle button */}
+                            <button
+                              onClick={() => {
+                                const next = isSelected
+                                  ? state.selectedGuidelines.filter(id => id !== g.id)
+                                  : [...state.selectedGuidelines, g.id];
+                                setSelectedGuidelines(next);
+                              }}
+                              className="w-full text-left px-3 py-2.5 text-sm flex items-start justify-between gap-2"
+                            >
+                              <span className={`leading-snug ${isSelected ? 'text-white' : 'text-slate-700'}`}>
+                                {g.name}
+                              </span>
+                              <span className={`text-xs flex-shrink-0 mt-0.5 ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>
+                                {g.rule_count}
+                              </span>
+                            </button>
+
+                            {/* Rule expand toggle (only for selected guidelines with rules) */}
+                            {isSelected && g.rules && g.rules.length > 0 && (
+                              <>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setExpandedGuidelineRules(prev => {
+                                      const next = new Set(prev);
+                                      if (next.has(g.id)) next.delete(g.id);
+                                      else next.add(g.id);
+                                      return next;
+                                    });
+                                  }}
+                                  className="w-full text-left px-3 pb-2 flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-300 transition-colors"
+                                >
+                                  <svg
+                                    className={`w-3 h-3 transition-transform duration-150 ${isRulesExpanded ? 'rotate-90' : ''}`}
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                  </svg>
+                                  {(() => {
+                                    const displayRules = currentStep ? stepRules : (g.rules || []);
+                                    const activeCount = displayRules.filter(r => !state.excludedRuleIds.includes(r.id)).length;
+                                    const totalCount = displayRules.length;
+                                    const label = currentStep ? 'für diesen Schritt' : 'gesamt';
+                                    return activeCount < totalCount
+                                      ? `${activeCount}/${totalCount} Regeln aktiv ${label}`
+                                      : `${totalCount} Regeln ${label}`;
+                                  })()}
+                                </button>
+
+                                {/* Expanded rule list */}
+                                {isRulesExpanded && (
+                                  <div className="px-3 pb-3 space-y-1.5 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600">
+                                    {(currentStep ? stepRules : g.rules).map(rule => {
+                                      const badge = VERBINDLICHKEIT_LABEL[rule.verbindlichkeit];
+                                      const isExcluded = state.excludedRuleIds.includes(rule.id);
+                                      return (
+                                        <button
+                                          key={rule.id}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            const next = isExcluded
+                                              ? state.excludedRuleIds.filter(id => id !== rule.id)
+                                              : [...state.excludedRuleIds, rule.id];
+                                            setExcludedRuleIds(next);
+                                          }}
+                                          className={`w-full text-left rounded px-2.5 py-2 text-xs leading-relaxed transition-all duration-150 ${
+                                            isExcluded
+                                              ? 'bg-slate-800/50 text-slate-500 opacity-60'
+                                              : 'bg-slate-700/50 text-slate-200'
+                                          }`}
+                                        >
+                                          <div className="flex items-start gap-1.5">
+                                            <span className={`flex-shrink-0 mt-0.5 w-3.5 h-3.5 rounded border flex items-center justify-center ${
+                                              isExcluded
+                                                ? 'border-slate-600 bg-transparent'
+                                                : 'border-slate-400 bg-slate-400'
+                                            }`}>
+                                              {!isExcluded && (
+                                                <svg className="w-2.5 h-2.5 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                              )}
+                                            </span>
+                                            {badge && (
+                                              <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold flex-shrink-0 mt-0.5 ${badge.className} ${isExcluded ? 'opacity-50' : ''}`}>
+                                                {badge.text}
+                                              </span>
+                                            )}
+                                            <span className={isExcluded ? 'line-through' : ''}>{rule.rule}</span>
+                                          </div>
+                                        </button>
+                                      );
+                                    })}
+                                    {currentStep && stepRules.length === 0 && (
+                                      <p className="text-xs text-slate-500 italic px-1">
+                                        Keine Regeln für diesen Schritt.
+                                      </p>
+                                    )}
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Available Laws */}
             {lawsInfo && (

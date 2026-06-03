@@ -56,6 +56,8 @@ export default function EvaluationTab() {
         state.amendmentProposals,
         apiKey,
         state.selectedModel,
+        state.selectedGuidelines,
+        state.excludedRuleIds,
         { onThinking: (token: string) => setEvalThinkingText(prev => prev + token) }
       );
 
@@ -106,6 +108,8 @@ export default function EvaluationTab() {
         selectedProposal,
         apiKey,
         state.selectedModel,
+        state.selectedGuidelines,
+        state.excludedRuleIds,
         { onThinking: (token: string) => setDeepThinkingText(prev => prev + token) }
       );
 

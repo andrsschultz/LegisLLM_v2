@@ -17,13 +17,15 @@ async def evaluate_proposals_endpoint(
 ):
     selected_model = model
     raw_entries = await evaluate_proposals(
-        task_description=request.task_description, 
+        task_description=request.task_description,
         relevant_norms=request.relevant_norms,
         amendment_proposals=request.amendment_proposals,
         api_key=api_key,
-        model=selected_model
+        model=selected_model,
+        guideline_ids=request.guideline_ids,
+        excluded_rule_ids=request.excluded_rule_ids
     )
-    
+
     # Create mapping from proposal title to original affected norms to preserve wording
     proposal_norms_map = {
         proposal.proposalTitle: proposal.affectedNorms 
@@ -52,13 +54,15 @@ async def deep_evaluate_proposals_endpoint(
 ):
     selected_model = model
     raw_entries = await deep_evaluate_proposals(
-        task_description=request.task_description, 
+        task_description=request.task_description,
         relevant_norms=request.relevant_norms,
         amendment_proposal=request.amendment_proposal,
         api_key=api_key,
-        model=selected_model
+        model=selected_model,
+        guideline_ids=request.guideline_ids,
+        excluded_rule_ids=request.excluded_rule_ids
     )
-    
+
     # Preserve original affected norms with wording from request
     original_affected_norms = request.amendment_proposal.affectedNorms
     

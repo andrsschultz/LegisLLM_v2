@@ -1,0 +1,122 @@
+{
+  "id": "nkr",
+  "name": "NKR – Leitfaden Erfüllungsaufwand",
+  "source": "Nationaler Normenkontrollrat / Statistisches Bundesamt",
+  "version": "Februar 2026",
+  "url": "https://www.normenkontrollrat.bund.de/Webs/NKR/SharedDocs/Downloads/DE/leitfaden-erfuellungsaufwand.html",
+  "rule_count": 14,
+  "rules": [
+    {
+      "id": "nkr-01",
+      "category": "Vorgaben-Identifikation",
+      "rule": "Identifiziere im Normtext alle 'Vorgaben' – Einzelregelungen, die bei Normadressaten unmittelbar zu Änderungen von Kosten oder Zeitaufwand führen.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["norm_identification", "evaluation", "entwurf"],
+      "source_section": "Kapitel 2 – Vorgabenbegriff"
+    },
+    {
+      "id": "nkr-02",
+      "category": "Vorgaben-Identifikation",
+      "rule": "Achte auf handlungsauffordernde Verben im Normtext: 'beantragen', 'übermitteln', 'nachweisen', 'aufbewahren', 'melden', 'vorlegen' – diese deuten auf Vorgaben hin.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["norm_identification", "evaluation"],
+      "source_section": "Kapitel 2 – Vorgabenerkennung"
+    },
+    {
+      "id": "nkr-03",
+      "category": "Adressaten",
+      "rule": "Ordne jede identifizierte Vorgabe einer Adressatengruppe zu: Bürgerinnen und Bürger, Wirtschaft oder Verwaltung.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "Kapitel 3 – Adressatengruppen"
+    },
+    {
+      "id": "nkr-04",
+      "category": "Adressaten",
+      "rule": "Unterscheide bei der Wirtschaft zwischen Informationspflichten und sonstigen Pflichten (Handlungspflichten, Duldungspflichten).",
+      "verbindlichkeit": "soll",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "Kapitel 3 – Adressatengruppen"
+    },
+    {
+      "id": "nkr-05",
+      "category": "Erfüllungsaufwand",
+      "rule": "Der Erfüllungsaufwand umfasst den gesamten messbaren Zeitaufwand und die Kosten, die durch die Befolgung einer Vorgabe entstehen.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "Kapitel 4 – Erfüllungsaufwand"
+    },
+    {
+      "id": "nkr-06",
+      "category": "Erfüllungsaufwand",
+      "rule": "Unterscheide zwischen einmaligem Erfüllungsaufwand (Umstellungskosten) und laufendem Erfüllungsaufwand (wiederkehrende Kosten).",
+      "verbindlichkeit": "muss",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "Kapitel 4 – Erfüllungsaufwand"
+    },
+    {
+      "id": "nkr-07",
+      "category": "Vorblatt",
+      "rule": "Der Erfüllungsaufwand ist getrennt nach Adressatengruppen im Vorblatt des Gesetzentwurfs darzustellen.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["entwurf"],
+      "source_section": "Kapitel 6 – Darstellung im Vorblatt"
+    },
+    {
+      "id": "nkr-08",
+      "category": "Vorblatt",
+      "rule": "Im Vorblatt müssen Problem, Ziel, Lösung und Alternativen explizit benannt werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["entwurf"],
+      "source_section": "Kapitel 6 – Darstellung im Vorblatt"
+    },
+    {
+      "id": "nkr-09",
+      "category": "Methodik",
+      "rule": "Verwende für die Berechnung des Erfüllungsaufwands das Standardkosten-Modell (SKM) mit Zeitwerten und Lohnsätzen.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "Kapitel 5 – Methodik"
+    },
+    {
+      "id": "nkr-10",
+      "category": "Methodik",
+      "rule": "Stelle bei jeder Vorgabe die Fallzahl (Anzahl der betroffenen Normadressaten) und die Häufigkeit der Befolgung fest.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "Kapitel 5 – Methodik"
+    },
+    {
+      "id": "nkr-11",
+      "category": "Alternativen",
+      "rule": "Prüfe für jede Vorgabe, ob weniger belastende Regelungsalternativen existieren (Anzeigepflicht statt Genehmigungspflicht, digitale statt analoge Verfahren).",
+      "verbindlichkeit": "soll",
+      "applies_to": ["proposal_development", "evaluation"],
+      "source_section": "Kapitel 7 – Alternativen"
+    },
+    {
+      "id": "nkr-12",
+      "category": "KMU-Test",
+      "rule": "Prüfe die besonderen Auswirkungen auf kleine und mittlere Unternehmen (KMU). Erwäge Ausnahmen, Schwellenwerte oder vereinfachte Verfahren für KMU.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "Kapitel 8 – KMU-Test"
+    },
+    {
+      "id": "nkr-13",
+      "category": "Digitalisierung",
+      "rule": "Prüfe, ob der Erfüllungsaufwand durch Digitalisierung der Verfahren reduziert werden kann.",
+      "verbindlichkeit": "soll",
+      "applies_to": ["proposal_development", "evaluation"],
+      "source_section": "Kapitel 9 – Digitalisierung"
+    },
+    {
+      "id": "nkr-14",
+      "category": "Nachvollziehbarkeit",
+      "rule": "Die Darstellung des Erfüllungsaufwands muss nachvollziehbar sein – alle Annahmen, Datenquellen und Berechnungen sind offenzulegen.",
+      "verbindlichkeit": "muss",
+      "applies_to": ["evaluation", "entwurf"],
+      "source_section": "Kapitel 10 – Nachvollziehbarkeit"
+    }
+  ]
+}

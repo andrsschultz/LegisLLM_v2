@@ -72,6 +72,22 @@ export interface LoadingStates {
   entwurf: boolean;
 }
 
+export interface GuidelineRule {
+  id: string;
+  category: string;
+  rule: string;
+  verbindlichkeit: 'muss' | 'soll' | 'kann';
+  applies_to: string[];
+  source_section?: string;
+}
+
+export interface GuidelineCatalog {
+  id: string;
+  name: string;
+  rule_count: number;
+  rules?: GuidelineRule[];
+}
+
 export interface AppState {
   taskDescription: string;
   selectedModel: string;
@@ -82,6 +98,8 @@ export interface AppState {
   finalAmendment: AmendmentEntry[] | null;
   generatedEntwurf: string | null;
   selectedLaws: string[];
+  selectedGuidelines: string[];
+  excludedRuleIds: string[];
   currentTab: number;
   multistepReasoning: boolean;
   logs: string[];

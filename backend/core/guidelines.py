@@ -28,27 +28,40 @@ def _load_catalogs() -> dict[str, dict]:
     return _cache
 
 
-def get_available_guidelines() -> list[dict]:
-    """Return list of available guidelines (id, name, rule_count)."""
+def get_available_guidelines(include_rules: bool = False) -> list[dict]:
+    """Return list of available guidelines (id, name, rule_count, optionally rules)."""
     catalogs = _load_catalogs()
-    return [
-        {"id": c["id"], "name": c["name"], "rule_count": c.get("rule_count", len(c.get("rules", [])))}
-        for c in catalogs.values()
-    ]
+    result = []
+    for c in catalogs.values():
+        entry: dict = {
+            "id": c["id"],
+            "name": c["name"],
+            "rule_count": c.get("rule_count", len(c.get("rules", []))),
+        }
+        if include_rules:
+            entry["rules"] = c.get("rules", [])
+        result.append(entry)
+    return result
 
 
-def get_rules_for_step(guideline_ids: list[str], step: str) -> list[dict]:
+def get_rules_for_step(
+    guideline_ids: list[str],
+    step: str,
+    excluded_rule_ids: list[str] | None = None,
+) -> list[dict]:
     """Get all rules from selected guidelines that apply to a given workflow step.
 
     Args:
         guideline_ids: List of guideline IDs to include (e.g. ["hdr", "gfa"])
         step: Workflow step name ("norm_identification", "proposal_development",
               "evaluation", "amendment", "entwurf")
+        excluded_rule_ids: Optional list of individual rule IDs to exclude.
 
     Returns:
         List of rule dicts filtered to the given step.
     """
     catalogs = _load_catalogs()
+    excluded = set(excluded_rule_ids or [])
     rules = []
 
     for gid in guideline_ids:
@@ -56,6 +69,8 @@ def get_rules_for_step(guideline_ids: list[str], step: str) -> list[dict]:
         if not catalog:
             continue
         for rule in catalog.get("rules", []):
+            if rule.get("id") in excluded:
+                continue
             applies = rule.get("applies_to", [])
             if step in applies or not applies:
                 rules.append(rule)
@@ -63,12 +78,16 @@ def get_rules_for_step(guideline_ids: list[str], step: str) -> list[dict]:
     return rules
 
 
-def format_rules_for_prompt(guideline_ids: list[str], step: str) -> str:
+def format_rules_for_prompt(
+    guideline_ids: list[str],
+    step: str,
+    excluded_rule_ids: list[str] | None = None,
+) -> str:
     """Format relevant rules as a text block for LLM prompt injection.
 
     Returns an empty string if no rules apply.
     """
-    rules = get_rules_for_step(guideline_ids, step)
+    rules = get_rules_for_step(guideline_ids, step, excluded_rule_ids)
     if not rules:
         return ""
 

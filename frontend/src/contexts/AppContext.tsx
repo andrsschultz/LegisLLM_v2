@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { AppState, NormEntry, ProposalEntry, EvaluatedProposal, Model, AmendmentEntry, LoadingStates } from '@/types';
+import { AppState, NormEntry, ProposalEntry, EvaluatedProposal, Model, AmendmentEntry, LoadingStates, GuidelineCatalog } from '@/types';
 
 interface AppAction {
   type: string;
@@ -37,6 +37,44 @@ function persistSelectedLaws(laws: string[]) {
   }
 }
 
+function loadSelectedGuidelines(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const stored = window.localStorage.getItem('selectedGuidelines');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistSelectedGuidelines(ids: string[]) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem('selectedGuidelines', JSON.stringify(ids));
+  } catch {
+    // ignore
+  }
+}
+
+function loadExcludedRuleIds(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const stored = window.localStorage.getItem('excludedRuleIds');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistExcludedRuleIds(ids: string[]) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem('excludedRuleIds', JSON.stringify(ids));
+  } catch {
+    // ignore
+  }
+}
+
 const initialState: AppState = {
   taskDescription: '',
   selectedModel: '',
@@ -47,6 +85,8 @@ const initialState: AppState = {
   finalAmendment: null,
   generatedEntwurf: null,
   selectedLaws: [],
+  selectedGuidelines: [],
+  excludedRuleIds: [],
   currentTab: 0,
   multistepReasoning: false,
   logs: [],
@@ -76,6 +116,12 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'SET_SELECTED_LAWS':
       persistSelectedLaws(action.payload);
       return { ...state, selectedLaws: action.payload };
+    case 'SET_SELECTED_GUIDELINES':
+      persistSelectedGuidelines(action.payload);
+      return { ...state, selectedGuidelines: action.payload };
+    case 'SET_EXCLUDED_RULE_IDS':
+      persistExcludedRuleIds(action.payload);
+      return { ...state, excludedRuleIds: action.payload };
     case 'SET_MULTISTEP_REASONING':
       return { ...state, multistepReasoning: action.payload };
     case 'ADD_LOG':
@@ -112,6 +158,8 @@ interface AppContextType {
   setGeneratedEntwurf: (entwurf: string) => void;
   setCurrentTab: (tab: number) => void;
   setSelectedLaws: (laws: string[]) => void;
+  setSelectedGuidelines: (ids: string[]) => void;
+  setExcludedRuleIds: (ids: string[]) => void;
   setMultistepReasoning: (enabled: boolean) => void;
   addLog: (message: string) => void;
   clearLogs: () => void;
@@ -129,6 +177,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const stored = loadSelectedLaws();
     if (stored.length > 0) {
       dispatch({ type: 'SET_SELECTED_LAWS', payload: stored });
+    }
+    const storedGuidelines = loadSelectedGuidelines();
+    if (storedGuidelines.length > 0) {
+      dispatch({ type: 'SET_SELECTED_GUIDELINES', payload: storedGuidelines });
+    }
+    const storedExcluded = loadExcludedRuleIds();
+    if (storedExcluded.length > 0) {
+      dispatch({ type: 'SET_EXCLUDED_RULE_IDS', payload: storedExcluded });
     }
   }, []);
 
@@ -154,6 +210,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_CURRENT_TAB', payload: tab }),
     setSelectedLaws: (laws: string[]) =>
       dispatch({ type: 'SET_SELECTED_LAWS', payload: laws }),
+    setSelectedGuidelines: (ids: string[]) =>
+      dispatch({ type: 'SET_SELECTED_GUIDELINES', payload: ids }),
+    setExcludedRuleIds: (ids: string[]) =>
+      dispatch({ type: 'SET_EXCLUDED_RULE_IDS', payload: ids }),
     setMultistepReasoning: (enabled: boolean) =>
       dispatch({ type: 'SET_MULTISTEP_REASONING', payload: enabled }),
     addLog: (message: string) => 

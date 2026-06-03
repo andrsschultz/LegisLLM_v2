@@ -48,6 +48,8 @@ export default function ProposalDevelopmentTab() {
         state.relevantNorms,
         apiKey,
         state.selectedModel,
+        state.selectedGuidelines,
+        state.excludedRuleIds,
         { onThinking: (token: string) => setThinkingText(prev => prev + token) }
       );
 
