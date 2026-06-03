@@ -402,7 +402,7 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
                         "jurabk": "<Abkürzung des Gesetzes>",   // z. B. "EStG"
                         "enbez": "<Paragraf>",                  // z. B. "§ 21"
                         "P": "<Absatz>",                        // z. B. "1"
-                        "originalWording": "<ursprünglicher Wortlaut>"
+                        "originalWording": "<ursprünglicher Wortlaut>",
                         "amendedWording": "<geänderter Wortlaut>"
                     }}
                 }}

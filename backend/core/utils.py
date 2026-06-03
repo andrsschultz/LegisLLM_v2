@@ -75,25 +75,42 @@ def format_norm_reference(jurabk: str, enbez: str | None, paragraph: str | None 
     return " ".join(parts)
 
 
+_ROMAN_TO_ARABIC = {
+    "I": "1", "II": "2", "III": "3", "IV": "4", "V": "5",
+    "VI": "6", "VII": "7", "VIII": "8", "IX": "9", "X": "10",
+    "XI": "11", "XII": "12", "XIII": "13", "XIV": "14",
+}
+
+def _normalize_jurabk(jurabk: str) -> list[str]:
+    """Return candidate jurabk variants (e.g. roman → arabic for SGB books)."""
+    candidates = [jurabk]
+    parts = jurabk.split()
+    if len(parts) >= 2 and parts[-1].upper() in _ROMAN_TO_ARABIC:
+        arabic = _ROMAN_TO_ARABIC[parts[-1].upper()]
+        candidates.append(" ".join(parts[:-1] + [arabic]))
+    return candidates
+
+
 def resolve_law_xml_path(data_dir: str, jurabk: str) -> str:
     """Return the XML file path for a given jurabk, using the laws index."""
     index = _get_laws_index()
 
-    # Exact match first
-    if jurabk in index:
-        return index[jurabk]
+    for candidate in _normalize_jurabk(jurabk):
+        # Exact match first
+        if candidate in index:
+            return index[candidate]
 
-    # Case-insensitive exact match
-    jurabk_lower = jurabk.lower()
-    for key, path in index.items():
-        if key.lower() == jurabk_lower:
-            return path
+        # Case-insensitive exact match
+        candidate_lower = candidate.lower()
+        for key, path in index.items():
+            if key.lower() == candidate_lower:
+                return path
 
-    # Prefix match: "UStG" matches "UStG 1980" (model may omit the year)
-    prefix = jurabk_lower + " "
-    for key, path in index.items():
-        if key.lower().startswith(prefix):
-            return path
+        # Prefix match: "UStG" matches "UStG 1980" (model may omit the year)
+        prefix = candidate_lower + " "
+        for key, path in index.items():
+            if key.lower().startswith(prefix):
+                return path
 
     # Last resort: construct path in the supplied data_dir (preserves old behaviour)
     return str(Path(data_dir) / f"{jurabk}.xml")
