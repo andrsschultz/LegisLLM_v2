@@ -6,6 +6,7 @@ import { apiClient } from '@/lib/api';
 import { getApiKeyForModel } from '@/lib/apiKeyUtils';
 import ThinkingIndicator from '@/components/ThinkingIndicator';
 import { useThinkingSteps, THINKING_STEPS } from '@/hooks/useThinkingSteps';
+import { getCustomRulesForStep } from '@/lib/customRules';
 
 export default function ProposalDevelopmentTab() {
   const {
@@ -50,6 +51,7 @@ export default function ProposalDevelopmentTab() {
         state.selectedModel,
         state.selectedGuidelines,
         state.excludedRuleIds,
+        getCustomRulesForStep(state.customGuidelines, state.selectedGuidelines, state.excludedRuleIds, 'proposal_development'),
         { onThinking: (token: string) => setThinkingText(prev => prev + token) }
       );
 

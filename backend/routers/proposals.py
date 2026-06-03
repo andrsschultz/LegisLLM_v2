@@ -20,7 +20,8 @@ async def generate_proposals(
         api_key=api_key,
         model=selected_model,
         guideline_ids=request.guideline_ids,
-        excluded_rule_ids=request.excluded_rule_ids
+        excluded_rule_ids=request.excluded_rule_ids,
+        custom_rules=request.custom_rules
     )
     
     entries = [

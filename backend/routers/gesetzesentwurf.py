@@ -25,7 +25,8 @@ async def generate_aenderungsbefehle_endpoint(
             api_key=api_key,
             model=model,
             guideline_ids=request.guideline_ids,
-            excluded_rule_ids=request.excluded_rule_ids
+            excluded_rule_ids=request.excluded_rule_ids,
+            custom_rules=request.custom_rules
         )
 
         return AenderungsbefehlResponse(response=response)
@@ -52,7 +53,8 @@ async def generate_gesetzesentwurf_content_endpoint(
             model=model,
             final_amendments=request.final_amendments,
             guideline_ids=request.guideline_ids,
-            excluded_rule_ids=request.excluded_rule_ids
+            excluded_rule_ids=request.excluded_rule_ids,
+            custom_rules=request.custom_rules
         )
 
         return GesetzesentwurfResponse(response=response)

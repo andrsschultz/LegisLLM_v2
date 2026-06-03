@@ -18,7 +18,10 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
   const [lawsInfo, setLawsInfo] = useState<{ count: number; updated_at: string | null; laws: string[] } | null>(null);
   const [lawsExpanded, setLawsExpanded] = useState(false);
   const [lawsSearch, setLawsSearch] = useState('');
-  const [guidelines, setGuidelines] = useState<GuidelineCatalog[]>([]);
+  const [serverGuidelines, setServerGuidelines] = useState<GuidelineCatalog[]>([]);
+
+  // Merge server + custom (localStorage) guidelines for accurate count
+  const totalGuidelineCount = serverGuidelines.length + state.customGuidelines.length;
 
   // Use external state if provided, otherwise use internal state
   const collapsed = isCollapsed !== undefined ? isCollapsed : internalCollapsed;
@@ -29,7 +32,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
       if (data.count > 0) setLawsInfo(data);
     });
     apiClient.fetchGuidelines().then(data => {
-      if (data.length > 0) setGuidelines(data);
+      if (data.length > 0) setServerGuidelines(data);
     });
   }, []);
 
@@ -141,7 +144,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
             </div> */}
 
             {/* Guidelines - compact summary with link to management page */}
-            {guidelines.length > 0 && (
+            {totalGuidelineCount > 0 && (
               <div className="bg-gradient-to-br from-slate-50 to-slate-100/70 border border-slate-200/60
                              rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="flex items-start mb-3">
@@ -150,8 +153,8 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                     <h2 className="text-lg font-semibold text-slate-800">Leitfäden</h2>
                     <p className="text-sm text-slate-500 mt-0.5">
                       {state.selectedGuidelines.length > 0
-                        ? `${state.selectedGuidelines.length} von ${guidelines.length} aktiv`
-                        : `${guidelines.length} verfügbar`}
+                        ? `${state.selectedGuidelines.length} von ${totalGuidelineCount} aktiv`
+                        : `${totalGuidelineCount} verfügbar`}
                       {state.excludedRuleIds.length > 0 && (
                         <span className="block text-xs text-slate-400 mt-0.5">
                           {state.excludedRuleIds.length} Regeln deaktiviert

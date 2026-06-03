@@ -5,3 +5,5 @@ requests
 httpx
 streamlit
 python-dotenv
+pymupdf
+python-multipart

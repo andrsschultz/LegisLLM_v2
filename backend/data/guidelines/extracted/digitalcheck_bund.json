@@ -1,0 +1,257 @@
+{
+  "id": "digitalcheck_bund",
+  "name": "Fünf Prinzipien für digitaltaugliche Gesetzgebung (Digitalcheck)",
+  "source": "Digitalcheck",
+  "version": "Benutzerdefiniert",
+  "url": "",
+  "rule_count": 21,
+  "rules": [
+    {
+      "category": "Digitale Kommunikation",
+      "rule": "Neue Regelungsvorhaben müssen die digitale Kommunikation zwischen Verwaltungen, Unternehmen, Bürgerinnen und Bürgern sowie weiteren gesellschaftlichen Akteuren sicherstellen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 1: Digitale Kommunikation sicherstellen",
+      "id": "digitalcheck_bund-01"
+    },
+    {
+      "category": "Technologieoffenheit",
+      "rule": "Der Inhalt des Regelungsvorhabens muss technologieoffen gestaltet sein.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 1: Digitale Kommunikation sicherstellen",
+      "id": "digitalcheck_bund-02"
+    },
+    {
+      "category": "Digitale Kommunikation",
+      "rule": "Medienbrüche müssen vermieden werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 1: Digitale Kommunikation sicherstellen",
+      "id": "digitalcheck_bund-03"
+    },
+    {
+      "category": "Schriftform und Nachweise",
+      "rule": "Analoge Schriftformerfordernisse und Nachweispflichten müssen vermieden werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 1: Digitale Kommunikation sicherstellen",
+      "id": "digitalcheck_bund-04"
+    },
+    {
+      "category": "Barrierefreiheit",
+      "rule": "Barrierefreiheit und deren Anforderungen müssen ermöglicht werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 1: Digitale Kommunikation sicherstellen",
+      "id": "digitalcheck_bund-05"
+    },
+    {
+      "category": "Datenaustausch",
+      "rule": "Im Regelungsvorhaben müssen die rechtlichen Voraussetzungen für Daten-Austauschverfahren geschaffen und bestehende Datenerfassungs- und Austauschverfahren, Register und weitere Quellen im Sinne des Once-Only-Gedankens berücksichtigt werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 2: Wiederverwendung von Daten & Standards ermöglichen",
+      "id": "digitalcheck_bund-06"
+    },
+    {
+      "category": "Standards und Wiederverwendung",
+      "rule": "Es muss die Voraussetzung für die Verwendung bestehender relevanter Daten, Standards, Richtlinien und Komponenten geschaffen sowie Barrierefreiheit und deren Anforderungen ermöglicht werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 2: Wiederverwendung von Daten & Standards ermöglichen",
+      "id": "digitalcheck_bund-07"
+    },
+    {
+      "category": "Datenschutz & Informationssicherheit",
+      "rule": "Neue Regelungsvorhaben müssen die sichere und verhältnismäßige Verwendung von Daten gewährleisten sowie die erhobenen und zu verarbeitenden Daten schützen, um Betrug, Diebstahl oder falsche Verwendung zu verhindern.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 3: Datenschutz & Informationssicherheit gewährleisten",
+      "id": "digitalcheck_bund-08"
+    },
+    {
+      "category": "Erfüllungsaufwand",
+      "rule": "Der Erfüllungsaufwand muss die für die Erfüllung der Vorgaben der Informationssicherheit notwendigen finanziellen und personellen Ressourcen berücksichtigen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "evaluation",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Prinzip 3: Datenschutz & Informationssicherheit gewährleisten",
+      "id": "digitalcheck_bund-09"
+    },
+    {
+      "category": "Expertise",
+      "rule": "Datenschutz-Expertise und IT-Sicherheitsexpertise sollen konsultiert oder berücksichtigt werden.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "proposal_development",
+        "evaluation"
+      ],
+      "source_section": "Prinzip 3: Datenschutz & Informationssicherheit gewährleisten",
+      "id": "digitalcheck_bund-10"
+    },
+    {
+      "category": "Datenschutz & Informationssicherheit",
+      "rule": "Die gesetzlichen Anforderungen des Datenschutzes, insbesondere der Datensparsamkeit, und der Informationssicherheit müssen berücksichtigt werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 3: Datenschutz & Informationssicherheit gewährleisten",
+      "id": "digitalcheck_bund-11"
+    },
+    {
+      "category": "Klarheit der Regelungen",
+      "rule": "Regelungen müssen eindeutig und klar formuliert sein, da komplizierte, schwer verständliche Regelungskonstrukte eine digitale Ausführung erschweren.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 4: Klare Regelungen für eine digitale Ausführung finden",
+      "id": "digitalcheck_bund-12"
+    },
+    {
+      "category": "Verständlichkeitstest",
+      "rule": "Die Regelungen sollen mit am Vollzug beteiligten Verwaltungen, Unternehmen, Organisationen oder Bürgerinnen und Bürgern auf Verständlichkeit getestet werden.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "evaluation",
+        "proposal_development"
+      ],
+      "source_section": "Prinzip 4: Klare Regelungen für eine digitale Ausführung finden",
+      "id": "digitalcheck_bund-13"
+    },
+    {
+      "category": "Verfahrensstruktur",
+      "rule": "Bei verfahrenstechnischen Anforderungen soll das Regelungsvorhaben in Aufgaben bzw. chronologische Schritte übersetzbar sein.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "proposal_development",
+        "evaluation"
+      ],
+      "source_section": "Prinzip 4: Klare Regelungen für eine digitale Ausführung finden",
+      "id": "digitalcheck_bund-14"
+    },
+    {
+      "category": "Entscheidungsstrukturen",
+      "rule": "Es müssen klare Entscheidungsstrukturen durch eindeutige Kriterien sowie eine kohärente und logische Systematik vorliegen, wobei Ausnahmen klar gekennzeichnet sein müssen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 4: Klare Regelungen für eine digitale Ausführung finden",
+      "id": "digitalcheck_bund-15"
+    },
+    {
+      "category": "Rechtsbegriffe",
+      "rule": "Rechtsbegriffe müssen harmonisiert sowie klar und eindeutig sein, da unterschiedliche Auslegungen eine einheitliche Umsetzung verhindern.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 4: Klare Regelungen für eine digitale Ausführung finden",
+      "id": "digitalcheck_bund-16"
+    },
+    {
+      "category": "Automatisierung",
+      "rule": "Neue Regelungsvorhaben müssen den Skalierungsvorteil der Digitalisierung berücksichtigen, und auf Ermessensspielraum, der eine vollständige Automatisierung verhindert, soll verzichtet werden, soweit es dem Regelungsziel dient.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 5: Automatisierung ermöglichen",
+      "id": "digitalcheck_bund-17"
+    },
+    {
+      "category": "Expertise",
+      "rule": "IT-Expertise soll bei der Erstellung des Regelungsvorhabens einbezogen werden.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "proposal_development"
+      ],
+      "source_section": "Prinzip 5: Automatisierung ermöglichen",
+      "id": "digitalcheck_bund-18"
+    },
+    {
+      "category": "Automatisierung",
+      "rule": "Das Regelungsvorhaben muss die rechtlichen Voraussetzungen für automatisierte und/oder antragslose Verfahren schaffen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 5: Automatisierung ermöglichen",
+      "id": "digitalcheck_bund-19"
+    },
+    {
+      "category": "Entscheidungsstrukturen",
+      "rule": "Für die Automatisierung müssen klare Entscheidungsstrukturen durch eindeutige Kriterien sowie eine kohärente und logische Systematik vorliegen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 5: Automatisierung ermöglichen",
+      "id": "digitalcheck_bund-20"
+    },
+    {
+      "category": "Rechtsbegriffe",
+      "rule": "Rechtsbegriffe müssen harmonisiert sowie klar und eindeutig sein, da unterschiedliche Auslegungen die vollständige Automatisierung von Umsetzungsprozessen verhindern.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Prinzip 5: Automatisierung ermöglichen",
+      "id": "digitalcheck_bund-21"
+    }
+  ]
+}

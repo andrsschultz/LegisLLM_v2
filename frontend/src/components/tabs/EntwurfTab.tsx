@@ -6,6 +6,7 @@ import { apiClient } from '@/lib/api';
 import { getApiKeyForModel } from '@/lib/apiKeyUtils';
 import ThinkingIndicator from '@/components/ThinkingIndicator';
 import { useThinkingSteps, THINKING_STEPS } from '@/hooks/useThinkingSteps';
+import { getCustomRulesForStep } from '@/lib/customRules';
 
 export default function EntwurfTab() {
   const { state, setGeneratedEntwurf, addLog } = useApp();
@@ -59,6 +60,7 @@ export default function EntwurfTab() {
         state.selectedModel,
         state.selectedGuidelines,
         state.excludedRuleIds,
+        getCustomRulesForStep(state.customGuidelines, state.selectedGuidelines, state.excludedRuleIds, 'entwurf'),
         { onThinking: (token: string) => setAbThinkingText(prev => prev + token) }
       );
 
@@ -115,6 +117,7 @@ export default function EntwurfTab() {
         state.finalAmendment || undefined,
         state.selectedGuidelines,
         state.excludedRuleIds,
+        getCustomRulesForStep(state.customGuidelines, state.selectedGuidelines, state.excludedRuleIds, 'entwurf'),
         { onThinking: (token: string) => setEntwurfThinkingText(prev => prev + token) }
       );
 

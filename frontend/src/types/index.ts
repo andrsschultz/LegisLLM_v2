@@ -85,6 +85,7 @@ export interface GuidelineCatalog {
   id: string;
   name: string;
   rule_count: number;
+  source?: string;
   rules?: GuidelineRule[];
 }
 
@@ -100,6 +101,7 @@ export interface AppState {
   selectedLaws: string[];
   selectedGuidelines: string[];
   excludedRuleIds: string[];
+  customGuidelines: GuidelineCatalog[];
   currentTab: number;
   multistepReasoning: boolean;
   logs: string[];

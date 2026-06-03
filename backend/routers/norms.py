@@ -55,7 +55,8 @@ async def identify_norms(
         model=selected_model,
         selected_laws=request.selected_laws,
         guideline_ids=request.guideline_ids,
-        excluded_rule_ids=request.excluded_rule_ids
+        excluded_rule_ids=request.excluded_rule_ids,
+        custom_rules=request.custom_rules
     )
 
     # Convert raw entries to NormEntry objects with wording
@@ -123,7 +124,8 @@ async def identify_norms_multistep(
         model=selected_model,
         selected_laws=request.selected_laws,
         guideline_ids=request.guideline_ids,
-        excluded_rule_ids=request.excluded_rule_ids
+        excluded_rule_ids=request.excluded_rule_ids,
+        custom_rules=request.custom_rules
     )
 
     return {"entries": norm_entries}

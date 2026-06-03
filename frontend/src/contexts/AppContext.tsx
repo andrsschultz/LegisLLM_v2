@@ -75,6 +75,25 @@ function persistExcludedRuleIds(ids: string[]) {
   }
 }
 
+function loadCustomGuidelines(): GuidelineCatalog[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const stored = window.localStorage.getItem('customGuidelines');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistCustomGuidelines(catalogs: GuidelineCatalog[]) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem('customGuidelines', JSON.stringify(catalogs));
+  } catch {
+    // ignore
+  }
+}
+
 const initialState: AppState = {
   taskDescription: '',
   selectedModel: '',
@@ -87,6 +106,7 @@ const initialState: AppState = {
   selectedLaws: [],
   selectedGuidelines: [],
   excludedRuleIds: [],
+  customGuidelines: [],
   currentTab: 0,
   multistepReasoning: false,
   logs: [],
@@ -122,6 +142,9 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'SET_EXCLUDED_RULE_IDS':
       persistExcludedRuleIds(action.payload);
       return { ...state, excludedRuleIds: action.payload };
+    case 'SET_CUSTOM_GUIDELINES':
+      persistCustomGuidelines(action.payload);
+      return { ...state, customGuidelines: action.payload };
     case 'SET_MULTISTEP_REASONING':
       return { ...state, multistepReasoning: action.payload };
     case 'ADD_LOG':
@@ -160,6 +183,7 @@ interface AppContextType {
   setSelectedLaws: (laws: string[]) => void;
   setSelectedGuidelines: (ids: string[]) => void;
   setExcludedRuleIds: (ids: string[]) => void;
+  setCustomGuidelines: (catalogs: GuidelineCatalog[]) => void;
   setMultistepReasoning: (enabled: boolean) => void;
   addLog: (message: string) => void;
   clearLogs: () => void;
@@ -185,6 +209,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const storedExcluded = loadExcludedRuleIds();
     if (storedExcluded.length > 0) {
       dispatch({ type: 'SET_EXCLUDED_RULE_IDS', payload: storedExcluded });
+    }
+    const storedCustom = loadCustomGuidelines();
+    if (storedCustom.length > 0) {
+      dispatch({ type: 'SET_CUSTOM_GUIDELINES', payload: storedCustom });
     }
   }, []);
 
@@ -214,6 +242,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_SELECTED_GUIDELINES', payload: ids }),
     setExcludedRuleIds: (ids: string[]) =>
       dispatch({ type: 'SET_EXCLUDED_RULE_IDS', payload: ids }),
+    setCustomGuidelines: (catalogs: GuidelineCatalog[]) =>
+      dispatch({ type: 'SET_CUSTOM_GUIDELINES', payload: catalogs }),
     setMultistepReasoning: (enabled: boolean) =>
       dispatch({ type: 'SET_MULTISTEP_REASONING', payload: enabled }),
     addLog: (message: string) => 

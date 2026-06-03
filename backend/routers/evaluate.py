@@ -23,7 +23,8 @@ async def evaluate_proposals_endpoint(
         api_key=api_key,
         model=selected_model,
         guideline_ids=request.guideline_ids,
-        excluded_rule_ids=request.excluded_rule_ids
+        excluded_rule_ids=request.excluded_rule_ids,
+        custom_rules=request.custom_rules
     )
 
     # Create mapping from proposal title to original affected norms to preserve wording
@@ -60,7 +61,8 @@ async def deep_evaluate_proposals_endpoint(
         api_key=api_key,
         model=selected_model,
         guideline_ids=request.guideline_ids,
-        excluded_rule_ids=request.excluded_rule_ids
+        excluded_rule_ids=request.excluded_rule_ids,
+        custom_rules=request.custom_rules
     )
 
     # Preserve original affected norms with wording from request

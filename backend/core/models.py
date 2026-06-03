@@ -14,6 +14,7 @@ class NormRequest(BaseModel):
     selected_laws: Optional[List[str]] = None
     guideline_ids: Optional[List[str]] = None
     excluded_rule_ids: Optional[List[str]] = None
+    custom_rules: Optional[List[str]] = None
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -34,6 +35,7 @@ class ProposalRequest(BaseModel):
     relevant_norms: List[NormEntry]
     guideline_ids: Optional[List[str]] = None
     excluded_rule_ids: Optional[List[str]] = None
+    custom_rules: Optional[List[str]] = None
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -69,6 +71,7 @@ class EvaluateRequest(BaseModel):
     amendment_proposals: List[ProposalEntry]
     guideline_ids: Optional[List[str]] = None
     excluded_rule_ids: Optional[List[str]] = None
+    custom_rules: Optional[List[str]] = None
 
 class EvaluateEntry(BaseModel):
     proposalTitle: str
@@ -88,6 +91,7 @@ class DeepEvaluateRequest(BaseModel):
     amendment_proposal: ProposalEntry
     guideline_ids: Optional[List[str]] = None
     excluded_rule_ids: Optional[List[str]] = None
+    custom_rules: Optional[List[str]] = None
 
 class DeepEvaluateEntry(BaseModel):
     class JuristischeBeurteilung(BaseModel):
@@ -134,6 +138,7 @@ class AmendRequest(BaseModel):
     amendment_proposal: ProposalEntry
     guideline_ids: Optional[List[str]] = None
     excluded_rule_ids: Optional[List[str]] = None
+    custom_rules: Optional[List[str]] = None
 
 class AmendEntry(BaseModel):
     originalNorm: NormEntry
@@ -148,6 +153,7 @@ class AenderungsbefehlRequest(BaseModel):
     final_amendments: List[AmendEntry]
     guideline_ids: Optional[List[str]] = None
     excluded_rule_ids: Optional[List[str]] = None
+    custom_rules: Optional[List[str]] = None
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -184,6 +190,7 @@ class GesetzesentwurfRequest(BaseModel):
     final_amendments: List[AmendEntry] | None = None
     guideline_ids: Optional[List[str]] = None
     excluded_rule_ids: Optional[List[str]] = None
+    custom_rules: Optional[List[str]] = None
     model_config = {
         "json_schema_extra": {
             "examples": [

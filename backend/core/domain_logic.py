@@ -9,7 +9,7 @@ from .utils import clean_json_string, format_norm_reference, resolve_law_xml_pat
 from .guidelines import format_rules_for_prompt
 
 
-async def identify_relevant_norms(task_description: str, api_key: str, model: str, selected_laws: Optional[List[str]] = None, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
+async def identify_relevant_norms(task_description: str, api_key: str, model: str, selected_laws: Optional[List[str]] = None, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, custom_rules: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
 
     """Identify the relevant legal norms for the given task."""
     print("\n==== IDENTIFY RELEVANT NORMS ====")
@@ -42,7 +42,7 @@ async def identify_relevant_norms(task_description: str, api_key: str, model: st
 
         Gib in diesem ersten Schritt nur die Vorschrift auf Paragraphenebene an. Nenne noch keine Absätze.
 
-        {format_rules_for_prompt(guideline_ids or [], "norm_identification", excluded_rule_ids)}
+        {format_rules_for_prompt(guideline_ids or [], "norm_identification", excluded_rule_ids, custom_rules)}
 
         Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
@@ -69,7 +69,7 @@ async def identify_relevant_norms(task_description: str, api_key: str, model: st
     
 
 
-async def develop_amendment_proposals(task_description: str, relevant_norms: List[NormEntry], api_key: str, model: str, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
+async def develop_amendment_proposals(task_description: str, relevant_norms: List[NormEntry], api_key: str, model: str, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, custom_rules: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
     
     """Develop amendment proposals for the relevant legal norms."""
     print("\n==== DEVELOP AMENDMENT PROPOSALS ====")
@@ -117,7 +117,7 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
         - Stelle keine Alternative dar, die nur einen Teilaspekt der Maßnahme abdeckt. Jede Alternative muss für sich allein zur vollständigen Umsetzung genügen.
         - Es können zwei oder mehr Alternativen in Betracht kommen.
 
-        {format_rules_for_prompt(guideline_ids or [], "proposal_development", excluded_rule_ids)}
+        {format_rules_for_prompt(guideline_ids or [], "proposal_development", excluded_rule_ids, custom_rules)}
 
         Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
@@ -143,7 +143,7 @@ async def develop_amendment_proposals(task_description: str, relevant_norms: Lis
         )
     
 
-async def evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposals: List[ProposalEntry], api_key: str, model: str, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
+async def evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposals: List[ProposalEntry], api_key: str, model: str, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, custom_rules: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
     
     """Evaluate the amendment proposals."""
     print("\n==== EVALUATE PROPOSALS ====")
@@ -197,7 +197,7 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
 
         Die JSON Liste soll alle für die jeweilige Regelungsalternative in Betracht kommenden Argumente enthalten. Es können auch mehr auch jeweils mehr als zwei Argumente in Betracht kommen.
 
-        {format_rules_for_prompt(guideline_ids or [], "evaluation", excluded_rule_ids)}
+        {format_rules_for_prompt(guideline_ids or [], "evaluation", excluded_rule_ids, custom_rules)}
 
         Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
@@ -224,7 +224,7 @@ async def evaluate_proposals(task_description: str, relevant_norms: List[NormEnt
 
 
 
-async def deep_evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposal: ProposalEntry, api_key: str, model: str, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
+async def deep_evaluate_proposals(task_description: str, relevant_norms: List[NormEntry], amendment_proposal: ProposalEntry, api_key: str, model: str, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, custom_rules: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
     
     """Deep Evaluate the amendment proposals against juridical, technical, and dogmatic criteria."""
     print("\n==== DEEP EVALUATE PROPOSALS ====")
@@ -326,7 +326,7 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
 
         Die JSON Liste soll alle für die Regelungsalternative in Betracht kommenden Argumente enthalten. Es können auch mehr auch jeweils mehr als zwei Argumente in Betracht kommen.
 
-        {format_rules_for_prompt(guideline_ids or [], "evaluation", excluded_rule_ids)}
+        {format_rules_for_prompt(guideline_ids or [], "evaluation", excluded_rule_ids, custom_rules)}
 
         Halte dich bitte **genau** an dieses JSON-Format und verwende keine zusätzlichen Außentexte oder Einleitungen.
     """
@@ -353,7 +353,7 @@ async def deep_evaluate_proposals(task_description: str, relevant_norms: List[No
 
 
 
-async def generate_final_amendment(task_description: str, amendment_proposal: ProposalEntry, relevant_norms: List[NormEntry], api_key: str,  model: str, custom_instructions: str | None = None, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
+async def generate_final_amendment(task_description: str, amendment_proposal: ProposalEntry, relevant_norms: List[NormEntry], api_key: str,  model: str, custom_instructions: str | None = None, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, custom_rules: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List:
     """Generate the final amendment text based on the selected proposal and any custom adjustments."""
     print("\n==== GENERATE FINAL AMENDMENT ====")
     print(f"Task description length: {len(task_description)} characters")
@@ -391,7 +391,7 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
     
         Verwende dabei juristisch präzise Formulierungen und berücksichtige die gängigen Prinzipien der Legistik.
 
-        {format_rules_for_prompt(guideline_ids or [], "amendment", excluded_rule_ids)}
+        {format_rules_for_prompt(guideline_ids or [], "amendment", excluded_rule_ids, custom_rules)}
 
         Gib als Antwort ausschließlich eine JSON-Liste zurück, welche wie folgt formatiert ist:
 
@@ -437,7 +437,7 @@ async def generate_final_amendment(task_description: str, amendment_proposal: Pr
 
 
 
-async def identify_relevant_norms_multistep(task_description: str, api_key: str, model: str, selected_laws: Optional[List[str]] = None, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, on_step: Optional[callable] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List[NormEntry]:
+async def identify_relevant_norms_multistep(task_description: str, api_key: str, model: str, selected_laws: Optional[List[str]] = None, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, custom_rules: Optional[List[str]] = None, on_step: Optional[callable] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> List[NormEntry]:
 
     """Identify the relevant legal norms for the given task."""
     print("\n==== IDENTIFY RELEVANT NORMS ====")
@@ -771,7 +771,7 @@ async def identify_relevant_norms_multistep(task_description: str, api_key: str,
     return norm_entries
 
 
-async def generate_aenderungsbefehle(task_description: str, final_amendments: List[AmendEntry], api_key: str, model: str, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> str:
+async def generate_aenderungsbefehle(task_description: str, final_amendments: List[AmendEntry], api_key: str, model: str, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, custom_rules: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> str:
     """Generate Änderungsbefehle from final amendments using LLM."""
     print("\n==== GENERATE ÄNDERUNGSBEFEHLE ====")
     print(f"Task description: {task_description}")
@@ -798,7 +798,7 @@ async def generate_aenderungsbefehle(task_description: str, final_amendments: Li
     ])
     
     # Replace placeholder with actual amendment data
-    guidelines_text = format_rules_for_prompt(guideline_ids or [], "amendment", excluded_rule_ids)
+    guidelines_text = format_rules_for_prompt(guideline_ids or [], "amendment", excluded_rule_ids, custom_rules)
     aenderungsbefehl_prompt = aenderungsbefehl_template.replace(
         '[HIER WERDEN DIE NORM-ÄNDERUNGEN EINGEFÜGT]',
         amendment_data + ("\n\n" + guidelines_text if guidelines_text else "")
@@ -812,7 +812,7 @@ async def generate_aenderungsbefehle(task_description: str, final_amendments: Li
     return response
 
 
-async def generate_gesetzesentwurf_content(task_description: str, aenderungsbefehle: str, api_key: str, model: str, final_amendments: Optional[List] = None, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> str:
+async def generate_gesetzesentwurf_content(task_description: str, aenderungsbefehle: str, api_key: str, model: str, final_amendments: Optional[List] = None, guideline_ids: Optional[List[str]] = None, excluded_rule_ids: Optional[List[str]] = None, custom_rules: Optional[List[str]] = None, on_thinking: Optional[Callable[[str], Awaitable[None]]] = None) -> str:
     """Generate Gesetzesentwurf content from Änderungsbefehle using LLM."""
     print("\n==== GENERATE GESETZESENTWURF CONTENT ====")
     print(f"Task description: {task_description}")
@@ -917,7 +917,7 @@ async def generate_gesetzesentwurf_content(task_description: str, aenderungsbefe
         metadata_text += f"- Ersetze '**Vom ...**' durch '**Vom {formatted_date}**'\n"
     
     # Replace placeholders
-    guidelines_text = format_rules_for_prompt(guideline_ids or [], "entwurf", excluded_rule_ids)
+    guidelines_text = format_rules_for_prompt(guideline_ids or [], "entwurf", excluded_rule_ids, custom_rules)
     gesetzesentwurf_prompt = gesetzesentwurf_template.replace(
         '[HIER WERDEN DIE ÄNDERUNGSBEFEHLE EINGEFÜGT]',
         aenderungsbefehle + metadata_text + ("\n\n" + guidelines_text if guidelines_text else "")

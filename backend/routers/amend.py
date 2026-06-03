@@ -24,7 +24,8 @@ async def amend_law(
         custom_instructions=request.custom_instructions or None,
         model=selected_model,
         guideline_ids=request.guideline_ids,
-        excluded_rule_ids=request.excluded_rule_ids
+        excluded_rule_ids=request.excluded_rule_ids,
+        custom_rules=request.custom_rules
     )
     
     entries = []

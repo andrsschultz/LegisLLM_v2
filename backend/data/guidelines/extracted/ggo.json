@@ -1,106 +1,257 @@
 {
   "id": "ggo",
-  "name": "GGO – Gemeinsame Geschäftsordnung der Bundesministerien",
-  "source": "Bundesregierung",
-  "version": "21.07.2009 (konsolidiert)",
-  "url": "https://www.verwaltungsvorschriften-im-internet.de/bsvwvbund_21072009_O11313012.htm",
-  "rule_count": 12,
+  "name": "Gemeinsame Geschäftsordnung der Bundesministerien (GGO)",
+  "source": "Bundesministerium des Innern / Bundesregierung",
+  "version": "Benutzerdefiniert",
+  "url": "",
+  "rule_count": 22,
   "rules": [
     {
-      "id": "ggo-01",
-      "category": "Vorblatt (§ 42)",
-      "rule": "Das Vorblatt eines Gesetzentwurfs muss enthalten: Problem und Ziel, Lösung, Alternativen, Haushaltsausgaben, Erfüllungsaufwand und weitere Kosten.",
+      "category": "Sprachliche Gestaltung",
+      "rule": "Gesetzentwürfe müssen sprachlich richtig und möglichst für jedermann verständlich gefasst sein.",
       "verbindlichkeit": "muss",
-      "applies_to": ["entwurf"],
-      "source_section": "§ 42 GGO"
+      "applies_to": [
+        "entwurf",
+        "amendment",
+        "proposal_development"
+      ],
+      "source_section": "§ 42 Gesetzesvorlagen der Bundesregierung",
+      "id": "ggo-01"
     },
     {
-      "id": "ggo-02",
-      "category": "Vorblatt (§ 42)",
-      "rule": "Im Vorblatt ist die Gesetzgebungskompetenz des Bundes darzulegen.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["entwurf"],
-      "source_section": "§ 42 Abs. 4 GGO"
-    },
-    {
-      "id": "ggo-03",
-      "category": "Begründung (§ 43)",
-      "rule": "Die Begründung muss eine allgemeine Begründung und eine Einzelbegründung zu jeder Vorschrift enthalten.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["entwurf", "proposal_development"],
-      "source_section": "§ 43 GGO"
-    },
-    {
-      "id": "ggo-04",
-      "category": "Beteiligung (§ 45)",
-      "rule": "Sachlich berührte Ressorts sind frühzeitig zu beteiligen. Die Federführung liegt beim fachlich zuständigen Ressort.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["entwurf"],
-      "source_section": "§ 45 GGO"
-    },
-    {
-      "id": "ggo-05",
-      "category": "Rechtsprüfung (§ 46)",
-      "rule": "Das BMJ führt die Rechtsprüfung durch: Prüfung der Rechtsförmlichkeit, der Vereinbarkeit mit höherrangigem Recht und der systematischen Einordnung.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["evaluation", "entwurf"],
-      "source_section": "§ 46 GGO"
-    },
-    {
-      "id": "ggo-06",
-      "category": "Gleichstellung (§ 2)",
-      "rule": "Die Gleichstellung von Frauen und Männern ist als durchgängiges Leitprinzip zu beachten. Eine Gender-Relevanzprüfung ist durchzuführen.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["evaluation", "entwurf"],
-      "source_section": "§ 2 GGO"
-    },
-    {
-      "id": "ggo-07",
-      "category": "Rechtsförmlichkeit (§ 42 Abs. 4)",
-      "rule": "Gesetzentwürfe sind nach dem Handbuch der Rechtsförmlichkeit (HdR) zu gestalten.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["amendment", "entwurf"],
-      "source_section": "§ 42 Abs. 4 GGO"
-    },
-    {
-      "id": "ggo-08",
-      "category": "Normprüfung (§ 44)",
-      "rule": "Vor Erlass einer Regelung ist zu prüfen, ob der angestrebte Zweck nicht durch andere Maßnahmen erreicht werden kann (Erforderlichkeitsprüfung).",
-      "verbindlichkeit": "muss",
-      "applies_to": ["proposal_development", "evaluation"],
-      "source_section": "§ 44 GGO"
-    },
-    {
-      "id": "ggo-09",
-      "category": "Normprüfung (§ 44)",
-      "rule": "Die Auswirkungen auf die Einnahmen und Ausgaben der öffentlichen Haushalte sind darzustellen.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["evaluation", "entwurf"],
-      "source_section": "§ 44 Abs. 2 GGO"
-    },
-    {
-      "id": "ggo-10",
-      "category": "Normprüfung (§ 44)",
-      "rule": "Die Auswirkungen auf Verbraucher sind darzustellen.",
+      "category": "Gleichstellung / Sprache",
+      "rule": "Gesetzentwürfe sollen die Gleichstellung von Frauen und Männern sprachlich zum Ausdruck bringen.",
       "verbindlichkeit": "soll",
-      "applies_to": ["evaluation", "entwurf"],
-      "source_section": "§ 44 Abs. 3 GGO"
+      "applies_to": [
+        "entwurf",
+        "amendment",
+        "proposal_development"
+      ],
+      "source_section": "§ 42 Gesetzesvorlagen der Bundesregierung",
+      "id": "ggo-02"
     },
     {
-      "id": "ggo-11",
-      "category": "Befristung (§ 44 Abs. 6)",
-      "rule": "Es ist zu prüfen, ob die Regelung befristet werden kann.",
+      "category": "Sprachprüfung",
+      "rule": "Gesetzentwürfe sind grundsätzlich dem Redaktionsstab Rechtssprache zur Prüfung auf ihre sprachliche Richtigkeit und Verständlichkeit zuzuleiten, und zwar möglichst frühzeitig.",
       "verbindlichkeit": "soll",
-      "applies_to": ["proposal_development", "entwurf"],
-      "source_section": "§ 44 Abs. 6 GGO"
+      "applies_to": [
+        "entwurf",
+        "evaluation"
+      ],
+      "source_section": "§ 42 Gesetzesvorlagen der Bundesregierung",
+      "id": "ggo-03"
     },
     {
-      "id": "ggo-12",
-      "category": "Evaluierung (§ 44 Abs. 7)",
-      "rule": "Die Regelung soll eine Evaluierungsklausel enthalten, die Zeitpunkt und Kriterien der Überprüfung festlegt.",
+      "category": "Aufbau von Gesetzesvorlagen",
+      "rule": "Gesetzesvorlagen müssen aus dem Entwurf des Gesetzestextes (Gesetzentwurf), der Begründung und einer vorangestellten Übersicht (Vorblatt) entsprechend Anlage 3 bestehen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "§ 42 Gesetzesvorlagen der Bundesregierung",
+      "id": "ggo-04"
+    },
+    {
+      "category": "Synopse bei Änderungsgesetzen",
+      "rule": "Gesetzesvorlagen zu Änderungsgesetzen soll eine Synopse beigefügt werden, die die aktuelle Rechtslage den geplanten Änderungen gegenüberstellt.",
       "verbindlichkeit": "soll",
-      "applies_to": ["proposal_development", "amendment", "entwurf"],
-      "source_section": "§ 44 Abs. 7 GGO"
+      "applies_to": [
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "§ 42 Gesetzesvorlagen der Bundesregierung",
+      "id": "ggo-05"
+    },
+    {
+      "category": "Aufbau Gesetzestext",
+      "rule": "Der Gesetzestext besteht grundsätzlich aus einer Überschrift, einer Eingangsformel und den in Paragraphen oder Artikeln gefassten Einzelvorschriften gemäß Anlage 4.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "amendment"
+      ],
+      "source_section": "§ 42 Gesetzesvorlagen der Bundesregierung",
+      "id": "ggo-06"
+    },
+    {
+      "category": "Folgeänderungen / Rechtsbereinigung",
+      "rule": "Gesetzentwürfe sollen die notwendigen Folgeänderungen in anderen Gesetzen und zum Zweck der Rechtsbereinigung die Aufhebung überholter Vorschriften vorsehen.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "entwurf",
+        "amendment",
+        "norm_identification"
+      ],
+      "source_section": "§ 42 Gesetzesvorlagen der Bundesregierung",
+      "id": "ggo-07"
+    },
+    {
+      "category": "Rechtsförmliche Gestaltung",
+      "rule": "Für die rechtsförmliche Gestaltung von Gesetzentwürfen gelten das vom Bundesministerium der Justiz herausgegebene Handbuch der Rechtsförmlichkeit und die im Einzelfall gegebenen Empfehlungen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "amendment",
+        "evaluation"
+      ],
+      "source_section": "§ 42 Gesetzesvorlagen der Bundesregierung",
+      "id": "ggo-08"
+    },
+    {
+      "category": "Vorbereitung von Gesetzentwürfen",
+      "rule": "Für die Vorbereitung von Gesetzentwürfen gilt das vom Bundesministerium des Innern herausgegebene Handbuch zur Vorbereitung von Rechts- und Verwaltungsvorschriften.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "§ 42 Gesetzesvorlagen der Bundesregierung",
+      "id": "ggo-09"
+    },
+    {
+      "category": "Barrierefreiheit",
+      "rule": "Gesetzentwürfe müssen so gefasst sein, dass sie den in der Barrierefreie-Informationstechnik-Verordnung für eine Veröffentlichung im Internet aufgestellten Kriterien Rechnung tragen, und für Nicht-Text-Elemente sind Begleittexte bereitzustellen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf"
+      ],
+      "source_section": "§ 42 Gesetzesvorlagen der Bundesregierung",
+      "id": "ggo-10"
+    },
+    {
+      "category": "EU-Notifizierung",
+      "rule": "Vor der Zuleitung an das Bundeskabinett sind notifizierungspflichtige Gesetze der Europäischen Kommission über das zuständige Wirtschaftsministerium im Entwurf zu übermitteln, und die Kabinettbehandlung erfolgt grundsätzlich erst nach Ablauf der vorgesehenen Fristen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "evaluation"
+      ],
+      "source_section": "§ 42 Gesetzesvorlagen der Bundesregierung",
+      "id": "ggo-11"
+    },
+    {
+      "category": "Verhältnismäßigkeitsprüfung Berufsregelungen",
+      "rule": "Gesetzentwürfe mit Vorschriften zur Beschränkung der Aufnahme oder Ausübung eines Berufs sind nach Maßgabe der Richtlinie (EU) 2018/958 auf ihre Übereinstimmung mit dem Grundsatz der Verhältnismäßigkeit zu überprüfen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "evaluation",
+        "entwurf"
+      ],
+      "source_section": "§ 42a Gesetzesvorlagen mit Regelungen zur Aufnahme oder Ausübung eines Berufs",
+      "id": "ggo-12"
+    },
+    {
+      "category": "Zeitpunkt der Prüfung",
+      "rule": "Die Verhältnismäßigkeitsprüfung bei Berufsreglementierungen erfolgt grundsätzlich vor der Zuleitung an das Bundeskabinett, spätestens jedoch vor dem Gesetzesbeschluss des Deutschen Bundestages.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "evaluation",
+        "entwurf"
+      ],
+      "source_section": "§ 42a Gesetzesvorlagen mit Regelungen zur Aufnahme oder Ausübung eines Berufs",
+      "id": "ggo-13"
+    },
+    {
+      "category": "Öffentlichkeitsbeteiligung",
+      "rule": "Bei Berufsreglementierungen ist die Öffentlichkeit nach Artikel 8 der Richtlinie (EU) 2018/958 zu beteiligen, indem die Gesetzentwürfe im Internet veröffentlicht werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "evaluation"
+      ],
+      "source_section": "§ 42a Gesetzesvorlagen mit Regelungen zur Aufnahme oder Ausübung eines Berufs",
+      "id": "ggo-14"
+    },
+    {
+      "category": "Begründung",
+      "rule": "In der Begründung sind die Zielsetzung und Notwendigkeit des Gesetzentwurfs und seiner Einzelvorschriften darzustellen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "§ 43 Begründung",
+      "id": "ggo-15"
+    },
+    {
+      "category": "Begründung",
+      "rule": "In der Begründung ist darzustellen, welcher Sachverhalt dem Gesetzentwurf zugrunde liegt und auf welchen Erkenntnisquellen er beruht.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "§ 43 Begründung",
+      "id": "ggo-16"
+    },
+    {
+      "category": "Alternativenprüfung",
+      "rule": "In der Begründung ist darzustellen, ob andere Lösungsmöglichkeiten bestehen und ob eine Erledigung der Aufgabe durch Private möglich ist, gegebenenfalls mit Erwägungen zu deren Ablehnung.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "evaluation"
+      ],
+      "source_section": "§ 43 Begründung",
+      "id": "ggo-17"
+    },
+    {
+      "category": "Selbstregulierung",
+      "rule": "In der Begründung ist darzustellen, ob administrative Pflichten oder Genehmigungsvorbehalte eingeführt oder erweitert werden und welche Gründe gegen eine Ersetzung durch eine rechtliche Selbstverpflichtung des Normadressaten sprechen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "evaluation"
+      ],
+      "source_section": "§ 43 Begründung",
+      "id": "ggo-18"
+    },
+    {
+      "category": "Gesetzesfolgen",
+      "rule": "In der Begründung sind die Gesetzesfolgen nach § 44 darzustellen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "evaluation"
+      ],
+      "source_section": "§ 43 Begründung",
+      "id": "ggo-19"
+    },
+    {
+      "category": "Inkrafttreten / Befristung",
+      "rule": "In der Begründung ist darzulegen, welche Erwägungen der Festlegung zum Inkrafttreten zugrunde liegen und ob das Gesetz befristet werden kann.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "§ 43 Begründung",
+      "id": "ggo-20"
+    },
+    {
+      "category": "Interessenermittlung",
+      "rule": "Zur Vorbereitung von Gesetzesvorlagen, die Belange der Länder oder Kommunen berühren, soll vor Abfassung eines Entwurfs die Auffassung der Länder und der kommunalen Spitzenverbände eingeholt werden.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "proposal_development",
+        "norm_identification"
+      ],
+      "source_section": "§ 41 Interessenermittlung",
+      "id": "ggo-21"
+    },
+    {
+      "category": "Unterrichtung Bundeskanzleramt",
+      "rule": "Soll eine Gesetzesvorlage ausgearbeitet werden, ist das Bundeskanzleramt zu benachrichtigen und laufend über den Stand der Ausarbeitung und die Zeitplanung zu unterrichten.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "proposal_development",
+        "entwurf"
+      ],
+      "source_section": "§ 40 Unterrichtung des Bundeskanzleramtes",
+      "id": "ggo-22"
     }
   ]
 }

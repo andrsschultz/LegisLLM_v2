@@ -233,12 +233,14 @@ class ApiClient {
     selectedLaws: string[] = [],
     guidelineIds: string[] = [],
     excludedRuleIds: string[] = [],
+    customRules: string[] = [],
     callbacks?: StreamCallbacks,
   ): Promise<NormEntry[]> {
     const body: Record<string, unknown> = { task_description: taskDescription };
     if (selectedLaws.length > 0) body.selected_laws = selectedLaws;
     if (guidelineIds.length > 0) body.guideline_ids = guidelineIds;
     if (excludedRuleIds.length > 0) body.excluded_rule_ids = excludedRuleIds;
+    if (customRules.length > 0) body.custom_rules = customRules;
 
     if (callbacks?.onThinking) {
       const endpoint = multistepReasoning ? 'identify_multistep' : 'identify';
@@ -257,11 +259,13 @@ class ApiClient {
     model: string,
     guidelineIds: string[] = [],
     excludedRuleIds: string[] = [],
+    customRules: string[] = [],
     callbacks?: StreamCallbacks,
   ): Promise<ProposalEntry[]> {
     const body: Record<string, unknown> = { task_description: taskDescription, relevant_norms: relevantNorms };
     if (guidelineIds.length > 0) body.guideline_ids = guidelineIds;
     if (excludedRuleIds.length > 0) body.excluded_rule_ids = excludedRuleIds;
+    if (customRules.length > 0) body.custom_rules = customRules;
 
     if (callbacks?.onThinking) {
       return this.streamRequest<ProposalEntry[]>('generate-proposals', 'generate_proposals', body, apiKey, model, callbacks);
@@ -279,6 +283,7 @@ class ApiClient {
     model: string,
     guidelineIds: string[] = [],
     excludedRuleIds: string[] = [],
+    customRules: string[] = [],
     callbacks?: StreamCallbacks,
   ): Promise<EvaluatedProposal[]> {
     const body: Record<string, unknown> = {
@@ -288,6 +293,7 @@ class ApiClient {
     };
     if (guidelineIds.length > 0) body.guideline_ids = guidelineIds;
     if (excludedRuleIds.length > 0) body.excluded_rule_ids = excludedRuleIds;
+    if (customRules.length > 0) body.custom_rules = customRules;
 
     if (callbacks?.onThinking) {
       return this.streamRequest<EvaluatedProposal[]>('evaluate-proposals', 'evaluate_proposals', body, apiKey, model, callbacks);
@@ -305,6 +311,7 @@ class ApiClient {
     model: string,
     guidelineIds: string[] = [],
     excludedRuleIds: string[] = [],
+    customRules: string[] = [],
     callbacks?: StreamCallbacks,
   ): Promise<DeepEvaluation | null> {
     const body: Record<string, unknown> = {
@@ -314,6 +321,7 @@ class ApiClient {
     };
     if (guidelineIds.length > 0) body.guideline_ids = guidelineIds;
     if (excludedRuleIds.length > 0) body.excluded_rule_ids = excludedRuleIds;
+    if (customRules.length > 0) body.custom_rules = customRules;
 
     if (callbacks?.onThinking) {
       const entries = await this.streamRequest<DeepEvaluation[]>('deep-evaluate', 'deep_evaluate_proposals', body, apiKey, model, callbacks);
@@ -334,6 +342,7 @@ class ApiClient {
     originalProposals?: ProposalEntry[],
     guidelineIds: string[] = [],
     excludedRuleIds: string[] = [],
+    customRules: string[] = [],
     callbacks?: StreamCallbacks,
   ): Promise<{ originalNorm: NormEntry; amendedNorm: NormEntry }[]> {
     let description = '';
@@ -356,6 +365,7 @@ class ApiClient {
     };
     if (guidelineIds.length > 0) body.guideline_ids = guidelineIds;
     if (excludedRuleIds.length > 0) body.excluded_rule_ids = excludedRuleIds;
+    if (customRules.length > 0) body.custom_rules = customRules;
 
     if (callbacks?.onThinking) {
       return this.streamRequest<{ originalNorm: NormEntry; amendedNorm: NormEntry }[]>('final-amendment', 'amend', body, apiKey, model, callbacks);
@@ -372,11 +382,13 @@ class ApiClient {
     model: string,
     guidelineIds: string[] = [],
     excludedRuleIds: string[] = [],
+    customRules: string[] = [],
     callbacks?: StreamCallbacks,
   ): Promise<{ response: string }> {
     const body: Record<string, unknown> = { task_description: taskDescription, final_amendments: finalAmendments };
     if (guidelineIds.length > 0) body.guideline_ids = guidelineIds;
     if (excludedRuleIds.length > 0) body.excluded_rule_ids = excludedRuleIds;
+    if (customRules.length > 0) body.custom_rules = customRules;
 
     if (callbacks?.onThinking) {
       const response = await this.streamRequest<string>('aenderungsbefehle', 'generate_aenderungsbefehle', body, apiKey, model, callbacks);
@@ -394,6 +406,7 @@ class ApiClient {
     finalAmendments?: AmendmentEntry[],
     guidelineIds: string[] = [],
     excludedRuleIds: string[] = [],
+    customRules: string[] = [],
     callbacks?: StreamCallbacks,
   ): Promise<{ response: string }> {
     const body: Record<string, unknown> = {
@@ -403,6 +416,7 @@ class ApiClient {
     };
     if (guidelineIds.length > 0) body.guideline_ids = guidelineIds;
     if (excludedRuleIds.length > 0) body.excluded_rule_ids = excludedRuleIds;
+    if (customRules.length > 0) body.custom_rules = customRules;
 
     if (callbacks?.onThinking) {
       const response = await this.streamRequest<string>('entwurf', 'generate_entwurf', body, apiKey, model, callbacks);
@@ -410,6 +424,30 @@ class ApiClient {
     }
 
     return this.standardRequest<{ response: string }>('entwurf', 'generate_entwurf', body, apiKey, model);
+  }
+  async extractGuideline(
+    file: File,
+    apiKey: string,
+    model: string,
+    customName?: string,
+  ): Promise<GuidelineCatalog> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('model', model);
+    if (customName) formData.append('custom_name', customName);
+
+    const response = await fetch(`${BACKEND_URL}/guidelines/extract`, {
+      method: 'POST',
+      headers: { 'X-API-Key': apiKey },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ detail: 'Upload fehlgeschlagen' }));
+      throw new Error(err.detail || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
   }
 }
 

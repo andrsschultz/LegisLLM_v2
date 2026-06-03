@@ -37,6 +37,7 @@ def get_available_guidelines(include_rules: bool = False) -> list[dict]:
             "id": c["id"],
             "name": c["name"],
             "rule_count": c.get("rule_count", len(c.get("rules", []))),
+            "source": c.get("source", ""),
         }
         if include_rules:
             entry["rules"] = c.get("rules", [])
@@ -82,13 +83,18 @@ def format_rules_for_prompt(
     guideline_ids: list[str],
     step: str,
     excluded_rule_ids: list[str] | None = None,
+    custom_rules: list[str] | None = None,
 ) -> str:
     """Format relevant rules as a text block for LLM prompt injection.
+
+    custom_rules: Pre-formatted rule strings from client-side custom
+        guidelines (stored in the user's browser, not on the server).
 
     Returns an empty string if no rules apply.
     """
     rules = get_rules_for_step(guideline_ids, step, excluded_rule_ids)
-    if not rules:
+    extra = custom_rules or []
+    if not rules and not extra:
         return ""
 
     lines = ["Beachte bei deiner Antwort die folgenden Vorgaben aus den ausgewählten Leitfäden:\n"]
@@ -96,6 +102,8 @@ def format_rules_for_prompt(
         verbindlichkeit = rule.get("verbindlichkeit", "").upper()
         prefix = f"[{verbindlichkeit}]" if verbindlichkeit else ""
         lines.append(f"- {prefix} {rule['rule']}")
+    for r in extra:
+        lines.append(f"- {r}")
 
     return "\n".join(lines)
 

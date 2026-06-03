@@ -7,6 +7,7 @@ import { DeepEvaluation, ProposalEntry } from '@/types';
 import { getApiKeyForModel } from '@/lib/apiKeyUtils';
 import ThinkingIndicator from '@/components/ThinkingIndicator';
 import { useThinkingSteps, THINKING_STEPS } from '@/hooks/useThinkingSteps';
+import { getCustomRulesForStep } from '@/lib/customRules';
 
 export default function EvaluationTab() {
   const {
@@ -58,6 +59,7 @@ export default function EvaluationTab() {
         state.selectedModel,
         state.selectedGuidelines,
         state.excludedRuleIds,
+        getCustomRulesForStep(state.customGuidelines, state.selectedGuidelines, state.excludedRuleIds, 'evaluation'),
         { onThinking: (token: string) => setEvalThinkingText(prev => prev + token) }
       );
 
@@ -110,6 +112,7 @@ export default function EvaluationTab() {
         state.selectedModel,
         state.selectedGuidelines,
         state.excludedRuleIds,
+        getCustomRulesForStep(state.customGuidelines, state.selectedGuidelines, state.excludedRuleIds, 'evaluation'),
         { onThinking: (token: string) => setDeepThinkingText(prev => prev + token) }
       );
 

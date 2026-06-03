@@ -1,170 +1,664 @@
 {
   "id": "hdr",
-  "name": "HdR – Handbuch der Rechtsförmlichkeit",
-  "source": "Bundesministerium der Justiz (BMJ)",
-  "version": "4. Auflage, 31.10.2024",
-  "url": "https://hdr4.bmj.de/",
-  "rule_count": 20,
+  "name": "Handbuch der Rechtsförmlichkeit",
+  "source": "Bundesministerium der Justiz",
+  "version": "Benutzerdefiniert",
+  "url": "",
+  "rule_count": 58,
   "rules": [
     {
-      "id": "hdr-01",
-      "category": "Gliederung",
-      "rule": "Ein Gesetz ist systematisch zu gliedern: Eingangsformel, Inhaltsübersicht (bei mehr als acht Paragraphen), Allgemeiner Teil, Besonderer Teil, Schlussvorschriften.",
+      "category": "Ordnungsprinzipien",
+      "rule": "Bei der Rechtsetzung müssen die Ordnungsprinzipien des Bundesrechts beachtet werden.",
       "verbindlichkeit": "muss",
-      "applies_to": ["entwurf", "amendment"],
-      "source_section": "Kapitel 3 – Aufbau von Gesetzen"
+      "applies_to": [],
+      "source_section": "Einleitende Hinweise",
+      "id": "hdr-01"
     },
     {
-      "id": "hdr-02",
-      "category": "Gliederung",
-      "rule": "Paragraphen sind fortlaufend zu nummerieren. Einfügebuchstaben (z.B. § 21a) sind nur bei Ergänzungen zulässig.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["amendment", "entwurf"],
-      "source_section": "Kapitel 3 – Aufbau von Gesetzen"
-    },
-    {
-      "id": "hdr-03",
-      "category": "Verweisungen",
-      "rule": "Verweisungen auf andere Vorschriften müssen die genaue Fundstelle angeben (Gesetz, Paragraph, Absatz, Satz, Nummer).",
-      "verbindlichkeit": "muss",
-      "applies_to": ["proposal_development", "amendment", "entwurf"],
-      "source_section": "Kapitel 5 – Verweisungen"
-    },
-    {
-      "id": "hdr-04",
-      "category": "Verweisungen",
-      "rule": "Dynamische Verweisungen ('in der jeweils geltenden Fassung') sind nur auf Rechtsnormen des gleichen Normgebers zulässig. Statische Verweisungen müssen das Datum und die Fundstelle der verwiesenen Fassung nennen.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["proposal_development", "amendment", "entwurf"],
-      "source_section": "Kapitel 5 – Verweisungen"
-    },
-    {
-      "id": "hdr-05",
-      "category": "Verweisungen",
-      "rule": "Zirkuläre Verweisungen (A verweist auf B, B verweist auf A) sind unzulässig.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["proposal_development", "amendment", "entwurf", "evaluation"],
-      "source_section": "Kapitel 5 – Verweisungen"
-    },
-    {
-      "id": "hdr-06",
-      "category": "Zitierweise",
-      "rule": "Bundesgesetze sind mit ihrer amtlichen Kurzbezeichnung und der Fundstelle im Bundesgesetzblatt zu zitieren: 'des Einkommensteuergesetzes in der Fassung der Bekanntmachung vom [Datum] (BGBl. I S. [Seite])'.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["proposal_development", "amendment", "entwurf"],
-      "source_section": "Kapitel 5 – Zitierweisen"
-    },
-    {
-      "id": "hdr-07",
-      "category": "Zitierweise",
-      "rule": "EU-Rechtsakte sind mit vollständigem Titel, Ordnungsnummer, Datum und Amtsblatt-Fundstelle zu zitieren.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["proposal_development", "amendment", "entwurf"],
-      "source_section": "Kapitel 5 – Zitierweisen"
-    },
-    {
-      "id": "hdr-08",
-      "category": "Änderungsvorschriften",
-      "rule": "Änderungsgesetze müssen den geänderten Normtext wörtlich wiedergeben. Die Änderungsbefehle lauten: 'wird wie folgt gefasst:', 'werden die Wörter ... durch die Wörter ... ersetzt', 'wird aufgehoben', 'wird eingefügt'.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["amendment", "entwurf"],
-      "source_section": "Kapitel 7 – Änderung von Gesetzen"
-    },
-    {
-      "id": "hdr-09",
-      "category": "Änderungsvorschriften",
-      "rule": "Änderungsbefehle sind in der Reihenfolge der zu ändernden Vorschrift zu gliedern, nicht nach sachlichen Gesichtspunkten.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["amendment", "entwurf"],
-      "source_section": "Kapitel 7 – Änderung von Gesetzen"
-    },
-    {
-      "id": "hdr-10",
-      "category": "Sprache",
-      "rule": "Gesetze sind in klarer, verständlicher Sprache zu formulieren. Fachbegriffe sind nur zu verwenden, wenn sie zur Bestimmtheit der Norm erforderlich sind.",
+      "category": "Aufbau und Verständlichkeit",
+      "rule": "Gesetz- und Verordnungsentwürfe sollen möglichst einheitlich aufgebaut und verständlich formuliert sein.",
       "verbindlichkeit": "soll",
-      "applies_to": ["proposal_development", "amendment", "entwurf"],
-      "source_section": "Kapitel 4 – Sprachliche Gestaltung"
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Einleitende Hinweise",
+      "id": "hdr-02"
     },
     {
-      "id": "hdr-11",
-      "category": "Sprache",
-      "rule": "Sätze sollen kurz und klar gegliedert sein. Schachtelsätze und mehrfache Einschübe sind zu vermeiden.",
+      "category": "Dokumentation von Änderungen",
+      "rule": "Änderungen der Rechtsvorschriften müssen eindeutig dokumentiert werden können.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "amendment"
+      ],
+      "source_section": "Einleitende Hinweise",
+      "id": "hdr-03"
+    },
+    {
+      "category": "Inhaltliche und juristische Korrektheit",
+      "rule": "Rechtsvorschriften müssen in inhaltlicher und in juristischer Hinsicht korrekt sein.",
+      "verbindlichkeit": "muss",
+      "applies_to": [],
+      "source_section": "Vorwort zur 4. Auflage",
+      "id": "hdr-04"
+    },
+    {
+      "category": "Übersichtlichkeit und Verständlichkeit",
+      "rule": "Rechtsvorschriften sollten übersichtlich gestaltet und möglichst verständlich formuliert sein.",
       "verbindlichkeit": "soll",
-      "applies_to": ["proposal_development", "amendment", "entwurf"],
-      "source_section": "Kapitel 4 – Sprachliche Gestaltung"
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Vorwort zur 4. Auflage",
+      "id": "hdr-05"
     },
     {
-      "id": "hdr-12",
-      "category": "Sprache",
-      "rule": "Innerhalb eines Gesetzes sind gleiche Sachverhalte mit gleichen Begriffen zu bezeichnen. Synonyme sind zu vermeiden.",
+      "category": "Personenbezeichnungen",
+      "rule": "Es soll das generische Maskulinum verwendet werden, und es dürfen keine sogenannten Genderzeichen wie Doppelpunkt, Unterstrich oder Sternchen verwendet werden.",
       "verbindlichkeit": "muss",
-      "applies_to": ["proposal_development", "amendment", "entwurf", "evaluation"],
-      "source_section": "Kapitel 4 – Sprachliche Gestaltung"
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Vorwort zur 4. Auflage; Teil B Abschnitt III 5.3 Personenbezeichnungen",
+      "id": "hdr-06"
     },
     {
-      "id": "hdr-13",
-      "category": "Fristen und Termine",
-      "rule": "Fristen sind eindeutig zu formulieren. Stichtagsregelungen müssen ein konkretes Datum enthalten.",
+      "category": "Verweisungen",
+      "rule": "Vor der Verwendung einer Verweisung müssen deren Vor- und Nachteile abgewogen und die Notwendigkeit der Verweisung geprüft werden.",
       "verbindlichkeit": "muss",
-      "applies_to": ["proposal_development", "amendment", "entwurf"],
-      "source_section": "Kapitel 6 – Fristen, Termine, Rückwirkung"
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt II 3.1 Allgemeines zur Verweisungstechnik",
+      "id": "hdr-07"
     },
     {
-      "id": "hdr-14",
-      "category": "Fristen und Termine",
-      "rule": "Rückwirkende Belastungen sind grundsätzlich unzulässig (echte Rückwirkung). Ausnahmen bedürfen einer besonderen verfassungsrechtlichen Rechtfertigung.",
-      "verbindlichkeit": "muss",
-      "applies_to": ["proposal_development", "evaluation", "entwurf"],
-      "source_section": "Kapitel 6 – Fristen, Termine, Rückwirkung"
-    },
-    {
-      "id": "hdr-15",
-      "category": "Übergangsvorschriften",
-      "rule": "Übergangsvorschriften sind vorzusehen, wenn eine Neuregelung in bestehende Rechtsverhältnisse eingreift. Sie regeln die Anwendbarkeit für Altfälle.",
+      "category": "Verweisungen",
+      "rule": "Verweisungsketten sollen vermieden werden.",
       "verbindlichkeit": "soll",
-      "applies_to": ["proposal_development", "amendment", "entwurf"],
-      "source_section": "Kapitel 8 – Übergangsvorschriften"
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt II 3.1 Allgemeines zur Verweisungstechnik",
+      "id": "hdr-08"
     },
     {
-      "id": "hdr-16",
+      "category": "Verweisungen",
+      "rule": "Verweisungen müssen dem Bestimmtheitsgebot entsprechen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt II 3.1 Allgemeines zur Verweisungstechnik",
+      "id": "hdr-09"
+    },
+    {
+      "category": "Verweisungen",
+      "rule": "Die Verweistauglichkeit der Bezugsquelle muss vor einer Verweisung geprüft werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt II 3.1 Allgemeines zur Verweisungstechnik",
+      "id": "hdr-10"
+    },
+    {
+      "category": "Verweisungen",
+      "rule": "Es muss eine Verweisungskontrolle durchgeführt werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "evaluation",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt II 3.1 Allgemeines zur Verweisungstechnik",
+      "id": "hdr-11"
+    },
+    {
+      "category": "Verweisungen",
+      "rule": "Dynamische Außenverweisungen müssen gekennzeichnet werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt II 3.2 Die einzelnen Verweisungsarten",
+      "id": "hdr-12"
+    },
+    {
+      "category": "Zitierung",
+      "rule": "Bei der Zitierung von Rechtsvorschriften des Bundes ist grundsätzlich das Vollzitat zu verwenden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt II 2.1 Bildung und Verwendung des Vollzitats",
+      "id": "hdr-13"
+    },
+    {
+      "category": "Zitierung",
+      "rule": "Bei mehrfacher Zitierung derselben Rechtsvorschrift ist kein Vollzitat erforderlich.",
+      "verbindlichkeit": "kann",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt II 2.1 Bildung und Verwendung des Vollzitats",
+      "id": "hdr-14"
+    },
+    {
+      "category": "Zitierung",
+      "rule": "Gliederungseinheiten von Rechtsvorschriften müssen bei der Zitierung ausgeschrieben werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt II 2.3 Zitierung der Gliederungseinheiten",
+      "id": "hdr-15"
+    },
+    {
+      "category": "EU-Recht",
+      "rule": "Über die Art der Verweisung auf einen EU-Rechtsakt (statisch oder dynamisch) ist zu entscheiden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt II 6.2.3.1 Verweisungen auf veränderliches Recht der EU",
+      "id": "hdr-16"
+    },
+    {
+      "category": "EU-Recht",
+      "rule": "Statische Verweisungen auf EU-Rechtsakte müssen gekennzeichnet und regelmäßig überprüft werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "evaluation",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt II 6.2.3.1 Verweisungen auf veränderliches Recht der EU",
+      "id": "hdr-17"
+    },
+    {
+      "category": "EU-Recht",
+      "rule": "Bei der Umsetzung von Richtlinien der Europäischen Union muss das europarechtliche Zitiergebot durch einen Umsetzungshinweis beachtet werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt II 6.3.1 Zitiergebot bei der Umsetzung von Richtlinien",
+      "id": "hdr-18"
+    },
+    {
+      "category": "EU-Recht",
+      "rule": "Bei der Durchführung von EU-Verordnungen ist das Wiederholungsverbot zu beachten.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt II 6.4.2 Europarechtskonforme Regelungen zur Durchführung von EU-Verordnungen",
+      "id": "hdr-19"
+    },
+    {
       "category": "Inkrafttreten",
-      "rule": "Jedes Gesetz muss eine Inkrafttretensregelung enthalten. Der Zeitpunkt des Inkrafttretens ist eindeutig zu bestimmen.",
+      "rule": "Für jede Rechtsvorschrift besteht eine Regelungspflicht hinsichtlich des Inkrafttretens.",
       "verbindlichkeit": "muss",
-      "applies_to": ["amendment", "entwurf"],
-      "source_section": "Kapitel 9 – Inkrafttreten und Außerkrafttreten"
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt II 5.2 Allgemeine Vorgaben zum Inkrafttreten",
+      "id": "hdr-20"
     },
     {
-      "id": "hdr-17",
+      "category": "Inkrafttreten",
+      "rule": "Bei rückwirkendem Inkrafttreten ist eine Zulässigkeits- und Zweckmäßigkeitsprüfung durchzuführen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "evaluation",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt II 5.4 Verschiedene Inkrafttretenszeitpunkte",
+      "id": "hdr-21"
+    },
+    {
+      "category": "Geltungsdauer",
+      "rule": "Es gilt der Grundsatz der unbefristeten Geltung von Gesetzen.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt II 5.6 Befristung; Außerkrafttreten",
+      "id": "hdr-22"
+    },
+    {
+      "category": "Verständlichkeit",
+      "rule": "Rechtsvorschriften sollen sich auf Regelungen beschränken und Überflüssiges vermeiden.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt III 2.1 Beschränkung auf Regelungen",
+      "id": "hdr-23"
+    },
+    {
+      "category": "Verständlichkeit",
+      "rule": "Der maßgebliche Adressatenkreis der Rechtsvorschrift muss ermittelt und berücksichtigt werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt III 2.2 Berücksichtigung verschiedener Adressaten",
+      "id": "hdr-24"
+    },
+    {
+      "category": "Konsistenz",
+      "rule": "Gleiches soll möglichst gleich formuliert werden.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt III 2.5 Konsistenz",
+      "id": "hdr-25"
+    },
+    {
+      "category": "Konsistenz",
+      "rule": "Die Terminologie soll sich am geltenden Recht orientieren.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt III 2.5 Konsistenz",
+      "id": "hdr-26"
+    },
+    {
+      "category": "Sprachliche Richtigkeit",
+      "rule": "Rechtschreibung, Grammatik und Semantik müssen korrekt sein.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt III 2.6 Sprachliche Richtigkeit",
+      "id": "hdr-27"
+    },
+    {
       "category": "Bestimmtheit",
-      "rule": "Normen müssen dem verfassungsrechtlichen Bestimmtheitsgebot genügen: Der Normadressat muss erkennen können, welches Verhalten von ihm erwartet wird.",
+      "rule": "Rechtsvorschriften müssen dem Bestimmtheitsgebot genügen und inhaltlich präzise sein.",
       "verbindlichkeit": "muss",
-      "applies_to": ["proposal_development", "amendment", "entwurf", "evaluation"],
-      "source_section": "Kapitel 2 – Verfassungsrechtliche Anforderungen"
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt III 2.4 Inhaltliche Präzision",
+      "id": "hdr-28"
     },
     {
-      "id": "hdr-18",
-      "category": "Ermächtigungen",
-      "rule": "Verordnungsermächtigungen müssen Inhalt, Zweck und Ausmaß der Ermächtigung bestimmen (Art. 80 Abs. 1 Satz 2 GG).",
-      "verbindlichkeit": "muss",
-      "applies_to": ["proposal_development", "amendment", "entwurf"],
-      "source_section": "Kapitel 10 – Rechtsverordnungen"
+      "category": "Legaldefinitionen",
+      "rule": "Definitionen sollen einheitlich und widerspruchsfrei verwendet werden, und überflüssige Definitionen sollen vermieden werden.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt III 3.3 Begriffsbestimmungen und Legaldefinitionen",
+      "id": "hdr-29"
     },
     {
-      "id": "hdr-19",
-      "category": "Begründung",
-      "rule": "Die Gesetzesbegründung muss den Regelungsbedarf, das Regelungsziel und die wesentlichen Erwägungen für die gewählte Lösung darlegen.",
+      "category": "Legaldefinitionen",
+      "rule": "In einer Definition darf keine weitere Definition enthalten sein und in Begriffsbestimmungen dürfen keine Regelungen getroffen werden.",
       "verbindlichkeit": "muss",
-      "applies_to": ["proposal_development", "evaluation", "entwurf"],
-      "source_section": "Kapitel 11 – Begründung"
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt III 3.3 Begriffsbestimmungen und Legaldefinitionen",
+      "id": "hdr-30"
     },
     {
-      "id": "hdr-20",
-      "category": "Begründung",
-      "rule": "Jede Einzelvorschrift ist in der Begründung gesondert zu erläutern (Einzelbegründung).",
+      "category": "Satzbau",
+      "rule": "Es soll ein möglichst einfacher Satzbau verwendet werden mit einer Regelungsaussage pro Satz.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt III 4.1 Grundsätze",
+      "id": "hdr-31"
+    },
+    {
+      "category": "Satzbau",
+      "rule": "Nominal- und Verbalklammern sollen verkleinert und eindeutige Bezüge im Satz hergestellt werden.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt III 4.3 Eindeutige Bezüge im Satz",
+      "id": "hdr-32"
+    },
+    {
+      "category": "Negation",
+      "rule": "Negationen sollen sparsam verwendet werden.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt III 4.5 Negation",
+      "id": "hdr-33"
+    },
+    {
+      "category": "Wortwahl",
+      "rule": "Es sollen allgemeinsprachliche Wörter verwendet und Begriffe konsistent gebraucht werden.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt III 5.1 Allgemeine Hinweise zur Wortwahl",
+      "id": "hdr-34"
+    },
+    {
+      "category": "Wortwahl",
+      "rule": "Fachwörter sollen einheitlich verwendet werden.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt III 5.2 Fachwörter und Fremdwörter",
+      "id": "hdr-35"
+    },
+    {
+      "category": "Personenbezeichnungen",
+      "rule": "Bei Personenbezeichnungen dürfen keine Sparschreibungen verwendet werden.",
       "verbindlichkeit": "muss",
-      "applies_to": ["proposal_development", "evaluation", "entwurf"],
-      "source_section": "Kapitel 11 – Begründung"
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt III 5.3 Personenbezeichnungen",
+      "id": "hdr-36"
+    },
+    {
+      "category": "Rechtschreibung",
+      "rule": "Die geltenden Rechtschreibregeln sind anzuwenden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt III 6.1 Rechtschreibung",
+      "id": "hdr-37"
+    },
+    {
+      "category": "Abkürzungen",
+      "rule": "Im Regelungsteil dürfen keine Kurzformen verwendet werden, außer den ausdrücklich erlaubten Kurzformen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt III 6.2 Abkürzungen und Kurzwörter",
+      "id": "hdr-38"
+    },
+    {
+      "category": "Typografie",
+      "rule": "Der Schrägstrich soll unterlassen werden.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil B Abschnitt III 6.3 Satzzeichen und typografische Mittel",
+      "id": "hdr-39"
+    },
+    {
+      "category": "Normenhierarchie",
+      "rule": "Bei der Konzipierung von Regelungsaussagen muss die Normenhierarchie beachtet werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "norm_identification",
+        "proposal_development",
+        "entwurf"
+      ],
+      "source_section": "Teil B Abschnitt I Vorgehen beim Verfassen von Rechtsvorschriften",
+      "id": "hdr-40"
+    },
+    {
+      "category": "Systematik",
+      "rule": "Rechtsänderungen müssen systemgerecht erfolgen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "amendment",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt I Vorgehen beim Verfassen von Rechtsvorschriften",
+      "id": "hdr-41"
+    },
+    {
+      "category": "Grundrechtseinschränkung",
+      "rule": "Bei Grundrechtseinschränkungen muss das Zitiergebot nach Artikel 19 des Grundgesetzes beachtet werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development",
+        "amendment"
+      ],
+      "source_section": "Teil C 8 Zitiergebot nach Artikel 19 des Grundgesetzes",
+      "id": "hdr-42"
+    },
+    {
+      "category": "Verordnungsermächtigung",
+      "rule": "Verordnungsermächtigungen müssen die Exekutive hinreichend bestimmt ermächtigen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil C 5 Ermächtigung zum Erlass von Rechtsverordnungen",
+      "id": "hdr-43"
+    },
+    {
+      "category": "Überschrift Stammgesetz",
+      "rule": "Die Überschrift eines Stammgesetzes muss aus den vorgeschriebenen Bestandteilen (Bezeichnung, ggf. Kurzbezeichnung und Abkürzung) bestehen.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil C 2 Überschrift des Stammgesetzes",
+      "id": "hdr-44"
+    },
+    {
+      "category": "Änderungstechnik",
+      "rule": "Bei Änderungsgesetzen müssen ein Eingangssatz und eindeutige Änderungsbefehle verwendet werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Teil D 2 Änderungstechnik",
+      "id": "hdr-45"
+    },
+    {
+      "category": "Änderungstechnik",
+      "rule": "Für Änderungen sind die standardisierten Änderungsbefehle „streichen“, „einfügen“, „ersetzen“ und „wird zu“ bzw. „werden zu“ zu verwenden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Teil D 2.2 Die Änderungstechnik im Einzelnen",
+      "id": "hdr-46"
+    },
+    {
+      "category": "Änderungstechnik",
+      "rule": "Statt einer Flickenlösung soll bei umfangreichen Änderungen eine neue Struktur gewählt werden.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "amendment",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt III 3.2 Rechtsförmliche Struktur",
+      "id": "hdr-47"
+    },
+    {
+      "category": "Folgeänderungen",
+      "rule": "Folgeänderungen innerhalb des Stammgesetzes sowie in anderen Stammgesetzen und -verordnungen müssen mit vorgenommen werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Teil D 2.4 Folgeänderungen",
+      "id": "hdr-48"
+    },
+    {
+      "category": "Übergangsrecht",
+      "rule": "Aus Anlass der Änderung von Gesetzen muss geprüft werden, ob Übergangsvorschriften erforderlich sind, und diese sind am richtigen Standort zu verorten.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "amendment",
+        "proposal_development",
+        "entwurf"
+      ],
+      "source_section": "Teil D 3 Übergangsrecht aus Anlass der Änderung von Gesetzen",
+      "id": "hdr-49"
+    },
+    {
+      "category": "Grundrechtseinschränkung",
+      "rule": "In Änderungsgesetzen mit grundrechtseinschränkenden Vorschriften muss das Zitiergebot des Grundgesetzes beachtet werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "amendment",
+        "entwurf"
+      ],
+      "source_section": "Teil D 2.5.8 Zitiergebot des Grundgesetzes in Änderungsgesetzen",
+      "id": "hdr-50"
+    },
+    {
+      "category": "Evaluierung",
+      "rule": "Bei Rechtsänderungen ist eine Evaluierung zu prüfen bzw. vorzusehen.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "amendment",
+        "evaluation",
+        "proposal_development"
+      ],
+      "source_section": "Teil D 4 Evaluierung von Rechtsänderungen",
+      "id": "hdr-51"
+    },
+    {
+      "category": "Rechtsverordnungen",
+      "rule": "Die Eingangsformel einer Rechtsverordnung muss die notwendigen Angaben enthalten und nach den vorgegebenen Schemata gebildet werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil E 2 Eingangsformeln von Rechtsverordnungen",
+      "id": "hdr-52"
+    },
+    {
+      "category": "Parlamentarisches Verfahren",
+      "rule": "Formulierungshilfen für die Änderung von Gesetzentwürfen im parlamentarischen Verfahren sind in Form von Synopsen oder Änderungsanweisungen zu erstellen.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "amendment"
+      ],
+      "source_section": "Teil F Formulierungshilfen für die Änderung von Gesetzentwürfen",
+      "id": "hdr-53"
+    },
+    {
+      "category": "Rechtsprüfung",
+      "rule": "Jeder Regelungsentwurf muss einer rechtssystematischen (vertikalen und horizontalen), rechtsförmlichen und sprachlichen Prüfung unterzogen werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "evaluation"
+      ],
+      "source_section": "Teil A 2.2 Inhalt der Rechtsprüfung",
+      "id": "hdr-54"
+    },
+    {
+      "category": "Rechtsprüfung",
+      "rule": "Die Verfassungsmäßigkeit des Entwurfs muss anhand verfassungsrechtlicher Kontrollfragen geprüft werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "evaluation"
+      ],
+      "source_section": "Teil A 2.4 Prüfung der Verfassungsmäßigkeit",
+      "id": "hdr-55"
+    },
+    {
+      "category": "Neubekanntmachung",
+      "rule": "Bei der Neufassung von Gesetzen und Rechtsverordnungen müssen die Vorgaben für Bekanntmachungstext und Neufassung des Regelungstextes beachtet werden.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "amendment"
+      ],
+      "source_section": "Teil G Bekanntmachung der Neufassung von Gesetzen und Rechtsverordnungen",
+      "id": "hdr-56"
+    },
+    {
+      "category": "Aufzählungen",
+      "rule": "Bei Aufzählungen muss klar erkennbar sein, ob sie alternativ oder kumulativ und ob sie beispielhaft oder abschließend sind.",
+      "verbindlichkeit": "muss",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt III 4.4 Aufzählungen",
+      "id": "hdr-57"
+    },
+    {
+      "category": "Aufzählungen",
+      "rule": "„Sandwich“-Strukturen bei Listen sollen vermieden werden.",
+      "verbindlichkeit": "soll",
+      "applies_to": [
+        "entwurf",
+        "proposal_development"
+      ],
+      "source_section": "Teil B Abschnitt III 4.4 Aufzählungen",
+      "id": "hdr-58"
     }
   ]
 }
