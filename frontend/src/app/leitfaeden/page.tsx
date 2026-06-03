@@ -28,6 +28,7 @@ export default function LeitfaedenPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [serverGuidelines, setServerGuidelines] = useState<GuidelineCatalog[]>([]);
   const [stepFilter, setStepFilter] = useState('');
+  const [expandedCatalogs, setExpandedCatalogs] = useState<Set<string>>(new Set());
 
   // Upload state
   const [uploading, setUploading] = useState(false);
@@ -202,10 +203,21 @@ export default function LeitfaedenPage() {
             {/* Guideline catalogs */}
             {allGuidelines.map(g => {
               const isSelected = state.selectedGuidelines.includes(g.id);
+              const isExpanded = expandedCatalogs.has(g.id);
               const rules = g.rules || [];
               const filteredRules = filterRulesByStep(rules);
               const activeRuleCount = filteredRules.filter(r => !state.excludedRuleIds.includes(r.id)).length;
               const isCustom = customIds.has(g.id);
+              const displayRuleCount = stepFilter ? filteredRules.length : g.rule_count;
+
+              const toggleExpanded = () => {
+                setExpandedCatalogs(prev => {
+                  const next = new Set(prev);
+                  if (next.has(g.id)) next.delete(g.id);
+                  else next.add(g.id);
+                  return next;
+                });
+              };
 
               return (
                 <div
@@ -214,9 +226,12 @@ export default function LeitfaedenPage() {
                     isSelected ? 'border-slate-300 ring-1 ring-slate-200' : 'border-slate-200'
                   }`}
                 >
-                  {/* Catalog header */}
+                  {/* Catalog header — click to expand/collapse */}
                   <div className="p-5 flex items-start justify-between gap-4">
-                    <div className="min-w-0 flex-1">
+                    <button
+                      onClick={toggleExpanded}
+                      className="min-w-0 flex-1 text-left"
+                    >
                       <div className="flex items-center gap-2">
                         <h2 className="text-lg font-semibold text-slate-800 leading-snug">{g.name}</h2>
                         {isCustom && (
@@ -224,14 +239,20 @@ export default function LeitfaedenPage() {
                             Lokal
                           </span>
                         )}
+                        <svg
+                          className={`w-4 h-4 text-slate-400 transition-transform duration-200 flex-shrink-0 ${isExpanded ? 'rotate-180' : ''}`}
+                          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
                       </div>
                       <p className="text-sm text-slate-500 mt-1">
-                        {g.rule_count} Regeln gesamt
+                        {displayRuleCount} Regeln{stepFilter ? '' : ' gesamt'}
                         {isSelected && filteredRules.length > 0 && (
-                          <span> &middot; {activeRuleCount}/{filteredRules.length} aktiv{stepFilter ? ' (gefiltert)' : ''}</span>
+                          <span> &middot; {activeRuleCount}/{filteredRules.length} aktiv</span>
                         )}
                       </p>
-                    </div>
+                    </button>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {isCustom && (
                         <button
@@ -262,56 +283,61 @@ export default function LeitfaedenPage() {
                     </div>
                   </div>
 
-                  {/* Rules list (only when selected) */}
-                  {isSelected && filteredRules.length > 0 && (
-                    <div className="border-t border-slate-100 px-5 py-4 space-y-2">
-                      {filteredRules.map(rule => {
-                        const badge = VERBINDLICHKEIT_LABEL[rule.verbindlichkeit];
-                        const isExcluded = state.excludedRuleIds.includes(rule.id);
+                  {/* Expanded: rules list */}
+                  {isExpanded && (
+                    <div className="border-t border-slate-100">
+                      {/* Rules list */}
+                      {filteredRules.length > 0 && (
+                        <div className="border-t border-slate-100 px-5 py-4 space-y-2">
+                          {filteredRules.map(rule => {
+                            const badge = VERBINDLICHKEIT_LABEL[rule.verbindlichkeit];
+                            const isExcluded = state.excludedRuleIds.includes(rule.id);
 
-                        return (
-                          <button
-                            key={rule.id}
-                            onClick={() => {
-                              const next = isExcluded
-                                ? state.excludedRuleIds.filter(id => id !== rule.id)
-                                : [...state.excludedRuleIds, rule.id];
-                              setExcludedRuleIds(next);
-                            }}
-                            className={`w-full text-left rounded-lg px-3 py-2.5 text-sm transition-all duration-150 ${
-                              isExcluded
-                                ? 'bg-slate-50 text-slate-400'
-                                : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
-                            }`}
-                          >
-                            <div className="flex items-start gap-2">
-                              <span className={`flex-shrink-0 mt-0.5 w-4 h-4 rounded border flex items-center justify-center ${
-                                isExcluded
-                                  ? 'border-slate-300 bg-white'
-                                  : 'border-slate-500 bg-slate-500'
-                              }`}>
-                                {!isExcluded && (
-                                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                  </svg>
-                                )}
-                              </span>
-                              {badge && (
-                                <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold flex-shrink-0 mt-0.5 ${badge.className} ${isExcluded ? 'opacity-50' : ''}`}>
-                                  {badge.text}
-                                </span>
-                              )}
-                              <span className={isExcluded ? 'line-through' : ''}>{rule.rule}</span>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
+                            return (
+                              <button
+                                key={rule.id}
+                                onClick={() => {
+                                  const next = isExcluded
+                                    ? state.excludedRuleIds.filter(id => id !== rule.id)
+                                    : [...state.excludedRuleIds, rule.id];
+                                  setExcludedRuleIds(next);
+                                }}
+                                className={`w-full text-left rounded-lg px-3 py-2.5 text-sm transition-all duration-150 ${
+                                  isExcluded
+                                    ? 'bg-slate-50 text-slate-400'
+                                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
+                                }`}
+                              >
+                                <div className="flex items-start gap-2">
+                                  <span className={`flex-shrink-0 mt-0.5 w-4 h-4 rounded border flex items-center justify-center ${
+                                    isExcluded
+                                      ? 'border-slate-300 bg-white'
+                                      : 'border-slate-500 bg-slate-500'
+                                  }`}>
+                                    {!isExcluded && (
+                                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                      </svg>
+                                    )}
+                                  </span>
+                                  {badge && (
+                                    <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold flex-shrink-0 mt-0.5 ${badge.className} ${isExcluded ? 'opacity-50' : ''}`}>
+                                      {badge.text}
+                                    </span>
+                                  )}
+                                  <span className={isExcluded ? 'line-through' : ''}>{rule.rule}</span>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
 
-                  {isSelected && filteredRules.length === 0 && stepFilter && (
-                    <div className="border-t border-slate-100 px-5 py-4">
-                      <p className="text-sm text-slate-400 italic">Keine Regeln für diesen Schritt.</p>
+                      {filteredRules.length === 0 && stepFilter && (
+                        <div className="border-t border-slate-100 px-5 py-4">
+                          <p className="text-sm text-slate-400 italic">Keine Regeln für diesen Schritt.</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
