@@ -10,11 +10,11 @@ import { GuidelineCatalog, GuidelineRule } from '@/types';
 
 const STEP_LABELS: { key: string; label: string }[] = [
   { key: '', label: 'Alle Schritte' },
-  { key: 'norm_identification', label: 'Normerkennung' },
-  { key: 'proposal_development', label: 'Vorschläge' },
-  { key: 'evaluation', label: 'Bewertung' },
-  { key: 'amendment', label: 'Änderung' },
-  { key: 'entwurf', label: 'Entwurf' },
+  { key: 'norm_identification', label: 'Regelungskontext' },
+  { key: 'proposal_development', label: 'Regelungsalternativen' },
+  { key: 'evaluation', label: 'Evaluierung' },
+  { key: 'amendment', label: 'Umsetzung' },
+  { key: 'entwurf', label: 'Gesetzesentwurf' },
 ];
 
 const VERBINDLICHKEIT_LABEL: Record<string, { text: string; className: string }> = {

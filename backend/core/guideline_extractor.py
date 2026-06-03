@@ -32,7 +32,12 @@ Für jede Regel bestimme:
 2. **rule**: Den vollständigen Regeltext als einen Satz
 3. **verbindlichkeit**: "muss" (zwingend), "soll" (grundsätzlich verbindlich) oder "kann" (optional/empfohlen)
 4. **applies_to**: Liste der Workflow-Schritte, für die die Regel relevant ist. \
-Mögliche Werte: "norm_identification", "proposal_development", "evaluation", "amendment", "entwurf". \
+Mögliche Werte: \
+"norm_identification" (Regelungskontext: Identifikation relevanter Normen), \
+"proposal_development" (Regelungsalternativen: Entwicklung von Änderungsvorschlägen), \
+"evaluation" (Evaluierung: Bewertung der Vorschläge), \
+"amendment" (Umsetzung: Erstellung des Änderungswortlauts), \
+"entwurf" (Gesetzesentwurf: Erstellung des finalen Entwurfs). \
 Wenn eine Regel für alle Schritte gilt, verwende ein leeres Array [].
 5. **source_section**: Die Abschnitts-/Kapitelbezeichnung aus dem Originaldokument
 
