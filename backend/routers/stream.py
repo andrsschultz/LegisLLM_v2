@@ -109,29 +109,32 @@ async def stream_identify(
             if isinstance(event, str):
                 yield event
             else:
-                # event is the raw_entries list
-                raw_entries = event
-                data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
-                extracted_sections = {}
-                norm_entries = []
-                for entry in raw_entries:
-                    jurabk = entry["jurabk"]
-                    enbez = entry["enbez"]
-                    section_key = f"{jurabk}|{enbez}"
-                    if section_key in extracted_sections:
-                        wording = extracted_sections[section_key]
-                    else:
-                        xml_file = resolve_law_xml_path(data_dir, jurabk)
-                        section_num = enbez.replace("§", "").strip()
-                        wording = ""
-                        try:
-                            wording = extract_section_from_law(xml_file, section_num)
-                            extracted_sections[section_key] = wording
-                        except Exception:
-                            wording = f"Fehler beim Laden des Wortlauts für {jurabk} {enbez}"
-                            extracted_sections[section_key] = wording
-                    norm_entries.append(NormEntry(jurabk=jurabk, enbez=enbez, P=None, wording=wording))
-                yield sse_result({"entries": [e.model_dump() for e in norm_entries]})
+                try:
+                    raw_entries = event
+                    data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+                    extracted_sections = {}
+                    norm_entries = []
+                    for entry in raw_entries:
+                        jurabk = entry.get("jurabk", "")
+                        enbez = entry.get("enbez", "")
+                        if not jurabk or not enbez:
+                            continue
+                        section_key = f"{jurabk}|{enbez}"
+                        if section_key in extracted_sections:
+                            wording = extracted_sections[section_key]
+                        else:
+                            xml_file = resolve_law_xml_path(data_dir, jurabk)
+                            section_num = enbez.replace("§", "").strip()
+                            try:
+                                wording = extract_section_from_law(xml_file, section_num)
+                                extracted_sections[section_key] = wording
+                            except Exception:
+                                wording = f"Fehler beim Laden des Wortlauts für {jurabk} {enbez}"
+                                extracted_sections[section_key] = wording
+                        norm_entries.append(NormEntry(jurabk=jurabk, enbez=enbez, P=None, wording=wording))
+                    yield sse_result({"entries": [e.model_dump() for e in norm_entries]})
+                except Exception as exc:
+                    yield sse_error(str(exc))
 
     return _make_sse_response(generate())
 
