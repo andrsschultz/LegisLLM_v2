@@ -73,10 +73,12 @@ async def _stream_task(task: asyncio.Task, queue: asyncio.Queue):
             step_index, message = payload
             yield sse_step(step_index, message)
 
-    # Return result or error
+    # Return result or error.
+    # Wrap string results in a tuple so callers can distinguish them from
+    # SSE event strings via isinstance(event, str).
     try:
         result = task.result()
-        yield result  # Caller provides the final sse_result
+        yield (result,) if isinstance(result, str) else result
     except Exception as e:
         yield sse_error(str(e))
 
@@ -397,7 +399,7 @@ async def stream_aenderungsbefehle(
             if isinstance(event, str):
                 yield event
             else:
-                yield sse_result({"response": event})
+                yield sse_result({"response": event[0]})
 
     return _make_sse_response(generate())
 
@@ -429,6 +431,6 @@ async def stream_entwurf(
             if isinstance(event, str):
                 yield event
             else:
-                yield sse_result({"response": event})
+                yield sse_result({"response": event[0]})
 
     return _make_sse_response(generate())
