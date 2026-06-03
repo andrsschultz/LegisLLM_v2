@@ -4,11 +4,9 @@ import React from 'react';
 import { useApp } from '@/contexts/AppContext';
 
 const suggestions = [
+  "Einführung einer antragslosen Kindergeldgewährung durch die Familienkasse nach der Geburt eines Kindes",
   "Einführung einer Freigrenze für Einnahmen aus Vermietung und Verpachtung",
-  "Die Pendlerpauschale wird zum 01.01.2026 auf 38 Cent ab dem ersten Kilometer dauerhaft erhöht",
-  "Der Gewerbesteuer-Mindesthebesatz wird von 200 auf 280 Prozent erhöht",
   "Steuerfreistellung von Überstundenzuschlägen, die über die tariflich vereinbarte beziehungsweise an Tarifverträgen orientierte Vollzeitarbeit hinausgehen",
-  "Ausnahme gemeinnütziger Organisationen mit Einnahmen bis 100.000 Euro vom Erfordernis einer zeitnahen Mittelverwendung"
 ];
 
 export default function TaskDescriptionTab() {

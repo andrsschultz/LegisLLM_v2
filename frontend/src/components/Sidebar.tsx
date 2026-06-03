@@ -23,6 +23,13 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
   // Merge server + custom (localStorage) guidelines for accurate count
   const totalGuidelineCount = serverGuidelines.length + state.customGuidelines.length;
 
+  // Only count selected guidelines that actually exist (filter out stale localStorage IDs)
+  const allKnownIds = useMemo(
+    () => new Set([...serverGuidelines.map(g => g.id), ...state.customGuidelines.map(g => g.id)]),
+    [serverGuidelines, state.customGuidelines],
+  );
+  const activeGuidelineCount = state.selectedGuidelines.filter(id => allKnownIds.has(id)).length;
+
   // Use external state if provided, otherwise use internal state
   const collapsed = isCollapsed !== undefined ? isCollapsed : internalCollapsed;
   const toggle = useMemo(() => onToggle || (() => setInternalCollapsed(!internalCollapsed)), [onToggle]);
@@ -152,8 +159,8 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                   <div className="min-w-0">
                     <h2 className="text-lg font-semibold text-slate-800">Leitfäden</h2>
                     <p className="text-sm text-slate-500 mt-0.5">
-                      {state.selectedGuidelines.length > 0
-                        ? `${state.selectedGuidelines.length} von ${totalGuidelineCount} aktiv`
+                      {activeGuidelineCount > 0
+                        ? `${activeGuidelineCount} von ${totalGuidelineCount} aktiv`
                         : `${totalGuidelineCount} verfügbar`}
                       {state.excludedRuleIds.length > 0 && (
                         <span className="block text-xs text-slate-400 mt-0.5">
